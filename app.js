@@ -10,18 +10,61 @@ const http = require('http').createServer(app);
 //Client and NS communications
 const mqtt = require("mqtt");
 
-const homeSensor = require('./homeSensor.json')
+const uplinkHomeSensor = require('./createUplinkJSON')
+    ('./resources/testHomeSensor.csv', 'uplinkHomeSensor.json')
+
+const io = require('socket.io')(http);
 const decode = require('./decode.js')
 
-const createDownlinkJSON = require('./createDownlinkJSON.js')
-const createUplinkJSON = require('./createUplinkJSON.js')
+let sessions = {}
 
-createUplinkJSON('./resources/testHomeSensor.csv', 'uplinkHomeSensor.json')
-createDownlinkJSON('./resources/testHomeSensor.csv', 'downlinkHomeSensor.json')
+http.listen(13337);
 
-http.listen(2000);
+io.on("connection",(socket)=> {
+    console.log(socket.id + ": I connected!")
+    sessions[socket.id] = {}
 
-const mqttClient = mqtt.connect("https://lorawan-ns-na.tektelic.com",
+    socket.on("mqttConnect", ({username, password, server, sensor})=> {
+        console.log(socket.id + ": I received mqttConnect!", username, password, server)
+
+        if (sessions[socket.id].hasOwnProperty("mqttConnection")){
+            sessions[socket.id].mqttConnection.end()
+        }
+        sessions[socket.id].mqttConnection = mqtt.connect(server, {"username": username, "password": password})
+        sessions[socket.id].mqttConnection.subscribe("app/#")
+        sessions[socket.id].mqttConnection.on("connect", ()=>{
+            console.log(socket.id + ": MQTT Connected")
+            socket.emit("mqttConnected")
+        })
+        sessions[socket.id].mqttConnection.on("message", (topic, raw)=>{
+            var receivedObject = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(raw)));
+            receivedObject.serverTimestamp = Date.now()
+            var uplink = {
+                "payload": receivedObject.payload,
+                "port": receivedObject.payloadMetaData.fport,
+                "deveui": receivedObject.payloadMetaData.deviceMetaData.deviceEUI
+            };
+            var emitMsg = {raw: receivedObject, decoded: {man: "I got nothing to decode yet, sorry"}}
+            socket.emit("mqttMessage", emitMsg)
+            console.log("emitted the following message to ", socket.id)
+            console.log(emitMsg)
+            //TODO: edit the above once the data converters and CSVs are ready for other sensors
+        })
+    })
+    socket.on("disconnect", ()=> {
+        console.log("before deleting session:")
+        console.log(sessions)
+        try {
+            delete sessions[socket.id]
+        } catch(error){
+            console.log(error)
+        }
+        console.log("after deleting session:")
+        console.log(sessions)
+    });
+
+})
+/*const mqttClient = mqtt.connect("",
     {"username": "taras", "password": "test"});
 
 mqttClient.on("connect", ()=> {
@@ -37,9 +80,10 @@ mqttClient.on("message", async function (topic, message) {
             "port": receivedObject.payloadMetaData.fport,
             "deveui": receivedObject.payloadMetaData.deviceMetaData.deviceEUI
         };
-        console.log(decode(homeSensor, Base64Binary.decode(uplink.payload), uplink.port))
+        console.log("from DevEUI " + uplink.deveui)
+        console.log(decode(uplinkHomeSensor, Base64Binary.decode(uplink.payload), uplink.port))
     }
-});
+});*/
 
 //for decoding Base64 encoded payloads, source: https://gist.github.com/lidatui/4064479#file-gistfile1-js-L8
 var Base64Binary = {

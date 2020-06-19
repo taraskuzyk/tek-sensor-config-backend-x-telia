@@ -16,29 +16,25 @@ module.exports = function createUplinkJSON(csvPath, jsonPath){
         var newParameters = {};
         // Data structure of newParameters is as follows:
         // port > header > [array of parameters for a header]
-        for (let i = 0; i < parameters.length; i++) {
-            if (!newParameters.hasOwnProperty(parameters[i].port))
-                newParameters[parameters[i].port] = {}
+        parameters.forEach(p => {
+            if (!newParameters.hasOwnProperty(p.port))
+                newParameters[p.port] = {}
 
-            if (!newParameters[parameters[i].port].hasOwnProperty(parameters[i].header))
-                newParameters[parameters[i].port][parameters[i].header] = []
+            if (!newParameters[p.port].hasOwnProperty(p.header))
+                newParameters[p.port][p.header] = []
 
-            newParameters[parameters[i].port][parameters[i].header].push({
-                data_size: parameters[i].data_size,
-                bit_start: parameters[i].bit_start,
-                bit_end: parameters[i].bit_end,
-                type: parameters[i].type,
-                parameter_name: parameters[i].parameter_name,
-                group_name: parameters[i].group_name,
-                round: parameters[i].round,
-                multiplier: parameters[i].multiplier
+            newParameters[p.port][p.header].push({
+                data_size: p.data_size,
+                bit_start: p.bit_start,
+                bit_end: p.bit_end,
+                type: p.type,
+                parameter_name: p.parameter_name,
+                group_name: p.group_name,
+                round: p.round,
+                multiplier: p.multiplier
             });
+        })
 
-            fs.writeFile(jsonPath, JSON.stringify(newParameters), function (err) {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        }
+        return newParameters;
     }
 }

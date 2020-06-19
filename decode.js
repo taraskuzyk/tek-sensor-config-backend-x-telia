@@ -16,7 +16,7 @@ module.exports = function decode(parameters, data, port){
         var keyLength = (Object.keys(parameters['10'])[0].split(' ')).length;
         //get the length of header of the first key in the given port
         //e.g. '0x12 0x12' turns into ['0x12', '0x12'], it's length is 2.
-
+        // 0x01 0x00 0x00 0x08
         var key = bytes.slice(0, keyLength);
         bytes = bytes.slice(keyLength)
         if (keyLength === 1) {

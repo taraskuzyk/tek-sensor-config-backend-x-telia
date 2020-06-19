@@ -16,8 +16,7 @@ module.exports = function createDownlinkJSON(csvPath, jsonPath){
         let newParameters = {};
         // Data structure of newParameters is as follows:
         // port > header > [array of parameters for a header]
-        console.log(parameters)
-        parameters.forEach((p)=>{
+        parameters.forEach(p => {
             let group_name = p["group_name"] === "" ? "nogroup" : p["group_name"]
 
             if ( !newParameters.hasOwnProperty(group_name) ) {
@@ -37,10 +36,6 @@ module.exports = function createDownlinkJSON(csvPath, jsonPath){
                 };
         });
 
-        fs.writeFile(jsonPath, JSON.stringify(newParameters), function (err) {
-            if (err) {
-                console.log(err);
-            }
-        });
+        return newParameters;
     }
 }
