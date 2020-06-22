@@ -4,13 +4,15 @@ var papa = require('papaparse');
 
 module.exports = function createUplinkJSON(csvPath, jsonPath){
     const file_stream = fs.createReadStream(csvPath);
-//   ./resources/testHomeSensor.csv
-    papa.parse(file_stream, {
-        complete: (results) => {
-            postParse(results.data)
-        },
-        header: true,
-    });
+//   ./resources/homeSensor.csv
+    return new Promise(resolve =>
+        papa.parse(file_stream, {
+            complete: (results) => {
+                resolve(postParse(results.data))
+            },
+            header: true,
+        })
+    );
 
     function postParse(parameters) {
         var newParameters = {};
@@ -34,7 +36,7 @@ module.exports = function createUplinkJSON(csvPath, jsonPath){
                 multiplier: p.multiplier
             });
         })
-
+        //console.log(newParameters)
         return newParameters;
     }
 }

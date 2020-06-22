@@ -1,4 +1,4 @@
-module.exports = function decode(parameters, data, port){
+module.exports = function decode(parameters, data, port, isFlat){
     // ASSUMPTION:
     // There will never be headers on the same port like 0x01 and 0x01 0xFF.
     // If this ever changes, this code will need to be reworked.
@@ -12,7 +12,6 @@ module.exports = function decode(parameters, data, port){
     decodedData.port = port;
 
     while (bytes.length > 0) {
-
         var keyLength = (Object.keys(parameters['10'])[0].split(' ')).length;
         //get the length of header of the first key in the given port
         //e.g. '0x12 0x12' turns into ['0x12', '0x12'], it's length is 2.
@@ -57,7 +56,7 @@ module.exports = function decode(parameters, data, port){
             }
         }
     }
-    return decodedData
+    return isFlat ? flattenObject(decodedData) : decodedData
 
     function stringifyHex(key) {
         // expects Number, returns stringified hex number in format (FF -> 0xFF) || (A -> 0x0A)
@@ -155,5 +154,25 @@ module.exports = function decode(parameters, data, port){
         var arr = extractBytes(chunk, startBit, endBit);
         return applyDataType(arr, dataType, multiplier);
     }
+
+    var flattenObject = function(ob) {
+        var toReturn = {};
+
+        for (var i in ob) {
+            if (!ob.hasOwnProperty(i)) continue;
+
+            if ((typeof ob[i]) == 'object') {
+                var flatObject = flattenObject(ob[i]);
+                for (var x in flatObject) {
+                    if (!flatObject.hasOwnProperty(x)) continue;
+
+                    toReturn[i + '.' + x] = flatObject[x];
+                }
+            } else {
+                toReturn[i] = ob[i];
+            }
+        }
+        return toReturn;
+    };
 
 }

@@ -10,8 +10,11 @@ const http = require('http').createServer(app);
 //Client and NS communications
 const mqtt = require("mqtt");
 
-const uplinkHomeSensor = require('./createUplinkJSON')
-    ('./resources/testHomeSensor.csv', 'uplinkHomeSensor.json')
+const createUplinkJSON = require('./createUplinkJSON')
+
+const downlinkHomeSensor = require('./createDownlinkJSON')
+    ('./resources/homeSensor.csv')
+
 
 const io = require('socket.io')(http);
 const decode = require('./decode.js')
@@ -20,47 +23,58 @@ let sessions = {}
 
 http.listen(13337);
 
-io.on("connection",(socket)=> {
+io.on("connection",async (socket)=> {
     console.log(socket.id + ": I connected!")
+    //console.log(JSON.stringify(downlinkHomeSensor, null, 2))
     sessions[socket.id] = {}
+    let uplinkHomeSensor = await createUplinkJSON('./resources/homeSensor.csv')
 
     socket.on("mqttConnect", ({username, password, server, sensor})=> {
         console.log(socket.id + ": I received mqttConnect!", username, password, server)
 
         if (sessions[socket.id].hasOwnProperty("mqttConnection")){
-            sessions[socket.id].mqttConnection.end()
+            sessions[socket.id].mqttConnection.end() //TODO: check if this is needed by MQTT.js
         }
         sessions[socket.id].mqttConnection = mqtt.connect(server, {"username": username, "password": password})
-        sessions[socket.id].mqttConnection.subscribe("app/#")
-        sessions[socket.id].mqttConnection.on("connect", ()=>{
-            console.log(socket.id + ": MQTT Connected")
-            socket.emit("mqttConnected")
-        })
-        sessions[socket.id].mqttConnection.on("message", (topic, raw)=>{
-            var receivedObject = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(raw)));
-            receivedObject.serverTimestamp = Date.now()
-            var uplink = {
-                "payload": receivedObject.payload,
-                "port": receivedObject.payloadMetaData.fport,
-                "deveui": receivedObject.payloadMetaData.deviceMetaData.deviceEUI
-            };
-            var emitMsg = {raw: receivedObject, decoded: {man: "I got nothing to decode yet, sorry"}}
-            socket.emit("mqttMessage", emitMsg)
-            console.log("emitted the following message to ", socket.id)
-            console.log(emitMsg)
-            //TODO: edit the above once the data converters and CSVs are ready for other sensors
-        })
+        sessions[socket.id].mqttConnection
+            .subscribe("app/#")
+            .on("connect", ()=>{
+                socket.emit("mqttConnected")
+            })
+            .on("message", (topic, raw)=>{
+                var receivedObject = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(raw)));
+
+                receivedObject.serverTimestamp = Date.now()
+                if (receivedObject.hasOwnProperty("payloadMetaData")) {
+                    var uplink = {
+                        "payload": receivedObject.payload,
+                        "port": receivedObject.payloadMetaData.fport,
+                        "deveui": receivedObject.payloadMetaData.deviceMetaData.deviceEUI
+                    };
+
+                    var emitMsg = {
+                        raw: receivedObject,
+                        decoded:
+                            sensor === "homeSensor" ? decode(
+                                uplinkHomeSensor,
+                                Base64Binary.decode(uplink.payload),
+                                uplink.port,
+                                false
+                            ) : "Only Home Sensor decoding available at the moment..."
+                    }
+                    console.log("emitted the following message to", socket.id)
+                    console.log(emitMsg)
+                    socket.emit("mqttMessage", emitMsg)
+                    //TODO: edit the above once the data converters and CSVs are ready for other sensors
+                }
+            })
     })
     socket.on("disconnect", ()=> {
-        console.log("before deleting session:")
-        console.log(sessions)
         try {
             delete sessions[socket.id]
         } catch(error){
             console.log(error)
         }
-        console.log("after deleting session:")
-        console.log(sessions)
     });
 
 })
