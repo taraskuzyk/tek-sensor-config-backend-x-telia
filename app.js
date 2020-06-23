@@ -68,14 +68,19 @@ io.on("connection",async (socket)=> {
                     //TODO: edit the above once the data converters and CSVs are ready for other sensors
                 }
             })
+
     })
-    socket.on("disconnect", ()=> {
+    .on("disconnect", ()=> {
         try {
             delete sessions[socket.id]
         } catch(error){
             console.log(error)
         }
-    });
+    })
+    .on("downlink", (message)=>{
+        console.log("received message to send on app/tx", message)
+        sessions[socket.id].mqttConnection.publish("app/tx", message)
+    })
 
 })
 /*const mqttClient = mqtt.connect("",

@@ -20,9 +20,9 @@ function decode(parameters, data, port){
     });
 }
 
-function getCommandBytes(value, size, startBit, endBit, type, multiplier){
+function getValueBytes(value, size, startBit, endBit, type, multiplier){
     if (typeof value === "number"){
-        return getValueBytes( Math.round(value*multiplier) )
+        return extractBytes( Math.round(value*multiplier) )
     } else if (typeof value === "object") {
         Object.keys(value).forEach(field => {
 
@@ -30,6 +30,12 @@ function getCommandBytes(value, size, startBit, endBit, type, multiplier){
     }
 }
 
-function getValueBytes(value, ){
+function extractBytes(value, size, startBit, endBit){
+    var ret = [];
+    var mask = 1 << (endBit - startBit);
+    var relativeStartBit
 
+    for (let byteOffset = size-1; byteOffset >= 0; byteOffset--){
+        var byte = ( (value & mask) >> (byteOffset*8)) & mask
+    }
 }
