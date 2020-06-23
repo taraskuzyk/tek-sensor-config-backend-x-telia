@@ -15,41 +15,75 @@
 
 /*
 NOTE: At the moment, these routines assume that "commands" will always contain valid commands,
-      and that the sensor JSONs are all correct
+      and that the sensor JSONs are all correct. It also assumes that a char is supposed to by 8 bits
+      (it's normally 8 bits but in JS it's 16 bits for some reason idk)
 
-ALSO: Idk what to do with the rounding thing oof oof
-
-For the hexstring, I'll probably just modify write_bits and separate bytes so that they work with both numbers and strings
-
-Something like:
-    if typeof(value) == "number" {
-        // Do stuff
-    }
-
+ROUNDING NOT YET IMPLEMENTED
 */
 
 // replace with appropriate directory
 sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
 
-function write_bits(write_value, start_bit, end_bit, current_value = 0) {
+function string_to_bigint(str) {
+    // Converts a string into an BigInt with all the bits of the string
+    // Assumes that a char is suppossed to have 8 bits
+    
+    string_value = BigInt(0);
+    j = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+        char_value = BigInt(str[i].charCodeAt(0));            
+        string_value += (char_value << BigInt(8*j));
+        j += 1;
+    }
+    return string_value
+}
+
+
+function write_bits(write_value, start_bit, end_bit, current_value) {
     // write the bits in write_value to the specified location in current_value and returns the result
 
-    length = end_bit - start_bit + 1;
-    // console.log(1 << length - 1)
-    current_value |= ( ( write_value & ((1 << length) - 1) ) << start_bit );
+    if (typeof(write_value) === "bigint") {
+        // Base Case
+        length = end_bit - start_bit + 1n;
+        // console.log(1 << Number(length) - 1)
+        current_value |= ( ( write_value & ((1n << length) - 1n) ) << start_bit );
+    }
 
+    else if (typeof(write_value) === "number") {
+        write_value = BigInt(write_value);
+        current_value = write_bits(write_value, start_bit, end_bit, current_value);
+    }
+
+    else if (typeof(write_value) === "string") {
+        write_value = string_to_bigint(write_value);
+        current_value = write_bits(write_value, start_bit, end_bit, current_value);
+    }
     return current_value
 }
 
 function separate_bytes(value, byte_num) {
     // takes in a value and the number of bytes to be separated into, returns an array of bytes
-        
-    bytes = new Array(byte_num);    // This is to avoid using .unshift()
-    for (var i = byte_num - 1; i >= 0; i--) {
-        // We will and the value with a mask of 11111111 to isolate the 8 LSBs, then add it to the back of bytes
-        mask = 0xFF;
-        bytes[i] = value & mask;
-        value = value >> 8;
+    bytes = new Array(byte_num);
+    
+    if (typeof(value) == "bigint") {
+        // Base case
+        for (var i = byte_num - 1; i >= 0; i--) {
+            // We will and the value with a mask of 11111111 to isolate the 8 LSBs, then add it to the back of bytes
+            mask = BigInt(0xFF);
+            bytes[i] = value & mask;
+            value = value >> BigInt(8);
+        }
+    }
+
+    else if (typeof(value) === "number") {
+        value = BigInt(value);
+        bytes = separate_bytes(value, byte_num);
+    }
+
+    else if (typeof(value) === "string") {
+        // Javascript characters are 16 bits long if I'm correct
+        value = string_to_bigint(value);
+        bytes = separate_bytes(value, byte_num);
     }
     return bytes
 }
@@ -91,13 +125,14 @@ function encode(commands, sensor_json) {
                 var bytes = [];
 
                 var byte_num = lookup["data_size"];
-                var start_bit = lookup["bit_start"];
-                var end_bit = lookup["bit_end"];
+                var start_bit = BigInt(lookup["bit_start"]);
+                var end_bit = BigInt(lookup["bit_end"]);
                 var header = lookup["header"];
                 header |= 0x80;
                 bytes.push(parseInt(header));
 
                 val = group_or_field["write"];
+                val = write_bits(val, start_bit, end_bit, BigInt(0));
                 bytes = bytes.concat(separate_bytes(val, byte_num));
 
                 encoded_data.push(bytes);
@@ -117,19 +152,18 @@ function encode(commands, sensor_json) {
 
                 var fields = Object.keys(group_or_field["write"]);
                 var byte_num = lookup[fields[0]]["data_size"];
-                var current_val = 0;
+                var current_val = BigInt(0);
                 for (var k = 0; k < fields.length; k++) {   // iterate over the fields in the group
                     lookup = sensor_json[category_str][group_or_field_str][fields[k]];
                     
-                    var start_bit = lookup["bit_start"];
-                    var end_bit = lookup["bit_end"];
+                    var start_bit = BigInt(lookup["bit_start"]);
+                    var end_bit = BigInt(lookup["bit_end"]);
                     // console.log(start_bit)
 
                     temp_val = group_or_field["write"][fields[k]];
                     // console.log(temp_val)
                     current_val = write_bits(temp_val, start_bit, end_bit, current_val);
                 }
-                // console.log(current_val)
                 bytes = bytes.concat(separate_bytes(current_val, byte_num));
                 encoded_data.push(bytes);
             }
@@ -160,7 +194,7 @@ commands = {
 
     },
     mcu_temperature : { // category
-        sample_period_idle : { write : 0x0010102B }, // field
+        sample_period_idle : { write : "XD" }, // field
         sample_period_active : { write : 0x00202215}, // field
         threshold : { // group
             read : true
