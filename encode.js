@@ -13,35 +13,81 @@
 ///////////////////////////////////////////////////////////////
 */
 
-/*
-NOTE: At the moment, these routines assume that "commands" will always contain valid commands,
-      and that the sensor JSONs are all correct
-
-ROUNDING NOT YET IMPLEMENTED
-*/
-
 // replace with appropriate directory
 home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
 industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Industrial_Sensor.json");
 
+function check_command(group_or_field, lookup) {
+    // returns true if an individual command is valid, and false otherwise
 
-function write_bits(write_value, start_bit, end_bit, current_value) {
+    // There are 2 things we need to check:
+    //    1. Access - read-only? write-only?
+    //    2. Number of fields
+
+    if (group_or_field.hasOwnProperty("read")) {
+        if (lookup["access"] == "W") {
+            return false;
+        }
+    }
+    else if (group_or_field.hasOwnProperty("write")) {
+        if (lookup["access"] == "R") {
+            return false;
+        }
+        if (typeof(group_or_field["write"]) === "object") {
+            var fields = Object.keys(group_or_field["write"]);
+            // console.log("fields.length = " + String(fields.length))
+            // console.log("field_count = " + lookup["field_count"])
+            if (fields.length != Number(lookup["field_count"])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function is_valid(commands, sensor_json) {
+    // returns true if commands are valid, returns false otherwise
+
+    var valid = true;
+
+    categories = Object.keys(commands);
+    for (var i = 0; i < categories.length; i++) {
+        var category_str = categories[i];
+        var category = commands[category_str];
+
+        var groups_and_fields = Object.keys(commands[category_str]);
+        for (var j = 0; j < groups_and_fields.length; j++) {           
+            var group_or_field_str = groups_and_fields[j];
+            var group_or_field = category[group_or_field_str];
+
+            var lookup = sensor_json[category_str][group_or_field_str];
+
+            valid = check_command(group_or_field, lookup);
+            if (!valid) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function write_bits(write_value, start_bit, end_bit, current_value, multiplier) {
     // write the bits in write_value to the specified location in current_value and returns the result
 
     if (typeof(write_value) === "bigint") {
         // Base Case
-        length = end_bit - start_bit + 1n;
+        var length = end_bit - start_bit + 1n;
         current_value |= ( ( write_value & ((1n << length) - 1n) ) << start_bit );
     }
 
     else if (typeof(write_value) === "number") {
-        write_value = BigInt(write_value);
-        current_value = write_bits(write_value, start_bit, end_bit, current_value);
+        write_value = BigInt( Math.round(Number(write_value)/multiplier) );
+        current_value = write_bits(write_value, start_bit, end_bit, current_value, multiplier);
     }
 
     else if (typeof(write_value) === "string") {
         write_value = string_to_bigint(write_value);
-        current_value = write_bits(write_value, start_bit, end_bit, current_value);
+        current_value = write_bits(write_value, start_bit, end_bit, current_value, multiplier);
     }
     return current_value;
 }
@@ -121,20 +167,37 @@ function format_header(header, read = true) {
     }
 }
 
+function write_to_port(bytes, port, encoded_data) {
+    // write "bytes" to the appropriate "port" in "encoded_data"
+    
+    if (encoded_data.hasOwnProperty(port)) {
+        // try pushing "bytes" onto the appropriate port in "encoded_data"
+        encoded_data[port].push(bytes);
+    }
+    else {
+        // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
+        encoded_data[port] = [bytes];
+    }    
+}
+
 //////////////////////////////////////////////////////////////////////////////
 function encode(commands, sensor_json) {
     // encodes the commands object into a nested array of bytes
     
+    if (!is_valid(commands, sensor_json)) {
+        // check if commands is valid. If not, raise an error
+        throw "Error: Commands are invalid";
+    }
+
     var categories = Object.keys(commands);
     var encoded_data = {};
 
-    // We will iterate over: (categories) -> (groups and fields)
-    for (var i = 0; i < categories.length; i++) { // iterates over the categories of commands
+    for (var i = 0; i < categories.length; i++) {   // iterates over the categories of commands
         var category_str = categories[i];
         var category = commands[categories[i]];
         var groups_and_fields = Object.keys(category);
 
-        for (var j = 0; j < groups_and_fields.length; j++) { // iterates over the groups of commands
+        for (var j = 0; j < groups_and_fields.length; j++) {    // iterates over the groups of commands
             var group_or_field_str = groups_and_fields[j];
             var group_or_field = category[groups_and_fields[j]];
             
@@ -145,7 +208,6 @@ function encode(commands, sensor_json) {
             //  2. The write case where the current key is a field
             //  3. The write case where the current key is a group (will require another for loop)
 
-
             if (group_or_field.hasOwnProperty("read")) {
                 // CASE 1
                 var header = sensor_json[category_str][group_or_field_str]["header"];
@@ -154,15 +216,7 @@ function encode(commands, sensor_json) {
 
                 var port = sensor_json[category_str][group_or_field_str]["port"];
                 
-                if (encoded_data.hasOwnProperty(port)) {
-                    // try pushing "bytes" onto the appropriate port in "encoded_data"
-                    encoded_data[port].push(bytes);
-                }
-                else {
-                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
-                    encoded_data[port] = [bytes];
-                }
-
+                write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
             }
 
             else if (group_or_field.hasOwnProperty("write") && (typeof(group_or_field["write"]) != "object")) {
@@ -176,21 +230,16 @@ function encode(commands, sensor_json) {
                 var header = lookup["header"];
                 bytes = format_header(header, read = false);
 
-                val = group_or_field["write"];
-                val = write_bits(val, start_bit, end_bit, BigInt(0));
+                var val = group_or_field["write"];
+                var multiplier = Number(lookup["multiplier"]);
+                val = write_bits(val, start_bit, end_bit, BigInt(0), multiplier);
+
                 bytes = bytes.concat(separate_bytes(val, byte_num));
                 bytes = bigint_to_num(bytes);
 
-
                 var port = lookup["port"];
-                if (encoded_data.hasOwnProperty(port)) {
-                    // try pushing "bytes" onto the appropriate port in "encoded_data"
-                    encoded_data[port].push(bytes);
-                }
-                else {
-                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
-                    encoded_data[port] = [bytes];
-                }
+                
+                write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
             }
             
             else {
@@ -213,20 +262,15 @@ function encode(commands, sensor_json) {
                     var start_bit = BigInt(lookup["bit_start"]);
                     var end_bit = BigInt(lookup["bit_end"]);
 
-                    temp_val = group_or_field["write"][fields[k]];
-                    current_val = write_bits(temp_val, start_bit, end_bit, current_val);
+                    var temp_val = group_or_field["write"][fields[k]];
+                    var multiplier = Number(lookup["multiplier"]);
+                    // console.log(multiplier)
+                    current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);
                 }
                 bytes = bytes.concat(separate_bytes(current_val, byte_num));
                 bytes = bigint_to_num(bytes);
 
-                if (encoded_data.hasOwnProperty(port)) {
-                    // try pushing "bytes" onto the appropriate port in "encoded_data"
-                    encoded_data[port].push(bytes);
-                }
-                else {
-                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
-                    encoded_data[port] = [bytes];
-                }                
+                write_to_port(bytes, port, encoded_data);   // Add the bytes to the appropriate port in "encoded data"
             }
         }
     }
@@ -274,11 +318,35 @@ industrial_sensor_commands = {
     sensor_config : {                                                    // category
         mcu_temperature_sample_period_idle : { write : "lmao" },         // field
         mcu_temperature_sample_period_active : { write : 0x00202215 },   // field
-        mcu_temp_threshold : { read : true }                             // group
+        mcu_temp_threshold : { read : true },                             // group
+        input2_threshold : {
+            write : {
+                input2_current_high_threshold : 0.018,
+                input2_current_low_threshold : 0.006
+            }
+        }
     },
-    change_output_states : {
-        output_2 : {write : 0b01101101}
+    change_output_states : {                // On port 10
+        output_2 : { write : 0b01101101 }
+    },
+    lorawan : {
+        device_eui : { read : true },
+        app_eui : { read : true }
     }
 };
 
-console.log(encode(industrial_sensor_commands, industrial_sensor_json));
+console.time("encode");
+encoded_data = encode(industrial_sensor_commands, industrial_sensor_json);
+console.timeEnd("encode");
+
+console.log()
+console.log(encoded_data)
+
+// console.time("is_valid");
+// valid = is_valid(industrial_sensor_commands, industrial_sensor_json);
+// console.timeEnd("is_valid");
+
+// console.log()
+// console.log(valid)
+
+// console.log("time = " + time)
