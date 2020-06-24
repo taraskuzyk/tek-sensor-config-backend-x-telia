@@ -8,35 +8,21 @@
 / Tektelic makes no warranties, express, implied or otherwise,
 / regarding its accuracy, completeness or performance.
 /
-/ @date    2020-06-19
+/ date    2020-06-19
 /
 ///////////////////////////////////////////////////////////////
 */
 
 /*
 NOTE: At the moment, these routines assume that "commands" will always contain valid commands,
-      and that the sensor JSONs are all correct. It also assumes that a char is supposed to by 8 bits
-      (it's normally 8 bits but in JS it's 16 bits for some reason idk)
+      and that the sensor JSONs are all correct
 
 ROUNDING NOT YET IMPLEMENTED
 */
 
 // replace with appropriate directory
-sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
-
-function string_to_bigint(str) {
-    // Converts a string into an BigInt with all the bits of the string
-    // Assumes that a char is suppossed to have 8 bits
-    
-    string_value = BigInt(0);
-    j = 0;
-    for (var i = str.length - 1; i >= 0; i--) {
-        char_value = BigInt(str[i].charCodeAt(0));            
-        string_value += (char_value << BigInt(8*j));
-        j += 1;
-    }
-    return string_value
-}
+home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
+industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Industrial_Sensor.json");
 
 
 function write_bits(write_value, start_bit, end_bit, current_value) {
@@ -45,7 +31,6 @@ function write_bits(write_value, start_bit, end_bit, current_value) {
     if (typeof(write_value) === "bigint") {
         // Base Case
         length = end_bit - start_bit + 1n;
-        // console.log(1 << Number(length) - 1)
         current_value |= ( ( write_value & ((1n << length) - 1n) ) << start_bit );
     }
 
@@ -58,7 +43,7 @@ function write_bits(write_value, start_bit, end_bit, current_value) {
         write_value = string_to_bigint(write_value);
         current_value = write_bits(write_value, start_bit, end_bit, current_value);
     }
-    return current_value
+    return current_value;
 }
 
 function separate_bytes(value, byte_num) {
@@ -85,21 +70,69 @@ function separate_bytes(value, byte_num) {
         value = string_to_bigint(value);
         bytes = separate_bytes(value, byte_num);
     }
-    return bytes
+    return bytes;
 }
 
+function bigint_to_num(encoded_data) {
+    // converts all BigInts in "encoded_data" to numbers again
+
+    for (var i = 0; i < encoded_data.length; i++) {
+        encoded_data[i] = Number(encoded_data[i])
+    }
+    // console.log(encoded_data)
+    return encoded_data;
+}
+
+function string_to_bigint(str) {
+    // Converts a string into an BigInt with all the bits of the string
+    // Assumes that a char is suppossed to have 8 bits
+    
+    string_value = BigInt(0);
+    j = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+        char_value = BigInt(str[i].charCodeAt(0));            
+        string_value += (char_value << BigInt(8*j));
+        j += 1;
+    }
+    return string_value;
+}
+
+function format_header(header, read = true) {
+    // takes in the header as a string, and handles the case of where the header is 2 bytes long
+    
+    if (header.length === 4) {
+        if (read) {
+            return [parseInt(header)];
+        }
+        else {
+            return [parseInt(header) | 0x80];
+        }
+    }
+    else {
+        header1 = "";
+        header0 = "";
+        for (var i = 0; i < 4; i++) {
+            header1 += header[i];
+        }
+        for (var i = 5; i < 9; i++) {
+            header0 += header[i];
+        }
+        return [parseInt(header1), parseInt(header0)]
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
 function encode(commands, sensor_json) {
     // encodes the commands object into a nested array of bytes
     
     var categories = Object.keys(commands);
-    var encoded_data = [];
+    var encoded_data = {};
 
     // We will iterate over: (categories) -> (groups and fields)
     for (var i = 0; i < categories.length; i++) { // iterates over the categories of commands
         var category_str = categories[i];
         var category = commands[categories[i]];
         var groups_and_fields = Object.keys(category);
-        // console.log(groups_and_fields)
 
         for (var j = 0; j < groups_and_fields.length; j++) { // iterates over the groups of commands
             var group_or_field_str = groups_and_fields[j];
@@ -116,7 +149,20 @@ function encode(commands, sensor_json) {
             if (group_or_field.hasOwnProperty("read")) {
                 // CASE 1
                 var header = sensor_json[category_str][group_or_field_str]["header"];
-                encoded_data.push([parseInt(header)]);    // get the header and push it onto the array
+                var bytes = format_header(header, read = true);
+                bytes = bigint_to_num(bytes);
+
+                var port = sensor_json[category_str][group_or_field_str]["port"];
+                
+                if (encoded_data.hasOwnProperty(port)) {
+                    // try pushing "bytes" onto the appropriate port in "encoded_data"
+                    encoded_data[port].push(bytes);
+                }
+                else {
+                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
+                    encoded_data[port] = [bytes];
+                }
+
             }
 
             else if (group_or_field.hasOwnProperty("write") && (typeof(group_or_field["write"]) != "object")) {
@@ -128,27 +174,35 @@ function encode(commands, sensor_json) {
                 var start_bit = BigInt(lookup["bit_start"]);
                 var end_bit = BigInt(lookup["bit_end"]);
                 var header = lookup["header"];
-                header |= 0x80;
-                bytes.push(parseInt(header));
+                bytes = format_header(header, read = false);
 
                 val = group_or_field["write"];
                 val = write_bits(val, start_bit, end_bit, BigInt(0));
                 bytes = bytes.concat(separate_bytes(val, byte_num));
+                bytes = bigint_to_num(bytes);
 
-                encoded_data.push(bytes);
+
+                var port = lookup["port"];
+                if (encoded_data.hasOwnProperty(port)) {
+                    // try pushing "bytes" onto the appropriate port in "encoded_data"
+                    encoded_data[port].push(bytes);
+                }
+                else {
+                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
+                    encoded_data[port] = [bytes];
+                }
             }
             
             else {
                 // CASE 3
-                // console.log("poggers")
                 var bytes = [];
 
                 var lookup = sensor_json[category_str][group_or_field_str];
 
+                var port = lookup["port"];
+
                 var header = lookup["header"];
-                header |= 0x80;
-                bytes.push(parseInt(header));
-                // console.log(header)
+                bytes = format_header(header, read = false);
 
                 var fields = Object.keys(group_or_field["write"]);
                 var byte_num = lookup[fields[0]]["data_size"];
@@ -158,69 +212,73 @@ function encode(commands, sensor_json) {
                     
                     var start_bit = BigInt(lookup["bit_start"]);
                     var end_bit = BigInt(lookup["bit_end"]);
-                    // console.log(start_bit)
 
                     temp_val = group_or_field["write"][fields[k]];
-                    // console.log(temp_val)
                     current_val = write_bits(temp_val, start_bit, end_bit, current_val);
                 }
                 bytes = bytes.concat(separate_bytes(current_val, byte_num));
-                encoded_data.push(bytes);
+                bytes = bigint_to_num(bytes);
+
+                if (encoded_data.hasOwnProperty(port)) {
+                    // try pushing "bytes" onto the appropriate port in "encoded_data"
+                    encoded_data[port].push(bytes);
+                }
+                else {
+                    // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
+                    encoded_data[port] = [bytes];
+                }                
             }
-
         }
-
     }
-    return encoded_data
+    return encoded_data;
 }
+//////////////////////////////////////////////////////////////////////////////
 
 // Test commands
-commands = {
-    loramac : { // category
-        options : { // group
+home_sensor_commands = {
+    loramac : {                     // category
+        loramac_opts : {                 // group
             write : {
-                confirm_mode : 1, // field
-                networks : 1, // field
-                duty_cycle : 0, // field
-                adr : 1 // field
+                loramac_confirm_mode : 1,   // field
+                loramac_networks : 1,       // field
+                loramac_duty_cycle : 0,     // field
+                loramac_adr : 1             // field
             }
         },
-
-        dr_tx_power : { // group
-            read : true
-        },
-
-        net_id_msb : { write : 0x0B01 }
-
+        loramac_dr_tx_power : { read : true },     // group
+        loramac_net_id_msb : { write : 0x0B01 },   // field
     },
     mcu_temperature : { // category
-        sample_period_idle : { write : "XD" }, // field
-        sample_period_active : { write : 0x00202215}, // field
-        threshold : { // group
-            read : true
-        }
+        mcu_temperature_sample_period_idle : { write : "lmao" },         // field
+        mcu_temperature_sample_period_active : { write : 0x00202215 },   // field
+        mcu_temp_threshold : { read : true }                      // group
+    },
+    lorawan : {
+        network_session_key : { write : "This is a string" }           // field
     }
-}
+};
 
-console.log(encode(commands, sensor_json));
+industrial_sensor_commands = {
+    loramac : {                                     // category
+        loramac_opts : {                            // group
+            write : {
+                loramac_class : 0b1011,             // field
+                loramac_confirmed_uplink : 1,       // field
+                loramac_duty_cycle : 0,             // field
+                loramac_adr : 1                     // field
+            }
+        },
+        loramac_dr_tx_power : { read : true },     // group
+        loramac_net_id_msb : { write : 0x0B01 },   // field
+    },
+    sensor_config : {                                                    // category
+        mcu_temperature_sample_period_idle : { write : "lmao" },         // field
+        mcu_temperature_sample_period_active : { write : 0x00202215 },   // field
+        mcu_temp_threshold : { read : true }                             // group
+    },
+    change_output_states : {
+        output_2 : {write : 0b01101101}
+    }
+};
 
-// var thing = 0;
-// thing = write_bits(1, 2, 2)
-// console.log(thing)
-
-// thing = write_bits(2,3,4,thing)
-// console.log(thing)
-
-// cat = commands["loramac"]
-// group = cat["net_id_msb"]
-// console.log(group.hasOwnProperty("write"))
-
-// object = {}
-// console.log(typeof(object))
-
-// console.log(separate_bytes(1052715, 4))
-// console.log(write_bits(1052715, 0, 31))
-
-// var array1 = [1,2,3];
-// var array2 = [4,5,6];
-// console.log(array1.concat(array2))
+console.log(encode(industrial_sensor_commands, industrial_sensor_json));
