@@ -15,6 +15,8 @@ def add_field_info(
     json_dict, category, group, field,
     port,
     header,
+    field_count,
+    access,
     data_size,
     bit_start,
     bit_end,
@@ -33,12 +35,16 @@ def add_field_info(
         }        
         json_dict[category][group]["port"] = str(port)
         json_dict[category][group]["header"] = str(header)
+        json_dict[category][group]["field_count"] = str(field_count)
+        json_dict[category][group]["access"] = str(access)
         json_dict[category][group][field] = temp
     
     else:
         temp = {
             "port" : str(port),
             "header" : str(header),
+            "field_count" : str(field_count),
+            "access" : str(access),
             "data_size" : str(data_size),
             "bit_start" : str(bit_start),
             "bit_end" : str(bit_end),
@@ -52,12 +58,13 @@ def add_field_info(
 
 #################################################################################################################################
 # Replace with the appropriate directories:
-csv_path = r"C:\Users\rmah\VS-Code\Encoder-Decoder-JSON-Generator\DL\resources\HomeSensorFieldsDL.csv"
-json_path = r"C:\Users\rmah\VS-Code\Encoder-Decoder-JSON-Generator\DL\downlinkHomeSensor.json"
+csv_path = r"C:\Users\rmah\VS-Code\Encoder-Decoder-JSON-Generator\DL\resources\IndustrialSensorFieldsDL.csv"
+json_path = r"C:\Users\rmah\VS-Code\Encoder-Decoder-JSON-Generator\DL\DL_Industrial_Sensor.json"
 #################################################################################################################################
 
 
 df = pd.read_csv(csv_path)
+# print(df)
 json_dict = OrderedDict()
 
 prev_cat = ""   # cat -> category
@@ -102,6 +109,8 @@ current_group = df["Group name"][0]
 
 port = df["Port"][0]
 header = df["Header"][0]
+field_count = df["Field count"][0]
+access = df["Access"][0]
 data_size = df["Data size"][0]
 bit_start = df["Bit start"][0]
 bit_end = df["Bit end"][0]
@@ -111,6 +120,8 @@ add_field_info(
     json_dict, current_cat, current_group, df["Field name"][0],
     port,
     header,
+    field_count,
+    access,
     data_size,
     bit_start,
     bit_end,
@@ -125,6 +136,8 @@ for i in range(1, len(df)):
 
     port = df["Port"][i]
     header = df["Header"][i]
+    field_count = df["Field count"][i]
+    access = df["Access"][i]
     data_size = df["Data size"][i]
     bit_start = df["Bit start"][i]
     bit_end = df["Bit end"][i]
@@ -135,12 +148,15 @@ for i in range(1, len(df)):
         json_dict, current_cat, current_group, df["Field name"][i],
         port,
         header,
+        field_count,
+        access,
         data_size,
         bit_start,
         bit_end,
         datatype,
         multiplier)
-
+    
+# Replace with your appropriate directory
 with open(json_path, "w") as f:
     json.dump(json_dict, f, indent = 4)
 
