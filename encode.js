@@ -16,6 +16,8 @@
 // replace with appropriate directory
 home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
 industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Industrial_Sensor.json");
+digital_sign_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Digital_Signage.json")
+
 
 function check_command(group_or_field, lookup) {
     // returns true if an individual command is valid, and false otherwise
@@ -133,7 +135,7 @@ function string_to_bigint(str) {
     // Converts a string into an BigInt with all the bits of the string
     // Assumes that a char is suppossed to have 8 bits
     
-    string_value = BigInt(0);
+    var string_value = BigInt(0);
     j = 0;
     for (var i = str.length - 1; i >= 0; i--) {
         char_value = BigInt(str[i].charCodeAt(0));            
@@ -180,7 +182,7 @@ function write_to_port(bytes, port, encoded_data) {
     }    
 }
 
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 function encode(commands, sensor_json) {
     // encodes the commands object into a nested array of bytes
     
@@ -203,11 +205,12 @@ function encode(commands, sensor_json) {
             
             // console.log(category_str)
             // console.log(group_or_field_str)
-            // Now that we are iterating over all of the commands, there are three cases to handle:
+            // Now that we are iterating over all of the commands, the cases that we have to handle are as such:
             //  1. The read case. This is the same regardless of if the current key is a group or a field
-            //  2. The write case where the current key is a field
-            //  3. The write case where the current key is a group (will require another for loop)
-
+            //  2. The send case (for the digital sign and stuff). This case sucks hard. For real, I'm sorry.
+            //  3. The write case where the current key is a field
+            //  4. The write case where the current key is a group (will require another for loop)
+            
             if (group_or_field.hasOwnProperty("read")) {
                 // CASE 1
                 var header = sensor_json[category_str][group_or_field_str]["header"];
@@ -218,9 +221,53 @@ function encode(commands, sensor_json) {
                 
                 write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
             }
+            
+            else if (group_or_field.hasOwnProperty("send")) {
+                // CASE 2
+                var lookup = sensor_json[category_str][group_or_field_str];
+                var header = lookup["header"];
+                var port = lookup["port"];
+                var ack = Boolean(group_or_field["send"]["ACK"]);
+                var bytes = format_header(header, read = !ack);     // If it's not ACKed, then you don't do "header | 0x80"
+                bytes = bigint_to_num(bytes);
+
+                if (Object.keys(group_or_field["send"]).length === 1) {
+                    // for the fields that are only for ACK/NACK
+                    write_to_port(bytes, port, encoded_data);
+                }
+
+                else {
+                    // for every other field
+                    if ( (!ack) && (header != "0x33") ) {
+                        // For every field but 0x33, if it's NACK, you just send the MessageID
+                        write_to_port(bytes, port, encoded_data);
+                        continue;
+                    }
+                    var fields = Object.keys(group_or_field["send"]);
+                    var n = group_or_field["send"]["string_size"];     // define a variable "n" to represent "n" bytes in the string which
+                    var current_val = BigInt(0);                       // will be used with the eval() function to allow for dynamic sizing
+                    for (var k = 0; k < fields.length; k++) {
+                        var field_str = fields[k];
+                        lookup = sensor_json[category_str][group_or_field_str][field_str];
+
+                        var start_bit = BigInt(eval(lookup["bit_start"]));
+                        var end_bit = BigInt(eval(lookup["bit_end"]));
+
+                        // WHAT HAVE I CREATED????? SOMEONE STOP ME
+                        
+                        var temp_val = group_or_field["send"][fields[k]];
+                        var multiplier = Number(lookup["multiplier"]);
+                        current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);                        
+                    }
+                    var byte_num = eval(lookup["data_size"]);
+                    bytes = bytes.concat(separate_bytes(current_val, byte_num));
+                    bytes = bigint_to_num(bytes);
+                    write_to_port(bytes, port, encoded_data);                    
+                }
+            }
 
             else if (group_or_field.hasOwnProperty("write") && (typeof(group_or_field["write"]) != "object")) {
-                // CASE 2
+                // CASE 3
                 var lookup = sensor_json[category_str][group_or_field_str];
                 var bytes = [];
 
@@ -243,7 +290,7 @@ function encode(commands, sensor_json) {
             }
             
             else {
-                // CASE 3
+                // CASE 4
                 var bytes = [];
 
                 var lookup = sensor_json[category_str][group_or_field_str];
@@ -264,7 +311,6 @@ function encode(commands, sensor_json) {
 
                     var temp_val = group_or_field["write"][fields[k]];
                     var multiplier = Number(lookup["multiplier"]);
-                    // console.log(multiplier)
                     current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);
                 }
                 bytes = bytes.concat(separate_bytes(current_val, byte_num));
@@ -272,11 +318,13 @@ function encode(commands, sensor_json) {
 
                 write_to_port(bytes, port, encoded_data);   // Add the bytes to the appropriate port in "encoded data"
             }
+            
+
         }
     }
     return encoded_data;
 }
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Test commands
 home_sensor_commands = {
@@ -335,18 +383,45 @@ industrial_sensor_commands = {
     }
 };
 
+digital_sign_commands = {
+    lorawan : {
+        deviceEUI : { read : true }
+    },
+    
+    book_app : {
+        bookNowRsp : { send : {ACK : 1} },
+        roomStatusRsp : {
+            send : {
+                booked_by : "Barack Obama sux lmao oof oof",
+                string_size : 29,
+                time_min : 30,
+                time_hr : 12,
+                PM_AM : 1,
+                Nx_C : 1,
+                TS_E : 0,
+                EPD_E : 1,
+                ACK : 1
+            }
+        },
+        roomInfoRsp : {
+            send : {
+                room_name : "why god, why?",
+                string_size : 13,
+                total_room_capacity : 69,
+                tv : 1,
+                projector : 0,
+                web_cam : 0,
+                white_board : 0,
+                ACK : 1
+            }
+        },
+        finishRsp : { send : {ACK : 0} }
+    }
+}
+
 console.time("encode");
-encoded_data = encode(industrial_sensor_commands, industrial_sensor_json);
+encoded_data = encode(digital_sign_commands, digital_sign_json);
 console.timeEnd("encode");
 
 console.log()
-console.log(encoded_data)
-
-// console.time("is_valid");
-// valid = is_valid(industrial_sensor_commands, industrial_sensor_json);
-// console.timeEnd("is_valid");
-
-// console.log()
-// console.log(valid)
-
-// console.log("time = " + time)
+console.log(encoded_data);
