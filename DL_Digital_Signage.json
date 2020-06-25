@@ -1,0 +1,564 @@
+{
+    "lorawan": {
+        "deviceEUI": {
+            "port": "100",
+            "header": "0x00",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "8",
+            "bit_start": "0",
+            "bit_end": "63",
+            "type": "hexstring",
+            "multiplier": "1"
+        },
+        "appEUI": {
+            "port": "100",
+            "header": "0x01",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "8",
+            "bit_start": "0",
+            "bit_end": "63",
+            "type": "hexstring",
+            "multiplier": "1"
+        },
+        "appKey": {
+            "port": "100",
+            "header": "0x02",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "16",
+            "bit_start": "0",
+            "bit_end": "127",
+            "type": "hexstring",
+            "multiplier": "1"
+        },
+        "deviceAddress": {
+            "port": "100",
+            "header": "0x03",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "4",
+            "bit_start": "0",
+            "bit_end": "31",
+            "type": "hexstring",
+            "multiplier": "1"
+        },
+        "networkSessionKey": {
+            "port": "100",
+            "header": "0x04",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "16",
+            "bit_start": "0",
+            "bit_end": "127",
+            "type": "hexstring",
+            "multiplier": "1"
+        },
+        "appSessionKey": {
+            "port": "100",
+            "header": "0x05",
+            "field_count": "1",
+            "access": "R",
+            "data_size": "16",
+            "bit_start": "0",
+            "bit_end": "127",
+            "type": "hexstring",
+            "multiplier": "1"
+        }
+    },
+    "loramac": {
+        "loramacJoinMode": {
+            "port": "100",
+            "header": "0x10",
+            "field_count": "1",
+            "access": "RW",
+            "loramacOTAA": {
+                "data_size": "2",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "loramacOpts": {
+            "port": "100",
+            "header": "0x11",
+            "field_count": "4",
+            "access": "RW",
+            "loramacConfirmMode": {
+                "data_size": "2",
+                "bit_start": "4",
+                "bit_end": "7",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramacNetworks": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramacDutyCycle": {
+                "data_size": "2",
+                "bit_start": "10",
+                "bit_end": "10",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramacADR": {
+                "data_size": "2",
+                "bit_start": "11",
+                "bit_end": "11",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "loramacDRtxPower": {
+            "port": "100",
+            "header": "0x12",
+            "field_count": "2",
+            "access": "RW",
+            "loramacDRnumber": {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramacTxPower": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "11",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "loramacRx2": {
+            "port": "100",
+            "header": "0x13",
+            "field_count": "2",
+            "access": "RW",
+            "loramacRx2Frequency": {
+                "data_size": "5",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramacRx2DR": {
+                "data_size": "5",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "loramacNetIdMSB": {
+            "port": "100",
+            "header": "0x19",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "multiplier": "1"
+        },
+        "loramacNetIdLSB": {
+            "port": "100",
+            "header": "0x1A",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "multiplier": "1"
+        }
+    },
+    "tx_cfg": {
+        "tickSeconds": {
+            "port": "100",
+            "header": "0x20",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "4",
+            "bit_start": "0",
+            "bit_end": "31",
+            "type": "unsigned",
+            "multiplier": "1"
+        },
+        "tickBattery": {
+            "port": "100",
+            "header": "0x21",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "multiplier": "1"
+        },
+        "tickMCUtemperature": {
+            "port": "100",
+            "header": "0x22",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "multiplier": "1"
+        },
+        "tickRoomStatus": {
+            "port": "100",
+            "header": "0x23",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "multiplier": "1"
+        }
+    },
+    "book_app": {
+        "bookNowRsp": {
+            "port": "101",
+            "header": "0x34",
+            "field_count": "1",
+            "access": "S",
+            "ACK": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "extendRsp": {
+            "port": "101",
+            "header": "0x35",
+            "field_count": "1",
+            "access": "S",
+            "ACK": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "bookFutureRsp": {
+            "port": "101",
+            "header": "0x36",
+            "field_count": "1",
+            "access": "S",
+            "ACK": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "finishRsp": {
+            "port": "101",
+            "header": "0x37",
+            "field_count": "1",
+            "access": "S",
+            "ACK": {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "roomStatusRsp": {
+            "port": "102",
+            "header": "0x33",
+            "field_count": "9",
+            "access": "S",
+            "booked_by": {
+                "data_size": "n+4",
+                "bit_start": "0",
+                "bit_end": "8*n-1",
+                "type": "hexstring",
+                "multiplier": "1"
+            },
+            "string_size": {
+                "data_size": "n+4",
+                "bit_start": "8*n",
+                "bit_end": "8*n+7",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "time_min": {
+                "data_size": "n+4",
+                "bit_start": "8*n+8",
+                "bit_end": "8*n+15",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "time_hr": {
+                "data_size": "n+4",
+                "bit_start": "8*n+16",
+                "bit_end": "8*n+19",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "PM_AM": {
+                "data_size": "n+4",
+                "bit_start": "8*n+20",
+                "bit_end": "8*n+20",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "Nx_C": {
+                "data_size": "n+4",
+                "bit_start": "8*n+21",
+                "bit_end": "8*n+21",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "TS_E": {
+                "data_size": "n+4",
+                "bit_start": "8*n+22",
+                "bit_end": "8*n+22",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "EPD_E": {
+                "data_size": "n+4",
+                "bit_start": "8*n+23",
+                "bit_end": "8*n+23",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "ACK": {
+                "data_size": "n+4",
+                "bit_start": "8*n+31",
+                "bit_end": "8*n+31",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "roomInfoRsp": {
+            "port": "103",
+            "header": "0x38",
+            "field_count": "8",
+            "access": "S",
+            "room_name": {
+                "data_size": "n+4",
+                "bit_start": "0",
+                "bit_end": "8*n-1",
+                "type": "hexstring",
+                "multiplier": "1"
+            },
+            "string_size": {
+                "data_size": "n+4",
+                "bit_start": "8*n",
+                "bit_end": "8*n+7",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "total_room_capacity": {
+                "data_size": "n+4",
+                "bit_start": "8*n+8",
+                "bit_end": "8*n+15",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "tv": {
+                "data_size": "n+4",
+                "bit_start": "8*n+16",
+                "bit_end": "8*n+16",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "projector": {
+                "data_size": "n+4",
+                "bit_start": "8*n+17",
+                "bit_end": "8*n+17",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "web_cam": {
+                "data_size": "n+4",
+                "bit_start": "8*n+18",
+                "bit_end": "8*n+18",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "white_board": {
+                "data_size": "n+4",
+                "bit_start": "8*n+19",
+                "bit_end": "8*n+19",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "ACK": {
+                "data_size": "n+4",
+                "bit_start": "8*n+31",
+                "bit_end": "8*n+31",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "amenitiesStatusRsp": {
+            "port": "104",
+            "header": "0x39",
+            "field_count": "7",
+            "access": "S",
+            "fault_description": {
+                "data_size": "n+3",
+                "bit_start": "0",
+                "bit_end": "8*n-1",
+                "type": "hexstring",
+                "multiplier": "1"
+            },
+            "string_size": {
+                "data_size": "n+3",
+                "bit_start": "8*n",
+                "bit_end": "8*n+7",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "tv": {
+                "data_size": "n+3",
+                "bit_start": "8*n+8",
+                "bit_end": "8*n+8",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "projector": {
+                "data_size": "n+3",
+                "bit_start": "8*n+9",
+                "bit_end": "8*n+9",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "web_cam": {
+                "data_size": "n+3",
+                "bit_start": "8*n+10",
+                "bit_end": "8*n+10",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "white_board": {
+                "data_size": "n+3",
+                "bit_start": "8*n+11",
+                "bit_end": "8*n+11",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "ACK": {
+                "data_size": "n+3",
+                "bit_start": "8*n+23",
+                "bit_end": "8*n+23",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        }
+    },
+    "sensor_cmd_ctrl_reg": {
+        "writeToFlash": {
+            "port": "100",
+            "header": "0x70",
+            "field_count": "3",
+            "access": "W",
+            "appConfiguration": {
+                "data_size": "2",
+                "bit_start": "5",
+                "bit_end": "5",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loraConfiguration": {
+                "data_size": "2",
+                "bit_start": "6",
+                "bit_end": "6",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "restartSensor": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        }
+    },
+    "Sensor Command & Control Register": {
+        "firmware_version": {
+            "port": "100",
+            "header": "0x71",
+            "field_count": "7",
+            "access": "W",
+            "app_major_version": {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "app_minor_version": {
+                "data_size": "7",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "app_revision": {
+                "data_size": "7",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramac_major_version": {
+                "data_size": "7",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramac_minor_version": {
+                "data_size": "7",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "loramac_revision": {
+                "data_size": "7",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "multiplier": "1"
+            },
+            "region": {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "multiplier": "1"
+            }
+        },
+        "configuration_factory_reset": {
+            "port": "100",
+            "header": "0x72",
+            "field_count": "1",
+            "access": "W",
+            "data_size": "1",
+            "bit_start": "0",
+            "bit_end": "7",
+            "type": "unsigned",
+            "multiplier": "1"
+        }
+    }
+}
