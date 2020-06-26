@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////
 */
 
-// replace with appropriate directory
+// replace with appropriate directories
 home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
 industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Industrial_Sensor.json");
 digital_sign_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Digital_Signage.json")
@@ -27,21 +27,27 @@ function check_command(group_or_field, lookup) {
     //    2. Number of fields
 
     if (group_or_field.hasOwnProperty("read")) {
-        if (lookup["access"] == "W") {
+        if ( (lookup["access"] == "W") || (lookup["access"] == "S")) {
             return false;
         }
     }
     else if (group_or_field.hasOwnProperty("write")) {
-        if (lookup["access"] == "R") {
+        if ( (lookup["access"] == "R") || (lookup["access"] == "S")) {
             return false;
         }
         if (typeof(group_or_field["write"]) === "object") {
             var fields = Object.keys(group_or_field["write"]);
-            // console.log("fields.length = " + String(fields.length))
-            // console.log("field_count = " + lookup["field_count"])
             if (fields.length != Number(lookup["field_count"])) {
                 return false;
             }
+        }
+    }
+    else {  // send
+        if ( (lookup["access"] == "RW") || (lookup["access"] == "R") || (lookup["access"] == "W") ) {
+            return false;
+        }
+        else if (Object.keys(group_or_field["send"]).length != Number(lookup["field_count"])) {
+            return false;
         }
     }
     return true;
@@ -382,6 +388,7 @@ industrial_sensor_commands = {
     }
 };
 
+
 digital_sign_commands = {
     lorawan : {
         appEUI : { read : true }
@@ -392,7 +399,7 @@ digital_sign_commands = {
         roomStatusRsp : {
             send : {
                 booked_by : "Barack Obama",
-                string_size : 29,
+                string_size : "Barack Obama".length,
                 time_min : 30,
                 time_hr : 12,
                 PM_AM : 1,
@@ -404,8 +411,8 @@ digital_sign_commands = {
         },
         roomInfoRsp : {
             send : {
-                room_name : "This is a really long string to test the algorithm. I really hope this works.",
-                string_size : "This is a really long string to test the algorithm. I really hope this works.".length,
+                room_name : "This is a really long string that I don't think we will ever need to send but oh well",
+                string_size : "This is a really long string that I don't think we will ever need to send but oh well".length,
                 total_room_capacity : 69,
                 tv : 1,
                 projector : 0,
