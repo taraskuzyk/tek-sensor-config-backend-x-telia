@@ -14,9 +14,9 @@
 */
 
 // replace with appropriate directories
-home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\downlinkHomeSensor.json");
-industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Industrial_Sensor.json");
-digital_sign_json = require("C:\\Users\\rmah\\VS-Code\\Encoder-Decoder-JSON-Generator\\DL\\DL_Digital_Signage.json")
+home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Home_Sensor.json");
+industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Industrial_Sensor.json");
+digital_sign_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Digital_Signage.json");
 
 
 function check_command(group_or_field, lookup) {
@@ -72,11 +72,11 @@ function is_valid(commands, sensor_json) {
 
             valid = check_command(group_or_field, lookup);
             if (!valid) {
-                return false;
+                return [false, category_str + " -> " + group_or_field_str];
             }
         }
     }
-    return true;
+    return [true, undefined];
 }
 
 function write_bits(write_value, start_bit, end_bit, current_value, multiplier) {
@@ -191,10 +191,13 @@ function write_to_port(bytes, port, encoded_data) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 function encode(commands, sensor_json) {
     // encodes the commands object into a nested array of bytes
-    
-    if (!is_valid(commands, sensor_json)) {
+    // console.log(is_valid(commands, sensor_json))
+    if (!is_valid(commands, sensor_json)[0]) {
         // check if commands is valid. If not, raise an error
-        throw "Error: Commands are invalid";
+        message = "Commands are invalid, failed at: " + is_valid(commands, sensor_json)[1];
+
+        foo = {error : message};
+        return foo;
     }
 
     var categories = Object.keys(commands);
@@ -324,7 +327,6 @@ function encode(commands, sensor_json) {
                 write_to_port(bytes, port, encoded_data);   // Add the bytes to the appropriate port in "encoded data"
             }
             
-
         }
     }
     return encoded_data;
@@ -351,7 +353,7 @@ home_sensor_commands = {
         mcu_temp_threshold : { read : true }                      // group
     },
     lorawan : {
-        network_session_key : { write : "This is a string" }           // field
+        network_session_key : { read : true }           // field
     }
 };
 
@@ -426,7 +428,7 @@ digital_sign_commands = {
 }
 
 console.time("encode");
-encoded_data = encode(digital_sign_commands, digital_sign_json);
+encoded_data = encode(home_sensor_commands, home_sensor_json);
 console.timeEnd("encode");
 
 console.log()
