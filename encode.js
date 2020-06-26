@@ -246,21 +246,20 @@ function encode(commands, sensor_json) {
                     var fields = Object.keys(group_or_field["send"]);
                     var n = group_or_field["send"]["string_size"];     // define a variable "n" to represent "n" bytes in the string which
                     var current_val = BigInt(0);                       // will be used with the eval() function to allow for dynamic sizing
-                    for (var k = 0; k < fields.length; k++) {
+                    for (var k = 0; k < fields.length - 1; k++) {                        
                         var field_str = fields[k];
+
                         lookup = sensor_json[category_str][group_or_field_str][field_str];
 
                         var start_bit = BigInt(eval(lookup["bit_start"]));
                         var end_bit = BigInt(eval(lookup["bit_end"]));
-
-                        // WHAT HAVE I CREATED????? SOMEONE STOP ME
                         
                         var temp_val = group_or_field["send"][fields[k]];
                         var multiplier = Number(lookup["multiplier"]);
                         current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);                        
                     }
                     var byte_num = eval(lookup["data_size"]);
-                    bytes = bytes.concat(separate_bytes(current_val, byte_num));
+                    bytes = bytes.concat(separate_bytes(current_val, byte_num - 1));    // -1 because we already added the ACK
                     bytes = bigint_to_num(bytes);
                     write_to_port(bytes, port, encoded_data);                    
                 }
@@ -385,14 +384,14 @@ industrial_sensor_commands = {
 
 digital_sign_commands = {
     lorawan : {
-        deviceEUI : { read : true }
+        appEUI : { read : true }
     },
     
     book_app : {
         bookNowRsp : { send : {ACK : 1} },
         roomStatusRsp : {
             send : {
-                booked_by : "Barack Obama sux lmao oof oof",
+                booked_by : "Barack Obama",
                 string_size : 29,
                 time_min : 30,
                 time_hr : 12,
@@ -405,13 +404,13 @@ digital_sign_commands = {
         },
         roomInfoRsp : {
             send : {
-                room_name : "why god, why?",
-                string_size : 13,
+                room_name : "This is a really long string to test the algorithm. I really hope this works.",
+                string_size : "This is a really long string to test the algorithm. I really hope this works.".length,
                 total_room_capacity : 69,
                 tv : 1,
                 projector : 0,
                 web_cam : 0,
-                white_board : 0,
+                white_board : 1,
                 ACK : 1
             }
         },
