@@ -1,0 +1,142 @@
+{
+    "10": {
+        "no_header": [
+            {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "HR",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "8",
+                "bit_end": "14",
+                "type": "unsigned",
+                "parameter_name": "position",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "15",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "AF",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "CSC",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "27",
+                "type": "unsigned",
+                "parameter_name": "CE",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "30",
+                "bit_end": "30",
+                "type": "unsigned",
+                "parameter_name": "rest_mode_status",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "31",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "ua_mode_status",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "RR",
+                "group_name": "periodic_report",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "BT",
+                "group_name": "periodic_report",
+                "multiplier": "0.05",
+                "addition": "30",
+                "round": ""
+            },
+            {
+                "data_size": "9",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "battery_status",
+                "group_name": "periodic_report",
+                "multiplier": "0.39130434782608695652173913043478",
+                "addition": "0.60869565217391304347826086956522",
+                "round": ""
+            }
+        ]
+    },
+    "100": {
+        "0x71": [
+            {
+                "data_size": "5",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "app_version",
+                "group_name": "meta_data",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            },
+            {
+                "data_size": "5",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "loramac_region_num",
+                "group_name": "meta_data",
+                "multiplier": "1",
+                "addition": "0",
+                "round": ""
+            }
+        ]
+    }
+}
