@@ -13,11 +13,7 @@
 ///////////////////////////////////////////////////////////////
 */
 
-// replace with appropriate directories
-home_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Home_Sensor.json");
-industrial_sensor_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Industrial_Sensor.json");
-digital_sign_json = require("C:\\Users\\rmah\\VS-Code\\Data_Converters\\DL_Digital_Signage.json");
-
+module.exports = {encode: encode};
 
 function check_command(group_or_field, lookup) {
     // returns true if an individual command is valid, and false otherwise
@@ -27,7 +23,13 @@ function check_command(group_or_field, lookup) {
     //    2. Number of fields
 
     if (group_or_field.hasOwnProperty("read")) {
-        if ( (lookup["access"] == "W") || (lookup["access"] == "S")) {
+        // console.log(group_or_field)
+        // console.log(group_or_field["read"])
+        if ( (lookup["access"] == "W") || (lookup["access"] == "S") ) {
+            return false;
+        }
+        else if ( typeof(group_or_field["read"]) == "object" ) {
+            // console.log(group_or_field["read"])
             return false;
         }
     }
@@ -53,7 +55,7 @@ function check_command(group_or_field, lookup) {
     return true;
 }
 
-function is_valid(commands, sensor_json) {
+function is_valid(commands, sensor) {
     // returns true if commands are valid, returns false otherwise
 
     var valid = true;
@@ -68,18 +70,18 @@ function is_valid(commands, sensor_json) {
             var group_or_field_str = groups_and_fields[j];
             var group_or_field = category[group_or_field_str];
 
-            var lookup = sensor_json[category_str][group_or_field_str];
+            var lookup = sensor[category_str][group_or_field_str];
 
             valid = check_command(group_or_field, lookup);
             if (!valid) {
-                return [false, category_str + " -> " + group_or_field_str];
+                return {valid: false, message: category_str + " -> " + group_or_field_str};
             }
         }
     }
-    return [true, undefined];
+    return {valid: true, message: "no message"};
 }
 
-function write_bits(write_value, start_bit, end_bit, current_value, multiplier) {
+function write_bits(write_value, start_bit, end_bit, current_value, coefficient) {
     // write the bits in write_value to the specified location in current_value and returns the result
 
     if (typeof(write_value) === "bigint") {
@@ -89,13 +91,14 @@ function write_bits(write_value, start_bit, end_bit, current_value, multiplier) 
     }
 
     else if (typeof(write_value) === "number") {
-        write_value = BigInt( Math.round(Number(write_value)/multiplier) );
-        current_value = write_bits(write_value, start_bit, end_bit, current_value, multiplier);
+        // since you multiply by "coefficient" in the decoders, we must divide by "coefficient" for encoders lol
+        write_value = BigInt( Math.round(Number(write_value)/coefficient) );
+        current_value = write_bits(write_value, start_bit, end_bit, current_value, coefficient);
     }
 
     else if (typeof(write_value) === "string") {
         write_value = string_to_bigint(write_value);
-        current_value = write_bits(write_value, start_bit, end_bit, current_value, multiplier);
+        current_value = write_bits(write_value, start_bit, end_bit, current_value, coefficient);
     }
     return current_value;
 }
@@ -189,12 +192,12 @@ function write_to_port(bytes, port, encoded_data) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-function encode(commands, sensor_json) {
+function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
-    // console.log(is_valid(commands, sensor_json))
-    if (!is_valid(commands, sensor_json)[0]) {
+    
+    if (!is_valid(commands, sensor)["valid"]) {
         // check if commands is valid. If not, raise an error
-        message = "Commands are invalid, failed at: " + is_valid(commands, sensor_json)[1];
+        message = "Commands are invalid, failed at: " + is_valid(commands, sensor)["message"];
 
         foo = {error : message};
         return foo;
@@ -222,18 +225,18 @@ function encode(commands, sensor_json) {
             
             if (group_or_field.hasOwnProperty("read")) {
                 // CASE 1
-                var header = sensor_json[category_str][group_or_field_str]["header"];
+                var header = sensor[category_str][group_or_field_str]["header"];
                 var bytes = format_header(header, read = true);
                 bytes = bigint_to_num(bytes);
 
-                var port = sensor_json[category_str][group_or_field_str]["port"];
+                var port = sensor[category_str][group_or_field_str]["port"];
                 
                 write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
             }
             
             else if (group_or_field.hasOwnProperty("send")) {
                 // CASE 2
-                var lookup = sensor_json[category_str][group_or_field_str];
+                var lookup = sensor[category_str][group_or_field_str];
                 var header = lookup["header"];
                 var port = lookup["port"];
                 var ack = Boolean(group_or_field["send"]["ACK"]);
@@ -258,14 +261,14 @@ function encode(commands, sensor_json) {
                     for (var k = 0; k < fields.length - 1; k++) {                        
                         var field_str = fields[k];
 
-                        lookup = sensor_json[category_str][group_or_field_str][field_str];
+                        lookup = sensor[category_str][group_or_field_str][field_str];
 
                         var start_bit = BigInt(eval(lookup["bit_start"]));
                         var end_bit = BigInt(eval(lookup["bit_end"]));
                         
                         var temp_val = group_or_field["send"][fields[k]];
-                        var multiplier = Number(lookup["multiplier"]);
-                        current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);                        
+                        var coefficient = Number(lookup["coefficient"]);
+                        current_val = write_bits(temp_val, start_bit, end_bit, current_val, coefficient);                        
                     }
                     var byte_num = eval(lookup["data_size"]);
                     bytes = bytes.concat(separate_bytes(current_val, byte_num - 1));    // -1 because we already added the ACK
@@ -276,7 +279,7 @@ function encode(commands, sensor_json) {
 
             else if (group_or_field.hasOwnProperty("write") && (typeof(group_or_field["write"]) != "object")) {
                 // CASE 3
-                var lookup = sensor_json[category_str][group_or_field_str];
+                var lookup = sensor[category_str][group_or_field_str];
                 var bytes = [];
 
                 var byte_num = lookup["data_size"];
@@ -286,8 +289,8 @@ function encode(commands, sensor_json) {
                 bytes = format_header(header, read = false);
 
                 var val = group_or_field["write"];
-                var multiplier = Number(lookup["multiplier"]);
-                val = write_bits(val, start_bit, end_bit, BigInt(0), multiplier);
+                var coefficient = Number(lookup["coefficient"]);
+                val = write_bits(val, start_bit, end_bit, BigInt(0), coefficient);
 
                 bytes = bytes.concat(separate_bytes(val, byte_num));
                 bytes = bigint_to_num(bytes);
@@ -301,7 +304,7 @@ function encode(commands, sensor_json) {
                 // CASE 4
                 var bytes = [];
 
-                var lookup = sensor_json[category_str][group_or_field_str];
+                var lookup = sensor[category_str][group_or_field_str];
 
                 var port = lookup["port"];
 
@@ -312,14 +315,14 @@ function encode(commands, sensor_json) {
                 var byte_num = lookup[fields[0]]["data_size"];
                 var current_val = BigInt(0);
                 for (var k = 0; k < fields.length; k++) {   // iterate over the fields in the group
-                    lookup = sensor_json[category_str][group_or_field_str][fields[k]];
+                    lookup = sensor[category_str][group_or_field_str][fields[k]];
                     
                     var start_bit = BigInt(lookup["bit_start"]);
                     var end_bit = BigInt(lookup["bit_end"]);
 
                     var temp_val = group_or_field["write"][fields[k]];
-                    var multiplier = Number(lookup["multiplier"]);
-                    current_val = write_bits(temp_val, start_bit, end_bit, current_val, multiplier);
+                    var coefficient = Number(lookup["coefficient"]);
+                    current_val = write_bits(temp_val, start_bit, end_bit, current_val, coefficient);
                 }
                 bytes = bytes.concat(separate_bytes(current_val, byte_num));
                 bytes = bigint_to_num(bytes);
@@ -332,104 +335,3 @@ function encode(commands, sensor_json) {
     return encoded_data;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Test commands
-home_sensor_commands = {
-    loramac : {                     // category
-        loramac_opts : {                 // group
-            write : {
-                loramac_confirm_mode : 1,   // field
-                loramac_networks : 1,       // field
-                loramac_duty_cycle : 0,     // field
-                loramac_adr : 1             // field
-            }
-        },
-        loramac_dr_tx_power : { read : true },     // group
-        loramac_net_id_msb : { write : 0x0B01 },   // field
-    },
-    mcu_temperature : { // category
-        mcu_temperature_sample_period_idle : { write : "lmao" },         // field
-        mcu_temperature_sample_period_active : { write : 0x00202215 },   // field
-        mcu_temp_threshold : { read : true }                      // group
-    },
-    lorawan : {
-        network_session_key : { read : true }           // field
-    }
-};
-
-industrial_sensor_commands = {
-    loramac : {                                     // category
-        loramac_opts : {                            // group
-            write : {
-                loramac_class : 0b1011,             // field
-                loramac_confirmed_uplink : 1,       // field
-                loramac_duty_cycle : 0,             // field
-                loramac_adr : 1                     // field
-            }
-        },
-        loramac_dr_tx_power : { read : true },     // group
-        loramac_net_id_msb : { write : 0x0B01 },   // field
-    },
-    sensor_config : {                                                    // category
-        mcu_temperature_sample_period_idle : { write : "lmao" },         // field
-        mcu_temperature_sample_period_active : { write : 0x00202215 },   // field
-        mcu_temp_threshold : { read : true },                             // group
-        input2_threshold : {
-            write : {
-                input2_current_high_threshold : 0.018,
-                input2_current_low_threshold : 0.006
-            }
-        }
-    },
-    change_output_states : {                // On port 10
-        output_2 : { write : 0b01101101 }
-    },
-    lorawan : {
-        device_eui : { read : true },
-        app_eui : { read : true }
-    }
-};
-
-
-digital_sign_commands = {
-    lorawan : {
-        appEUI : { read : true }
-    },
-    
-    book_app : {
-        bookNowRsp : { send : {ACK : 1} },
-        roomStatusRsp : {
-            send : {
-                booked_by : "Barack Obama",
-                string_size : "Barack Obama".length,
-                time_min : 30,
-                time_hr : 12,
-                PM_AM : 1,
-                Nx_C : 1,
-                TS_E : 0,
-                EPD_E : 1,
-                ACK : 1
-            }
-        },
-        roomInfoRsp : {
-            send : {
-                room_name : "This is a really long string that I don't think we will ever need to send but oh well",
-                string_size : "This is a really long string that I don't think we will ever need to send but oh well".length,
-                total_room_capacity : 69,
-                tv : 1,
-                projector : 0,
-                web_cam : 0,
-                white_board : 1,
-                ACK : 1
-            }
-        },
-        finishRsp : { send : {ACK : 0} }
-    }
-}
-
-console.time("encode");
-encoded_data = encode(home_sensor_commands, home_sensor_json);
-console.timeEnd("encode");
-
-console.log()
-console.log(encoded_data);
