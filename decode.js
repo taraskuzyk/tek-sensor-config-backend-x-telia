@@ -1,3 +1,5 @@
+module.exports = {decode: decode}
+
 function stringifyHex(key) {
     // expects Number, returns stringified hex number in format (FF -> 0xFF) || (A -> 0x0A)
     var ret = key.toString(16).toUpperCase()
@@ -51,15 +53,15 @@ function extractBytes(chunk, startBit, endBit) {
     return arr;
 }
 
-function applyDataType(bytes, dataType, multiplier, round, addition = 0) {
+function applyDataType(bytes, dataType, coefficient, round, addition = 0) {
     var output = 0;
-    multiplier = Number(multiplier)
+    coefficient = Number(coefficient)
     addition = Number(addition)
     if (dataType === "unsigned") {
         for (var i = 0; i < bytes.length; ++i) {
             output = (toUint(output << 8)) | bytes[i];
         }
-        return round ? Number( (output*multiplier + addition).toFixed(round) ) : Number(output*multiplier + addition);
+        return round ? Number( (output*coefficient + addition).toFixed(round) ) : Number(output*coefficient + addition);
     }
 
     if (dataType === "signed") {
@@ -69,7 +71,7 @@ function applyDataType(bytes, dataType, multiplier, round, addition = 0) {
         // Convert to signed, based on value size
         if (output > Math.pow(2, 8*bytes.length-1))
             output -= Math.pow(2, 8*bytes.length);
-        return round ? Number( (output*multiplier + addition).toFixed(round) ) : Number(output*multiplier + addition);
+        return round ? Number( (output*coefficient + addition).toFixed(round) ) : Number(output*coefficient + addition);
     }
 
     if (dataType === "bool") {
@@ -84,7 +86,7 @@ function applyDataType(bytes, dataType, multiplier, round, addition = 0) {
     return null;
 }
 
-function decodeField(chunk, startBit, endBit, dataType, multiplier, round, addition = 0) {
+function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition = 0) {
     var chunkSize = chunk.length;
     if (parseInt(endBit) >= parseInt(chunkSize) * 8) {
         return null; // Error: exceeding boundaries of the chunk
@@ -95,7 +97,7 @@ function decodeField(chunk, startBit, endBit, dataType, multiplier, round, addit
     }
 
     var arr = extractBytes(chunk, startBit, endBit);
-    return applyDataType(arr, dataType, multiplier, round, addition = addition);
+    return applyDataType(arr, dataType, coefficient, round, addition = addition);
 }
 
 function flattenObject(ob) {
@@ -132,7 +134,7 @@ function decode_everything_else(parameters, data, port, flatten){
     decodedData.port = port;
 
     while (bytes.length > 0) {
-        var keyLength = (Object.keys(parameters['10'])[0].split(' ')).length;
+        var keyLength = (Object.keys(parameters[port])[0].split(' ')).length;
         //get the length of header of the first key in the given port
         //e.g. '0x12 0x12' turns into ['0x12', '0x12'], it's length is 2.
         // 0x01 0x00 0x00 0x08
@@ -168,13 +170,13 @@ function decode_everything_else(parameters, data, port, flatten){
         if (properties.length === 1) {
             var p = properties[0];
             decodedData[p["parameter_name"]] =
-                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
+                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["coefficient"], p["round"])
         } else {
             decodedData[properties[0]["group_name"]] = {}
             for (var p in properties) {
                 prop = properties[p];
                 decodedData[ prop["group_name"] ][ prop["parameter_name"] ] =
-                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["multiplier"], prop["round"])
+                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["coefficient"], prop["round"])
             }
         }
     }
@@ -205,7 +207,7 @@ function decode_medical(parameters, data, port, flatten) {
                 prop["bit_start"],
                 prop["bit_end"],
                 prop["type"],
-                prop["multiplier"],
+                prop["coefficient"],
                 prop["round"],
                 addition = prop["addition"] )
         }
@@ -226,25 +228,3 @@ function decode(parameters, data, port, flatten = false, isMedical = false) {
         return decode_medical(parameters, data, port, flatten);
     }
 }
-
-home_sensor_json = require(".\\uplinkHomeSensor.json")
-med_sensor_json = require(".\\uplinkMedicalSensor.json")
-
-
-med_payload_port10 = [0xB6, 0x9F, 0x0F, 0xB7, 0x01, 0x08, 0x37, 0xFF, 0xFF]
-med_payload_port100 = [0x71, 0x00, 0x00, 0x00, 0x02, 0x69]
-
-home_payload = [
-    0x00, 0xFF, 0x00, 0x50,
-    0x06, 0x00, 0x09,
-    0x01, 0x00, 0x11,
-    0x07, 0x71, 0x12, 0x56, 0x69, 0x12, 0x56, 0x25
-]
-
-console.time("decode");
-decoded_data = decode(med_sensor_json, med_payload_port10, 10, flatten = true, isMedical = true);
-console.timeEnd("decode");
-
-console.log();
-console.log(decoded_data);
-
