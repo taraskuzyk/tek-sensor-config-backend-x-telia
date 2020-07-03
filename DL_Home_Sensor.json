@@ -9,7 +9,7 @@
             "bit_start": "0",
             "bit_end": "63",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "app_eui": {
             "port": "100",
@@ -20,7 +20,7 @@
             "bit_start": "0",
             "bit_end": "63",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "app_key": {
             "port": "100",
@@ -31,7 +31,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "device_address": {
             "port": "100",
@@ -42,7 +42,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "network_session_key": {
             "port": "100",
@@ -53,7 +53,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "app_session_key": {
             "port": "100",
@@ -64,7 +64,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "loramac": {
@@ -78,28 +78,28 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_networks": {
                 "data_size": "2",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_duty_cycle": {
                 "data_size": "2",
                 "bit_start": "2",
                 "bit_end": "2",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_adr": {
                 "data_size": "2",
                 "bit_start": "3",
                 "bit_end": "3",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramac_dr_tx_power": {
@@ -112,14 +112,14 @@
                 "bit_start": "0",
                 "bit_end": "3",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_tx_power": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "11",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramac_rx2": {
@@ -132,14 +132,14 @@
                 "bit_start": "0",
                 "bit_end": "31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_rx2_dr": {
                 "data_size": "5",
                 "bit_start": "32",
                 "bit_end": "39",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramac_otaa": {
@@ -151,7 +151,7 @@
             "bit_start": "7",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "loramac_net_id_msb": {
             "port": "100",
@@ -162,7 +162,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "loramac_net_id_lsb": {
             "port": "100",
@@ -173,7 +173,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "ticks_config": {
@@ -186,7 +186,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_battery": {
             "port": "100",
@@ -197,7 +197,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_temperature": {
             "port": "100",
@@ -208,7 +208,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_relative_humidity": {
             "port": "100",
@@ -219,7 +219,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_digital_input": {
             "port": "100",
@@ -230,7 +230,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_light": {
             "port": "100",
@@ -241,7 +241,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_acceleration": {
             "port": "100",
@@ -252,7 +252,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_mcu_temperature": {
             "port": "100",
@@ -263,7 +263,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tick_pir": {
             "port": "100",
@@ -274,7 +274,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "reed_switch": {
@@ -288,14 +288,14 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "reed_switch_falling_edge": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "reed_switch_value_to_tx": {
@@ -308,14 +308,14 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "reed_switch_report_count": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "reed_switch_count_threshold": {
@@ -327,7 +327,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "external_connector": {
@@ -341,21 +341,21 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "external_connector_falling_edge": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "external_connector_functionality": {
                 "data_size": "1",
                 "bit_start": "7",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "external_connector_values_to_tx": {
@@ -368,14 +368,14 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "external_connector_report_count": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "external_connector_count_threshold": {
@@ -387,7 +387,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "accelerometer": {
@@ -401,21 +401,21 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "accelerometer_report_magnitude": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "accelerometer_report_full_precision": {
                 "data_size": "1",
                 "bit_start": "2",
                 "bit_end": "2",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "accelerometer_mode": {
@@ -428,21 +428,21 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "accelerometer_impact_threshold_enable": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "accelerometer_enable": {
                 "data_size": "1",
                 "bit_start": "7",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "accelerometer_break_in_threshold": {
@@ -454,7 +454,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "accelerometer_impact_threshold": {
             "port": "100",
@@ -465,7 +465,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "accelerometer_impact_grace_period": {
             "port": "100",
@@ -476,7 +476,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "accelerometer_sample_rate": {
             "port": "100",
@@ -487,7 +487,7 @@
             "bit_start": "0",
             "bit_end": "2",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "temperature_humidity_thresholds": {
@@ -501,14 +501,14 @@
                 "bit_start": "0",
                 "bit_end": "7",
                 "type": "signed",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "temperature_high_threshold": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "15",
                 "type": "signed",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "rh_thresholds": {
@@ -521,14 +521,14 @@
                 "bit_start": "0",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "relative_humidity_high_threshold": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "15",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "temperature_relative_humidity_sample_period_idle": {
@@ -540,7 +540,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "temperature_relative_humidity_sample_period_active": {
             "port": "100",
@@ -551,7 +551,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "temperature_threshold_enable": {
             "port": "100",
@@ -562,7 +562,7 @@
             "bit_start": "0",
             "bit_end": "0",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "relative_humidity_threshold_enable": {
             "port": "100",
@@ -573,7 +573,7 @@
             "bit_start": "0",
             "bit_end": "0",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "mcu_temperature": {
@@ -587,14 +587,14 @@
                 "bit_start": "0",
                 "bit_end": "7",
                 "type": "signed",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "mcu_temparature_low_threshold": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "15",
                 "type": "signed",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "mcu_temperature_sample_period_idle": {
@@ -606,7 +606,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "mcu_temperature_sample_period_active": {
             "port": "100",
@@ -617,7 +617,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "mcu_temp_threshold_enable": {
             "port": "100",
@@ -628,7 +628,7 @@
             "bit_start": "0",
             "bit_end": "0",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "light_sensor": {
@@ -641,7 +641,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "light_threshold": {
             "port": "100",
@@ -652,7 +652,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "pir_sensor": {
@@ -666,28 +666,28 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "pir_motion_count": {
                 "data_size": "1",
                 "bit_start": "1",
                 "bit_end": "1",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "pir_event_enable": {
                 "data_size": "1",
                 "bit_start": "6",
                 "bit_end": "6",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "pir_sensor_enable": {
                 "data_size": "1",
                 "bit_start": "7",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "pir_grace_period": {
@@ -699,7 +699,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "pir_threshold": {
             "port": "100",
@@ -710,7 +710,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "pir_threshold_period": {
             "port": "100",
@@ -721,7 +721,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "moisture_sensor": {
@@ -734,7 +734,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "moisture_threshold": {
             "port": "100",
@@ -745,7 +745,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "moisture_enable": {
             "port": "100",
@@ -756,7 +756,7 @@
             "bit_start": "0",
             "bit_end": "0",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "moisture_dry": {
             "port": "100",
@@ -767,7 +767,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "sensor_cmd_ctrl_reg": {
@@ -781,21 +781,21 @@
                 "bit_start": "5",
                 "bit_end": "5",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "lora_configuration": {
                 "data_size": "2",
                 "bit_start": "6",
                 "bit_end": "6",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "restart_sensor": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "8",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "firmware_version": {
@@ -808,49 +808,49 @@
                 "bit_start": "0",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "app_minor_version": {
                 "data_size": "7",
                 "bit_start": "8",
                 "bit_end": "15",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "app_revision": {
                 "data_size": "7",
                 "bit_start": "16",
                 "bit_end": "23",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_major_version": {
                 "data_size": "7",
                 "bit_start": "24",
                 "bit_end": "31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_minor_version": {
                 "data_size": "7",
                 "bit_start": "32",
                 "bit_end": "39",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_revision": {
                 "data_size": "7",
                 "bit_start": "40",
                 "bit_end": "47",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "region": {
                 "data_size": "7",
                 "bit_start": "48",
                 "bit_end": "55",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "configuration_factory_reset": {
@@ -862,7 +862,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     }
 }
