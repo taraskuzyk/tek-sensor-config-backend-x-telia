@@ -9,7 +9,7 @@
             "bit_start": "0",
             "bit_end": "63",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "appEUI": {
             "port": "100",
@@ -20,7 +20,7 @@
             "bit_start": "0",
             "bit_end": "63",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "appKey": {
             "port": "100",
@@ -31,7 +31,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "deviceAddress": {
             "port": "100",
@@ -42,7 +42,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "networkSessionKey": {
             "port": "100",
@@ -53,7 +53,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "appSessionKey": {
             "port": "100",
@@ -64,7 +64,7 @@
             "bit_start": "0",
             "bit_end": "127",
             "type": "hexstring",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "loramac": {
@@ -78,7 +78,7 @@
                 "bit_start": "7",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramacOpts": {
@@ -91,28 +91,28 @@
                 "bit_start": "4",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramacNetworks": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "8",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramacDutyCycle": {
                 "data_size": "2",
                 "bit_start": "10",
                 "bit_end": "10",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramacADR": {
                 "data_size": "2",
                 "bit_start": "11",
                 "bit_end": "11",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramacDRtxPower": {
@@ -125,14 +125,14 @@
                 "bit_start": "0",
                 "bit_end": "3",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramacTxPower": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "11",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramacRx2": {
@@ -145,14 +145,14 @@
                 "bit_start": "0",
                 "bit_end": "31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramacRx2DR": {
                 "data_size": "5",
                 "bit_start": "32",
                 "bit_end": "39",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "loramacNetIdMSB": {
@@ -164,7 +164,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "loramacNetIdLSB": {
             "port": "100",
@@ -175,7 +175,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "tx_cfg": {
@@ -188,7 +188,7 @@
             "bit_start": "0",
             "bit_end": "31",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tickBattery": {
             "port": "100",
@@ -199,7 +199,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tickMCUtemperature": {
             "port": "100",
@@ -210,7 +210,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         },
         "tickRoomStatus": {
             "port": "100",
@@ -221,7 +221,7 @@
             "bit_start": "0",
             "bit_end": "15",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     },
     "book_app": {
@@ -235,7 +235,7 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "extendRsp": {
@@ -248,7 +248,7 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "bookFutureRsp": {
@@ -261,7 +261,7 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "finishRsp": {
@@ -274,7 +274,7 @@
                 "bit_start": "0",
                 "bit_end": "0",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "roomStatusRsp": {
@@ -287,63 +287,63 @@
                 "bit_start": "0",
                 "bit_end": "8*n-1",
                 "type": "hexstring",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "string_size": {
                 "data_size": "n+4",
                 "bit_start": "8*n",
                 "bit_end": "8*n+7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "time_min": {
                 "data_size": "n+4",
                 "bit_start": "8*n+8",
                 "bit_end": "8*n+15",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "time_hr": {
                 "data_size": "n+4",
                 "bit_start": "8*n+16",
                 "bit_end": "8*n+19",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "PM_AM": {
                 "data_size": "n+4",
                 "bit_start": "8*n+20",
                 "bit_end": "8*n+20",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "Nx_C": {
                 "data_size": "n+4",
                 "bit_start": "8*n+21",
                 "bit_end": "8*n+21",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "TS_E": {
                 "data_size": "n+4",
                 "bit_start": "8*n+22",
                 "bit_end": "8*n+22",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "EPD_E": {
                 "data_size": "n+4",
                 "bit_start": "8*n+23",
                 "bit_end": "8*n+23",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "ACK": {
                 "data_size": "n+4",
                 "bit_start": "8*n+31",
                 "bit_end": "8*n+31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "roomInfoRsp": {
@@ -356,56 +356,56 @@
                 "bit_start": "0",
                 "bit_end": "8*n-1",
                 "type": "hexstring",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "string_size": {
                 "data_size": "n+4",
                 "bit_start": "8*n",
                 "bit_end": "8*n+7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "total_room_capacity": {
                 "data_size": "n+4",
                 "bit_start": "8*n+8",
                 "bit_end": "8*n+15",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "tv": {
                 "data_size": "n+4",
                 "bit_start": "8*n+16",
                 "bit_end": "8*n+16",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "projector": {
                 "data_size": "n+4",
                 "bit_start": "8*n+17",
                 "bit_end": "8*n+17",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "web_cam": {
                 "data_size": "n+4",
                 "bit_start": "8*n+18",
                 "bit_end": "8*n+18",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "white_board": {
                 "data_size": "n+4",
                 "bit_start": "8*n+19",
                 "bit_end": "8*n+19",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "ACK": {
                 "data_size": "n+4",
                 "bit_start": "8*n+31",
                 "bit_end": "8*n+31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "amenitiesStatusRsp": {
@@ -418,49 +418,49 @@
                 "bit_start": "0",
                 "bit_end": "8*n-1",
                 "type": "hexstring",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "string_size": {
                 "data_size": "n+3",
                 "bit_start": "8*n",
                 "bit_end": "8*n+7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "tv": {
                 "data_size": "n+3",
                 "bit_start": "8*n+8",
                 "bit_end": "8*n+8",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "projector": {
                 "data_size": "n+3",
                 "bit_start": "8*n+9",
                 "bit_end": "8*n+9",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "web_cam": {
                 "data_size": "n+3",
                 "bit_start": "8*n+10",
                 "bit_end": "8*n+10",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "white_board": {
                 "data_size": "n+3",
                 "bit_start": "8*n+11",
                 "bit_end": "8*n+11",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "ACK": {
                 "data_size": "n+3",
                 "bit_start": "8*n+23",
                 "bit_end": "8*n+23",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         }
     },
@@ -475,21 +475,21 @@
                 "bit_start": "5",
                 "bit_end": "5",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loraConfiguration": {
                 "data_size": "2",
                 "bit_start": "6",
                 "bit_end": "6",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "restartSensor": {
                 "data_size": "2",
                 "bit_start": "8",
                 "bit_end": "8",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         }
     },
@@ -504,49 +504,49 @@
                 "bit_start": "0",
                 "bit_end": "7",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "app_minor_version": {
                 "data_size": "7",
                 "bit_start": "8",
                 "bit_end": "15",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "app_revision": {
                 "data_size": "7",
                 "bit_start": "16",
                 "bit_end": "23",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_major_version": {
                 "data_size": "7",
                 "bit_start": "24",
                 "bit_end": "31",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_minor_version": {
                 "data_size": "7",
                 "bit_start": "32",
                 "bit_end": "39",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "loramac_revision": {
                 "data_size": "7",
                 "bit_start": "40",
                 "bit_end": "47",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             },
             "region": {
                 "data_size": "7",
                 "bit_start": "48",
                 "bit_end": "55",
                 "type": "unsigned",
-                "multiplier": "1"
+                "coefficient": "1"
             }
         },
         "configuration_factory_reset": {
@@ -558,7 +558,7 @@
             "bit_start": "0",
             "bit_end": "7",
             "type": "unsigned",
-            "multiplier": "1"
+            "coefficient": "1"
         }
     }
 }
