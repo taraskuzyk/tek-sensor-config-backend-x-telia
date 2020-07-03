@@ -1,0 +1,657 @@
+{
+    "loramac": {
+        "options": {
+            "port": "100",
+            "header": "0x11",
+            "field_count": "4",
+            "access": "RW",
+            "confirm_mode": {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "networks": {
+                "data_size": "2",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "duty_cycle": {
+                "data_size": "2",
+                "bit_start": "2",
+                "bit_end": "2",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "adr": {
+                "data_size": "2",
+                "bit_start": "3",
+                "bit_end": "3",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "dr_tx_power": {
+            "port": "100",
+            "header": "0x12",
+            "field_count": "2",
+            "access": "RW",
+            "dr_number": {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "tx_power": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "11",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "rx2": {
+            "port": "100",
+            "header": "0x13",
+            "field_count": "1",
+            "access": "RW",
+            "frequency": {
+                "data_size": "5",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "join_mode": {
+            "port": "100",
+            "header": "0x10",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "7",
+            "bit_end": "7",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    },
+    "ticks_config": {
+        "seconds_per_core_tick": {
+            "port": "100",
+            "header": "0x20",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "4",
+            "bit_start": "0",
+            "bit_end": "31",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "ticks_per_battery": {
+            "port": "100",
+            "header": "0x21",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "ticks_per_accelerometer": {
+            "port": "100",
+            "header": "0x22",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "ticks_per_ble": {
+            "port": "100",
+            "header": "0x24",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "ticks_per_temperature": {
+            "port": "100",
+            "header": "0x25",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    },
+    "pb_config": {
+        "pb_mode": {
+            "port": "100",
+            "header": "0x2A",
+            "field_count": "5",
+            "access": "RW",
+            "battery_voltage_report": {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "acceleration_vector_report": {
+                "data_size": "2",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "temperature_report": {
+                "data_size": "2",
+                "bit_start": "2",
+                "bit_end": "2",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "ble_report": {
+                "data_size": "2",
+                "bit_start": "3",
+                "bit_end": "3",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "event_type": {
+                "data_size": "2",
+                "bit_start": "15",
+                "bit_end": "15",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "pb_event_type1": {
+            "port": "100",
+            "header": "0x2B",
+            "field_count": "2",
+            "access": "RW",
+            "m_value": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "n_value": {
+                "data_size": "1",
+                "bit_start": "4",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "pb_event_type2": {
+            "port": "100",
+            "header": "0x2C",
+            "field_count": "1",
+            "access": "RW",
+            "t_value": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        }
+    },
+    "accelerometer_config": {
+        "accelerometer_mode": {
+            "port": "100",
+            "header": "0x40",
+            "field_count": "4",
+            "access": "RW",
+            "xaxis_enabled": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "yaxis_enabled": {
+                "data_size": "1",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "zaxis_enabled": {
+                "data_size": "1",
+                "bit_start": "2",
+                "bit_end": "2",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "poweron": {
+                "data_size": "1",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "accelerometer_sensitivity": {
+            "port": "100",
+            "header": "0x41",
+            "field_count": "2",
+            "access": "RW",
+            "sample_rate": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "2",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "measurement_range": {
+                "data_size": "1",
+                "bit_start": "4",
+                "bit_end": "5",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "acceleration_event_tx": {
+            "port": "100",
+            "header": "0x46",
+            "field_count": "2",
+            "access": "RW",
+            "acceleration_alarm": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "ble_scan_report": {
+                "data_size": "1",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "acceleration_event_threshold_count": {
+            "port": "100",
+            "header": "0x42",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "acceleration_event_threshold_period": {
+            "port": "100",
+            "header": "0x43",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "acceleration_event_threshold": {
+            "port": "100",
+            "header": "0x44",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "acceleration_event_grace_period": {
+            "port": "100",
+            "header": "0x45",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    },
+    "ble_config": {
+        "ble_mode": {
+            "port": "100",
+            "header": "0x50",
+            "field_count": "2",
+            "access": "RW",
+            "num_reported_devices": {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "6",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "repetition_enabled": {
+                "data_size": "1",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "ble_scan_duration": {
+            "port": "100",
+            "header": "0x51",
+            "field_count": "2",
+            "access": "RW",
+            "periodic": {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "event_based": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "bd_addr_range_0": {
+            "port": "100",
+            "header": "0x54",
+            "field_count": "3",
+            "access": "RW",
+            "oui": {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_start": {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "47",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_end": {
+                "data_size": "9",
+                "bit_start": "48",
+                "bit_end": "71",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "bd_addr_range_1": {
+            "port": "100",
+            "header": "0x55",
+            "field_count": "3",
+            "access": "RW",
+            "oui": {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_start": {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "47",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_end": {
+                "data_size": "9",
+                "bit_start": "48",
+                "bit_end": "71",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "bd_addr_range_2": {
+            "port": "100",
+            "header": "0x56",
+            "field_count": "3",
+            "access": "RW",
+            "oui": {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_start": {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "47",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_end": {
+                "data_size": "9",
+                "bit_start": "48",
+                "bit_end": "71",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "bd_addr_range_3": {
+            "port": "100",
+            "header": "0x57",
+            "field_count": "3",
+            "access": "RW",
+            "oui": {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_start": {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "47",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lap_end": {
+                "data_size": "9",
+                "bit_start": "48",
+                "bit_end": "71",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "ble_scan_interval": {
+            "port": "100",
+            "header": "0x52",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "ble_scan_window": {
+            "port": "100",
+            "header": "0x53",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "2",
+            "bit_start": "0",
+            "bit_end": "15",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    },
+    "temperature_threshold_config": {
+        "temperature_threshold": {
+            "port": "100",
+            "header": "0x62",
+            "field_count": "2",
+            "access": "RW",
+            "low": {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "high": {
+                "data_size": "4",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "temperature_sample_period_idle": {
+            "port": "100",
+            "header": "0x60",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "4",
+            "bit_start": "0",
+            "bit_end": "31",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "temperature_sample_period_active": {
+            "port": "100",
+            "header": "0x61",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "4",
+            "bit_start": "0",
+            "bit_end": "31",
+            "type": "unsigned",
+            "coefficient": "1"
+        },
+        "temperature_thresholds_enabled": {
+            "port": "100",
+            "header": "0x63",
+            "field_count": "1",
+            "access": "RW",
+            "data_size": "1",
+            "bit_start": "0",
+            "bit_end": "0",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    },
+    "sensor_cmd_ctrl_reg": {
+        "write_to_flash": {
+            "port": "100",
+            "header": "0x70",
+            "field_count": "3",
+            "access": "W",
+            "app_configuration": {
+                "data_size": "2",
+                "bit_start": "5",
+                "bit_end": "5",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "lora_configuration": {
+                "data_size": "2",
+                "bit_start": "6",
+                "bit_end": "6",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "restart_sensor": {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "firmware_version": {
+            "port": "100",
+            "header": "0x71",
+            "field_count": "7",
+            "access": "R",
+            "app_major_version": {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "app_minor_version": {
+                "data_size": "7",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "app_revision": {
+                "data_size": "7",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "loramac_major_version": {
+                "data_size": "7",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "loramac_minor_version": {
+                "data_size": "7",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "loramac_revision": {
+                "data_size": "7",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "region": {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        },
+        "configuration_factory_reset": {
+            "port": "100",
+            "header": "0x72",
+            "field_count": "1",
+            "access": "W",
+            "data_size": "1",
+            "bit_start": "0",
+            "bit_end": "7",
+            "type": "unsigned",
+            "coefficient": "1"
+        }
+    }
+}
