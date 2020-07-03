@@ -22,9 +22,9 @@ function byteArrayToArray(byteArray) {
 }
 
 function byteArrayToHexString(byteArray) {
-    var arr = [];
+    var arr = ["0x"];
     for (var i = 0; i < byteArray.length; ++i) {
-        arr.push(('0' + (byteArray[i] & 0xFF).toString(16)).slice(-2));
+        arr.push(('0' + (byteArray[i] & 0xFF).toString(16)).slice(-2).toUpperCase());
     }
     return arr.join('');
 }
@@ -201,7 +201,7 @@ function decode_medical(parameters, data, port, flatten) {
         var lookup = parameters[port]["no_header"];
         for (var i = lookup.length - 1; i >= 0; i--) {
             var prop = lookup[i];
-
+            
             decodedData[ prop["parameter_name"] ] = decodeField(
                 data,
                 prop["bit_start"],
@@ -220,11 +220,56 @@ function decode_medical(parameters, data, port, flatten) {
     return decodedData;
 }
 
-function decode(parameters, data, port, flatten = false, isMedical = false) {
-    if (!isMedical) {
-        return decode_everything_else(parameters, data, port, flatten);
+function decode_BLE(parameters, data, port, flatten) {
+    var decodedData = {};
+    if (port == 25) {
+        // We will insert the header after every device so we can decode it as normal
+        decodedData["raw"] = data.map(val => stringifyHex(val)).join(" ");
+        decodedData["port"] = port;
+
+        var header = data[0];
+        var lookup = parameters[port][stringifyHex(header)];
+        
+        var group_length = parseInt(lookup[0]["data_size"]);
+        var device_count = (data.length - 1)/group_length;      // -1 for the header
+        var index = group_length + 1;
+        
+        var devices = [];
+        var prev_index = 0;
+        var count = 1;
+        while (count < device_count) {
+            data.splice(index, 0, header);
+            devices.push(data.slice(prev_index, index));
+
+            count += 1;
+            prev_index = index;
+            index += (group_length + 1);
+        }
+        devices.push(data.slice(prev_index, index));
+
+        decodedData["mode"] = lookup[0]["group_name"];
+        for (var i = 0; i < devices.length; i++) {
+            // console.log(decode_everything_else(parameters, devices[i], port, flatten));
+            // console.log("\n")
+
+            decodedData["device_" + i] = decode_everything_else(parameters, devices[i], port, flatten)[lookup[0]["group_name"]];
+        }
+    }
+
+    else {
+        decodedData = decode_everything_else(parameters, data, port, flatten);
+    }
+    return decodedData;
+}
+
+function decode(sensor, data, port, flatten = false, isMedical = false, is_BLE_Tracker = false) {
+    if ( !(isMedical || is_BLE_Tracker) ) {
+        return decode_everything_else(sensor, data, port, flatten);
+    }
+    else if (isMedical) {
+        return decode_medical(sensor, data, port, flatten);
     }
     else {
-        return decode_medical(parameters, data, port, flatten);
+        return decode_BLE(sensor, data, port, flatten);
     }
 }
