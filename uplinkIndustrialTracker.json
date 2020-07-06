@@ -1,0 +1,1117 @@
+{
+    "sensor_name": "industrial_tracker",
+    "10": {
+        "0x01 0xBA": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "6",
+                "type": "unsigned",
+                "parameter_name": "voltage",
+                "group_name": "battery1_status",
+                "coefficient": "0.01",
+                "round": "3"
+            },
+            {
+                "data_size": "1",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "eos_alert",
+                "group_name": "battery1_status",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x02 0xBA": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "6",
+                "type": "unsigned",
+                "parameter_name": "voltage",
+                "group_name": "battery2_status",
+                "coefficient": "0.01",
+                "round": "3"
+            },
+            {
+                "data_size": "1",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "eos_alert",
+                "group_name": "battery2_status",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x00 0x85": [
+            {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "second",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "minute",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "hour",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "day",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "month",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "year",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x00 0x88": [
+            {
+                "data_size": "9",
+                "bit_start": "56",
+                "bit_end": "71",
+                "type": "signed",
+                "parameter_name": "altitude",
+                "group_name": "coordinates",
+                "coefficient": "0.5",
+                "round": "3"
+            },
+            {
+                "data_size": "9",
+                "bit_start": "24",
+                "bit_end": "55",
+                "type": "signed",
+                "parameter_name": "longitude",
+                "group_name": "coordinates",
+                "coefficient": "0.5",
+                "round": "3"
+            },
+            {
+                "data_size": "9",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "signed",
+                "parameter_name": "latitude",
+                "group_name": "coordinates",
+                "coefficient": "0.5",
+                "round": "3"
+            }
+        ],
+        "0x00 0x92": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "ground_speed",
+                "group_name": "",
+                "coefficient": "0.1",
+                "round": "3"
+            }
+        ],
+        "0x00 0x04": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "fsm_state",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x01 0x95": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "1",
+                "type": "unsigned",
+                "parameter_name": "num0",
+                "group_name": "geofence_status",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "2",
+                "bit_end": "3",
+                "type": "unsigned",
+                "parameter_name": "num1",
+                "group_name": "geofence_status",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "4",
+                "bit_end": "5",
+                "type": "unsigned",
+                "parameter_name": "num2",
+                "group_name": "geofence_status",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "6",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "num3",
+                "group_name": "geofence_status",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x00 0x00": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "acceleration_alarm",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x00 0x71": [
+            {
+                "data_size": "6",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "signed",
+                "parameter_name": "xaxis",
+                "group_name": "acceleration_vector",
+                "coefficient": "0.001",
+                "round": "3"
+            },
+            {
+                "data_size": "6",
+                "bit_start": "16",
+                "bit_end": "31",
+                "type": "signed",
+                "parameter_name": "yaxis",
+                "group_name": "acceleration_vector",
+                "coefficient": "0.001",
+                "round": "3"
+            },
+            {
+                "data_size": "6",
+                "bit_start": "32",
+                "bit_end": "47",
+                "type": "signed",
+                "parameter_name": "zaxis",
+                "group_name": "acceleration_vector",
+                "coefficient": "0.001",
+                "round": "3"
+            }
+        ],
+        "0x00 0x67": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "signed",
+                "parameter_name": "temperature",
+                "group_name": "",
+                "coefficient": "0.1",
+                "round": "3"
+            }
+        ]
+    },
+    "15": {
+        "0x01": [
+            {
+                "data_size": "8",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "log_fragment_number",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "8",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "year",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "month",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "day",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "hour",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "minute",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "8",
+                "bit_start": "56",
+                "bit_end": "63",
+                "type": "unsigned",
+                "parameter_name": "second",
+                "group_name": "utc",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x02": [
+            {
+                "data_size": "10",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "log_fragment_number",
+                "group_name": "position_coordinates",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "10",
+                "bit_start": "8",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "latitude",
+                "group_name": "position_coordinates",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "10",
+                "bit_start": "32",
+                "bit_end": "63",
+                "type": "unsigned",
+                "parameter_name": "longitude",
+                "group_name": "position_coordinates",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "10",
+                "bit_start": "64",
+                "bit_end": "79",
+                "type": "unsigned",
+                "parameter_name": "altitude",
+                "group_name": "position_coordinates",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x03": [
+            {
+                "data_size": "17",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "log_fragment_number",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "8",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "year",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "month",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "day",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "hour",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "minute",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "56",
+                "bit_end": "63",
+                "type": "unsigned",
+                "parameter_name": "second",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "64",
+                "bit_end": "87",
+                "type": "unsigned",
+                "parameter_name": "latitude",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "88",
+                "bit_end": "119",
+                "type": "unsigned",
+                "parameter_name": "longitude",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "17",
+                "bit_start": "120",
+                "bit_end": "135",
+                "type": "unsigned",
+                "parameter_name": "altitude",
+                "group_name": "utc_and_position",
+                "coefficient": "1",
+                "round": ""
+            }
+        ]
+    },
+    "25": {
+        "0x0A": [
+            {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "47",
+                "type": "hexstring",
+                "parameter_name": "bd_addr",
+                "group_name": "basic",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "rssi",
+                "group_name": "basic",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0xB0": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "hexstring",
+                "parameter_name": "bd_addr_lap",
+                "group_name": "whitelist_range_0",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "4",
+                "bit_start": "23",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "rssi",
+                "group_name": "whitelist_range_0",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0xB1": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "hexstring",
+                "parameter_name": "bd_addr_lap",
+                "group_name": "whitelist_range_1",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "4",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "rssi",
+                "group_name": "whitelist_range_1",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0xB2": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "hexstring",
+                "parameter_name": "bd_addr_lap",
+                "group_name": "whitelist_range_2",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "4",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "rssi",
+                "group_name": "whitelist_range_2",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0xB3": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "23",
+                "type": "hexstring",
+                "parameter_name": "bd_addr_lap",
+                "group_name": "whitelist_range_3",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "4",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "rssi",
+                "group_name": "whitelist_range_3",
+                "coefficient": "1",
+                "round": ""
+            }
+        ]
+    },
+    "100": {
+        "0x00": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "device_eui",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x01": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_eui",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x02": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x03": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "device_address",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x04": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "network_session_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x05": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_session_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x10": [
+            {
+                "data_size": "2",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "loramac_otaa",
+                "group_name": "loramac_join_mode",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x11": [
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "parameter_name": "loramac_confirm_mode",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "10",
+                "bit_end": "10",
+                "type": "unsigned",
+                "parameter_name": "loramac_networks",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "11",
+                "bit_end": "11",
+                "type": "unsigned",
+                "parameter_name": "loramac_duty_cycle",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x12": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "parameter_name": "loramac_adr",
+                "group_name": "loramac_dr_tx_power",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "11",
+                "type": "unsigned",
+                "parameter_name": "loramac_dr_number",
+                "group_name": "loramac_dr_tx_power",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x13": [
+            {
+                "data_size": "5",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "loramac_tx_power",
+                "group_name": "loramac_rx2",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "5",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "loramac_rx2_frequency",
+                "group_name": "loramac_rx2",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x19": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "loramac_rx2_dr",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x1A": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "loramac_net_id_msb",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x20": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "loramac_net_id_lsb",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x21": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_seconds",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x26": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_acceleration",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x27": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_mcu_temperature",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x30": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "acceleration_impact_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x31": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "acceleration_impact_count_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x32": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "acceleration_report_alarm",
+                "group_name": "value_to_transmit",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "parameter_name": "acceleration_report_magnitude",
+                "group_name": "value_to_transmit",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "2",
+                "bit_end": "2",
+                "type": "unsigned",
+                "parameter_name": "acceleration_report_full_precision",
+                "group_name": "value_to_transmit",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x33": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "acceleration_impact_grace_period",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x34": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "acceleration_impact_threshold_switch",
+                "group_name": "accel_modes",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "accelerometer_enable",
+                "group_name": "accel_modes",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x35": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "2",
+                "type": "unsigned",
+                "parameter_name": "transducer_sample_rate_val",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x36": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "acceleration_impact_threshold_period",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x40": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_sample_period_idle",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x41": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_sample_period_active",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x42": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "signed",
+                "parameter_name": "mcu_temperature_high_threshold",
+                "group_name": "mcu_temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "signed",
+                "parameter_name": "mcu_temperature_low_threshold",
+                "group_name": "mcu_temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x43": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "mcu_temp_threshold_enable",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x70": [
+            {
+                "data_size": "2",
+                "bit_start": "5",
+                "bit_end": "5",
+                "type": "unsigned",
+                "parameter_name": "app_configuration",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "6",
+                "bit_end": "6",
+                "type": "unsigned",
+                "parameter_name": "lora_configuration",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "parameter_name": "restart_sensor",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x71": [
+            {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "app_major_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "app_minor_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "app_revision",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "loramac_major_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "loramac_minor_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "loramac_revision",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "region",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x72": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "configuration_factory_reset",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ]
+    }
+}

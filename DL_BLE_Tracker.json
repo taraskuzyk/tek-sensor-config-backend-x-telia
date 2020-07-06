@@ -1,4 +1,5 @@
 {
+    "sensor_name": "BLE_tracker",
     "loramac": {
         "options": {
             "port": "100",

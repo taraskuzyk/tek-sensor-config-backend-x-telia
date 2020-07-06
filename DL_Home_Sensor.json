@@ -1,4 +1,5 @@
 {
+    "sensor_name": "home_sensor",
     "lorawan": {
         "device_eui": {
             "port": "100",

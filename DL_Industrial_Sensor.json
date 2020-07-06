@@ -1,4 +1,5 @@
 {
+    "sensor_name": "industrial_sensor",
     "change_output_states": {
         "output_1": {
             "port": "10",

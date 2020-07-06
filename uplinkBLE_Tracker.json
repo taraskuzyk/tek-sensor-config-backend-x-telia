@@ -1,4 +1,5 @@
-{
+{   
+    "sensor_name": "BLE_tracker",
     "10": {
         "0x00 0xBA": [
             {

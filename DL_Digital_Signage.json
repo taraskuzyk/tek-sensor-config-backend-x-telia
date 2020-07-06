@@ -1,4 +1,5 @@
 {
+    "sensor_name": "digital_sign",
     "lorawan": {
         "deviceEUI": {
             "port": "100",

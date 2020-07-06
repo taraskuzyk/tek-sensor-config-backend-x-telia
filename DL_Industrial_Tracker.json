@@ -1,4 +1,5 @@
 {
+    "sensor_name": "industrial_tracker",
     "lorawan": {
         "device_eui": {
             "port": "100",
@@ -8,7 +9,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         },
         "app_eui": {
@@ -19,7 +20,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         },
         "app_key": {
@@ -30,7 +31,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         },
         "device_address": {
@@ -41,7 +42,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         },
         "network_session_key": {
@@ -52,7 +53,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         },
         "app_session_key": {
@@ -63,7 +64,7 @@
             "data_size": "0",
             "bit_start": "0",
             "bit_end": "0",
-            "type": "none",
+            "type": "hexstring",
             "coefficient": "1"
         }
     },
