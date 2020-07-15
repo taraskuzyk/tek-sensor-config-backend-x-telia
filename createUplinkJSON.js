@@ -2,7 +2,7 @@
 var fs = require('fs');
 var papa = require('papaparse');
 
-module.exports = function createUplinkJSON(csvPath, jsonPath){
+module.exports = async function createUplinkJSON(csvPath, jsonPath){
     const file_stream = fs.createReadStream(csvPath);
 //   ./resources/homeSensor.csv
     return new Promise(resolve =>

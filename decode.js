@@ -53,7 +53,8 @@ function extractBytes(chunk, startBit, endBit) {
     return arr;
 }
 
-function applyDataType(bytes, dataType, coefficient, round, addition = 0) {
+function applyDataType(bytes, dataType, coefficient, round, addition) {
+    addition = (typeof addition !== 'undefined') ?  addition : 1
     var output = 0;
     coefficient = Number(coefficient)
     addition = Number(addition)
@@ -86,7 +87,8 @@ function applyDataType(bytes, dataType, coefficient, round, addition = 0) {
     return null;
 }
 
-function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition = 0) {
+function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition) {
+    addition = (typeof addition !== 'undefined') ?  addition : 1
     var chunkSize = chunk.length;
     if (parseInt(endBit) >= parseInt(chunkSize) * 8) {
         return null; // Error: exceeding boundaries of the chunk
@@ -97,7 +99,7 @@ function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addi
     }
 
     var arr = extractBytes(chunk, startBit, endBit);
-    return applyDataType(arr, dataType, coefficient, round, addition = addition);
+    return applyDataType(arr, dataType, coefficient, round, addition);
 }
 
 function flattenObject(ob) {
@@ -127,11 +129,28 @@ function decode_everything_else(parameters, data, port, flatten){
     if (typeof(port)==="number")
         port = port.toString();
 
-    var bytes = byteArrayToArray(data);
+    var preArray = byteArrayToArray(data);
+    var bytes = []
+    for (var i = 0; i < preArray.length; i++){
+        bytes.push(bytes[i] < 0 ? bytes[i]+256 : bytes[i])
+    }
     var decodedData = {};
 
-    decodedData.raw = bytes.map(val => stringifyHex(val)).join(" ");
+    var string_bytes = "["
+    for (var i = 0; i < bytes.length; i++){
+        if (i !== 0)
+            string_bytes+=", "
+        string_bytes+= bytes[i]
+    }
+    string_bytes+="]"
+
+    decodedData.raw = string_bytes;
     decodedData.port = port;
+
+    if (port != 10 && port != 100) {
+        decodedData.error = "Wrong port number " + port;
+        return decodedData
+    }
 
     while (bytes.length > 0) {
         var keyLength = (Object.keys(parameters[port])[0].split(' ')).length;
@@ -170,13 +189,13 @@ function decode_everything_else(parameters, data, port, flatten){
         if (properties.length === 1) {
             var p = properties[0];
             decodedData[p["parameter_name"]] =
-                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["coefficient"], p["round"])
+                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
         } else {
             decodedData[properties[0]["group_name"]] = {}
             for (var p in properties) {
                 prop = properties[p];
                 decodedData[ prop["group_name"] ][ prop["parameter_name"] ] =
-                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["coefficient"], prop["round"])
+                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["multiplier"], prop["round"])
             }
         }
     }
@@ -186,18 +205,26 @@ function decode_everything_else(parameters, data, port, flatten){
 function decode_medical(parameters, data, port, flatten) {
     // takes in a lookup json (parameters), an array of bytes to be decoded (data), and the port for the medical sensor
     var decodedData = {};
-    
+
     if (port == 10) {
         data.pop()  // remove the two RFU bytes
         data.pop()
 
-        decodedData.raw = data.map(val => stringifyHex(val)).join(" ");
+        var string_bytes = "["
+        for (var i = 0; i < bytes.length; i++){
+            if (i !== 0)
+                string_bytes+=", "
+            string_bytes+= bytes[i] < 0 ? bytes[i]+256 : bytes[i]
+        }
+        string_bytes+="]"
+
+        decodedData.raw = string_bytes;
         decodedData.port = port;
 
         // This makes the other already existing functions work with the payload format of
         // the medical sensor. Don't judge me
         data.reverse()
-        
+
         var lookup = parameters[port]["no_header"];
         for (var i = lookup.length - 1; i >= 0; i--) {
             var prop = lookup[i];
@@ -213,14 +240,16 @@ function decode_medical(parameters, data, port, flatten) {
         }
         decodedData = flatten ? flattenObject(decodedData) : decodedData;
     }
-    
+
     else if (port == 100) {
         decodedData = decode_everything_else(parameters, data, port, flatten);
     }
     return decodedData;
 }
 
-function decode(parameters, data, port, flatten = false, isMedical = false) {
+function decode(parameters, data, port, flatten, isMedical) {
+    flatten = (typeof flatten !== 'undefined') ?  flatten : false
+    isMedical = (typeof isMedical !== 'undefined') ?  isMedical : false
     if (!isMedical) {
         return decode_everything_else(parameters, data, port, flatten);
     }

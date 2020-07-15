@@ -2,15 +2,17 @@
 const fs = require('fs');
 const papa = require('papaparse');
 
-module.exports =  function createDownlinkJSON(csvPath){
+module.exports = async function createDownlinkJSON(csvPath){
     const file_stream = fs.createReadStream(csvPath);
 //   ./resources/homeSensor.csv
-    papa.parse(file_stream, {
-        complete: (results) => {
-            postParse(results.data)
-        },
-        header: true,
-    });
+    return new Promise(resolve =>
+        papa.parse(file_stream, {
+            complete: (results) => {
+                resolve(postParse(results.data))
+            },
+            header: true,
+        })
+    );
 
     function postParse(parameters) {
         let newParameters = {};
