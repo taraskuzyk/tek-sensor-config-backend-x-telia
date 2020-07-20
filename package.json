@@ -12,13 +12,15 @@
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
     "lodash": "^4.17.15",
+    "lora-packet": "^0.7.14",
     "morgan": "~1.9.1",
     "mqtt": "^4.1.0",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.4",
     "papaparse": "^5.2.0",
     "pug": "2.0.0-beta11",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "ws": "^7.3.1"
   },
   "main": "app.js",
   "devDependencies": {},

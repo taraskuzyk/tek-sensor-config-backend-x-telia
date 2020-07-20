@@ -3,12 +3,12 @@ const fetch = require('node-fetch')
 module.exports = {
     getCustomerApplications: async (nsUrl, token) => {
         try {
-            let response = await fetch(nsUrl + '/api/customer/applications', {
+            let response = await fetch(`https://${nsUrl}/api/customer/applications`, {
                 method: 'GET',
                 //mode: 'no-cors',
                 headers: {
                     'accept': '*/*',
-                    'X-Authorization': 'Bearer ' + token,
+                    'X-Authorization': `Bearer ${token}`,
                     //'Access-Control-Allow-Origin': 'https://localhost:3000'
                 },
             });
@@ -19,7 +19,7 @@ module.exports = {
     },
     getTokens: async (nsUrl, username, password) => {
         try {
-            let response = await fetch(nsUrl + '/api/auth/login', {
+            let response = await fetch(`https://${nsUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -37,11 +37,25 @@ module.exports = {
     },
     getApplicationDevices: async (nsUrl, token, applicationId) => {
         try {
-            let response = await fetch(nsUrl + `/api/application/${applicationId}/devices`, {
+            let response = await fetch(`https://${nsUrl}/api/application/${applicationId}/devices`, {
                 method: 'GET',
                 headers: {
                     'accept': '*/*',
-                    'X-Authorization': 'Bearer ' + token
+                    'X-Authorization': `Bearer ${token}`
+                }
+            });
+            return await response.json();
+        } catch (error) {
+            console.warn(error);
+        }
+    },
+    getApplicationCredentials: async (nsUrl, token, applicationId) => {
+        try {
+            let response = await fetch(`https://${nsUrl}/api/credentials/APPLICATION/${applicationId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'X-Authorization': `Bearer ${token}`,
                 }
             });
             return await response.json();

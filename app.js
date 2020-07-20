@@ -11,1231 +11,56 @@ const _ = require('lodash')
 //Client and NS communications
 const mqtt = require("mqtt");
 const io = require('socket.io')(http);
+const webSocket = require('ws')
 
 // Data conversion
-const decode = require('./decode.js')
-//const encode = require('./encode.js')
-const createUplinkJSON = require('./createUplinkJSON')
-const createDownlinkJSON = require('./createDownlinkJSON')
 const getAvailableSensors = require('./getAvailableSensors')
 const ns = require('./ns')
 const dc = require('./DataConverters')
-
 
 let sessions = {}
 let uplink = {}
 let downlink = {}
 let availableSensors;
 
-let parameters = {
-    "10": {
-        "0x00 0xBA": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "6",
-                "type": "unsigned",
-                "parameter_name": "battery_life",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.01"
-            },
-            {
-                "data_size": "1",
-                "bit_start": "7",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "eos_alert",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x01 0x04": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input1_frequency",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x02 0x02": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input2_voltage",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x03 0x02": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input3_voltage",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x04 0x02": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input4_voltage",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x05 0x04": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input5_frequency",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x06 0x04": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input6_frequency",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x09 0x65": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "light_intensity",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x09 0x00": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "light_detected",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x0A 0x71": [
-            {
-                "data_size": "6",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "signed",
-                "parameter_name": "acceleration_x",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.01"
-            },
-            {
-                "data_size": "6",
-                "bit_start": "16",
-                "bit_end": "31",
-                "type": "signed",
-                "parameter_name": "acceleration_y",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.01"
-            },
-            {
-                "data_size": "6",
-                "bit_start": "32",
-                "bit_end": "47",
-                "type": "signed",
-                "parameter_name": "acceleration_z",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.01"
-            }
-        ],
-        "0x0A 0x00": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "signed",
-                "parameter_name": "acceleration_z",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x0B 0x67": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "ambient_temperature",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.1"
-            }
-        ],
-        "0x0B 0x68": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "relative_humidity",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.5"
-            }
-        ],
-        "0x0C 0x67": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "mcu_temperature",
-                "group_name": "",
-                "round": "",
-                "multiplier": "0.1"
-            }
-        ]
-    },
-    "100": {
-        "0x00": [
-            {
-                "data_size": "8",
-                "bit_start": "0",
-                "bit_end": "63",
-                "type": "hexstring",
-                "parameter_name": "device_eui",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x01": [
-            {
-                "data_size": "8",
-                "bit_start": "0",
-                "bit_end": "63",
-                "type": "hexstring",
-                "parameter_name": "app_eui",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x02": [
-            {
-                "data_size": "16",
-                "bit_start": "0",
-                "bit_end": "127",
-                "type": "hexstring",
-                "parameter_name": "app_key",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x03": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "hexstring",
-                "parameter_name": "device_address",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x04": [
-            {
-                "data_size": "16",
-                "bit_start": "0",
-                "bit_end": "127",
-                "type": "hexstring",
-                "parameter_name": "network_session_key",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x05": [
-            {
-                "data_size": "16",
-                "bit_start": "0",
-                "bit_end": "127",
-                "type": "hexstring",
-                "parameter_name": "app_session_key",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x10": [
-            {
-                "data_size": "2",
-                "bit_start": "7",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "loramac_otaa",
-                "group_name": "loramac_join_mode",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x11": [
-            {
-                "data_size": "2",
-                "bit_start": "4",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "loramac_confirm_mode",
-                "group_name": "loramac_opts",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "8",
-                "type": "unsigned",
-                "parameter_name": "loramac_networks",
-                "group_name": "loramac_opts",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "10",
-                "bit_end": "10",
-                "type": "unsigned",
-                "parameter_name": "loramac_duty_cycle",
-                "group_name": "loramac_opts",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "11",
-                "bit_end": "11",
-                "type": "unsigned",
-                "parameter_name": "loramac_adr",
-                "group_name": "loramac_opts",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x12": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "3",
-                "type": "unsigned",
-                "parameter_name": "loramac_dr_number",
-                "group_name": "loramac_dr_tx_power",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "11",
-                "type": "unsigned",
-                "parameter_name": "loramac_tx_power",
-                "group_name": "loramac_dr_tx_power",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x13": [
-            {
-                "data_size": "5",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "loramac_rx2_frequency",
-                "group_name": "loramac_rx2",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "5",
-                "bit_start": "32",
-                "bit_end": "39",
-                "type": "unsigned",
-                "parameter_name": "loramac_rx2_dr",
-                "group_name": "loramac_rx2",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x19": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "loramac_net_id_msb",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x1A": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "loramac_net_id_lsb",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x20": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "tick_seconds",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x21": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_battery",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x22": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_temperature",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x23": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_relative_humidity",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x24": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_light",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x25": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_input1",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x26": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_input2",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x27": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_input5",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x28": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_acceleration",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x29": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "tick_mcu_temp",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x30": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "temperature_relative_humidity_idle",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x31": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "temperature_relative_humidity_active",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x32": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "signed",
-                "parameter_name": "temperature_high_threshold",
-                "group_name": "amb_temp_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "15",
-                "type": "signed",
-                "parameter_name": "temperature_low_threshold",
-                "group_name": "amb_temp_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x33": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "temperature_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x34": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "relative_humidity_high_threshold",
-                "group_name": "amb_rh_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "relative_humidity_low_threshold",
-                "group_name": "amb_rh_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x35": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "relative_humidity_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x36": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input12_sample_period_idle",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x37": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input12_sample_period_active",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x38": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input1_frequency_high_threshold",
-                "group_name": "input1_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "4",
-                "bit_start": "16",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input1_frequency_low_threshold",
-                "group_name": "input1_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x39": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "input1_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3A": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input2_voltage_high_threshold",
-                "group_name": "input2_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "4",
-                "bit_start": "16",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input2_voltage_low_threshold",
-                "group_name": "input2_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3B": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "input2_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3C": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input5_sample_period_idle",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3D": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input5_sample_period_active",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3E": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "input5_frequency_high_threshold",
-                "group_name": "input5_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "4",
-                "bit_start": "16",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "input5_frequency_low_threshold",
-                "group_name": "input5_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x3F": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "input5_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x40": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "mcu_temperature_sample_period_idle",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x41": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "mcu_temperature_sample_period_active",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x42": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "mcu_temperature_high_threshold",
-                "group_name": "mcu_temp_threshold",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "mcu_temperature_low_threshold",
-                "group_name": "mcu_temp_threshold",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x43": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "mcu_temp_threshold_enable",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x48": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "light_interrupt_enabled",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x49": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "light_intencity_high_threshold",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x4A": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "light_intencity_low_threshold",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x4B": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "light_threshold_timer",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x4C": [
-            {
-                "data_size": "4",
-                "bit_start": "0",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "light_sample_period_active",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x4D": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "light_alarm",
-                "group_name": "als_values_tx",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "light_intensity",
-                "group_name": "als_values_tx",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x50": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "acceleration_impact_threshold_enable",
-                "group_name": "accel_mode",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "1",
-                "bit_start": "7",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "acceleration_sensor_enable",
-                "group_name": "accel_mode",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x51": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "1",
-                "type": "unsigned",
-                "parameter_name": "acceleration_measurement_range",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x52": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "2",
-                "type": "unsigned",
-                "parameter_name": "acceleration_sample_rate",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x53": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "acceleration_impact_threshold",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x54": [
-            {
-                "data_size": "2",
-                "bit_start": "0",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "acceleration_impact_debounce_time",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x55": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "0",
-                "type": "unsigned",
-                "parameter_name": "acceleration_report_alarm",
-                "group_name": "accel_values_tx",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "1",
-                "bit_start": "1",
-                "bit_end": "1",
-                "type": "unsigned",
-                "parameter_name": "acceleration_report_magnitude",
-                "group_name": "accel_values_tx",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "1",
-                "bit_start": "2",
-                "bit_end": "2",
-                "type": "unsigned",
-                "parameter_name": "acceleration_report_full_precision",
-                "group_name": "accel_values_tx",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x70": [
-            {
-                "data_size": "2",
-                "bit_start": "5",
-                "bit_end": "5",
-                "type": "unsigned",
-                "parameter_name": "app_configuration",
-                "group_name": "write_to_flash",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "6",
-                "bit_end": "6",
-                "type": "unsigned",
-                "parameter_name": "lora_configuration",
-                "group_name": "write_to_flash",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "2",
-                "bit_start": "8",
-                "bit_end": "8",
-                "type": "unsigned",
-                "parameter_name": "restart_sensor",
-                "group_name": "write_to_flash",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x71": [
-            {
-                "data_size": "7",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "app_major_version",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "8",
-                "bit_end": "15",
-                "type": "unsigned",
-                "parameter_name": "app_minor_version",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "16",
-                "bit_end": "23",
-                "type": "unsigned",
-                "parameter_name": "app_revision",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "24",
-                "bit_end": "31",
-                "type": "unsigned",
-                "parameter_name": "loramac_major_version",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "32",
-                "bit_end": "39",
-                "type": "unsigned",
-                "parameter_name": "loramac_minor_version",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "40",
-                "bit_end": "47",
-                "type": "unsigned",
-                "parameter_name": "loramac_revision",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            },
-            {
-                "data_size": "7",
-                "bit_start": "48",
-                "bit_end": "55",
-                "type": "unsigned",
-                "parameter_name": "region",
-                "group_name": "firmware_version",
-                "round": "",
-                "multiplier": "1"
-            }
-        ],
-        "0x72": [
-            {
-                "data_size": "1",
-                "bit_start": "0",
-                "bit_end": "7",
-                "type": "unsigned",
-                "parameter_name": "configuration_factory_reset",
-                "group_name": "",
-                "round": "",
-                "multiplier": "1"
-            }
-        ]
-    }
-}
-
 async function startup () {
-    uplink.homeSensor = await createUplinkJSON('./resources/homeSensor.csv')
-    // uplink.digitalSignage = createUplinkJSON('./resources/digitalSignage.csv')
-    uplink.industrialSensor = await createUplinkJSON('./resources/industrialSensor.csv')
-    uplink.industrialTracker = await createUplinkJSON('./resources/industrialTracker.csv')
-    uplink.agriculturalSensor = await createUplinkJSON('./resources/agriculturalSensor.csv')
-    downlink.homeSensor = await createDownlinkJSON('./resources/homeSensor.csv')
-    //downlink.digitalSignage = createDownlinkJSON('./resources/digitalSignage.csv')
-    downlink.industrialSensor = await createDownlinkJSON('./resources/industrialSensor.csv')
-    downlink.industrialTracker = await createDownlinkJSON('./resources/industrialTracker.csv')
-    downlink.agriculturalSensor = await createDownlinkJSON('./resources/agriculturalSensor.csv')
-    //console.log(uplink)
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
-    console.log(JSON.stringify(uplink.agriculturalSensor, null, 2))
-    var decoded = dc.decode(parameters, [3, 2, 1, 126, 4, 2, 1, 140, 5, 4, 22, 50, 6, 4, 20, 13, 9, 101, 2, 70], 10)
-    console.log(decoded)
+    console.log(availableSensors)
 }
 
 startup()
+// The code that follows *might* break if user connects the same time as the server starts
+// if the packets need to be decoded immediately, as the decoding objects haven't been generated yet.
 
 http.listen(13337);
 
 //TODO: split up backend into Uplink and Downlink files?
 
 io.on("connection", async (socket)=> {
-
     sessions[socket.id] = {}
     socket
     .on("login", async ({ nsUrl, username, password }) => {
         sessions[socket.id].tokens = await ns.getTokens(nsUrl, username, password)
         sessions[socket.id].nsUrl = nsUrl
         let applications = await ns.getCustomerApplications(nsUrl, sessions[socket.id].tokens.token)
-        console.log(applications)
         socket.emit("userApplications", applications)
-        socket.emit()
     })
-    .on("getApplicationDevices", async (applicationId) => {
+    .on("openApplication", async (applicationId) => {
         console.log(applicationId)
-        let devices = await ns.getApplicationDevices(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token, applicationId)
+
+        let devices = await ns
+            .getApplicationDevices(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token, applicationId)
+
         console.log(devices)
-        socket.emit("applicationDevices", devices.data)
+        if (devices.hasOwnProperty("data"))
+            socket.emit("applicationDevices", devices.data)
+            //TODO: figure out if this DEV "feature" (different WS payload format) will be carried to production eventually
+        else
+            socket.emit("applicationDevices", devices)
+        //socket.emit("applicationCredentials", credentials)
     })
-
-    .on("mqttConnect", ({username, password, nsUrl, sensor})=> {
-        //TODO: we need to wait for the user to connect and then send them the availableSensors
-        socket.emit("availableSensors", availableSensors)
-        socket.emit("sensorData")
-
-        if (sessions[socket.id].hasOwnProperty("mqttConnection")){
-            sessions[socket.id].mqttConnection.end() //TODO: check if this is needed by MQTT.js
-        }
-        sessions[socket.id].mqttConnection = mqtt.connect(nsUrl, {"username": username, "password": password})
-
-        sessions[socket.id].mqttConnection
-        .subscribe("app/#")
-        .on("connect", ()=>{
-            socket.emit("mqttConnected")
-        })
-        .on("disconnect", ()=>{
-            socket.emit("mqttDisconnected")
-        })
-        .on("message", (topic, raw)=>{
-            var receivedObject = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(raw)));
-
-            receivedObject.serverTimestamp = Date.now()
-            if (receivedObject.hasOwnProperty("payloadMetaData")) {
-
-                var uplink = {
-                    "payload": receivedObject.payload,
-                    "port": receivedObject.payloadMetaData.fport,
-                    "deveui": receivedObject.payloadMetaData.deviceMetaData.deviceEUI
-                };
-
-                //if (_.)
-                var emitMsg = {
-                    raw: receivedObject,
-                    decoded:
-                        uplink.hasOwnProperty(sensor) ? decode(
-                            uplink[sensor],
-                            Base64Binary.decode(uplink.payload),
-                            uplink.port,
-                            false
-                        ) : "Your sensor doesn't have decoders yet..."
-                }
-                console.log("emitted the following message to", socket.id)
-                console.log(emitMsg)
-                socket.emit("mqttMessage", emitMsg)
-                //TODO: edit the above once the data converters and CSVs are ready for other sensors
-            }
-        })
+    .on("openDevice", async (deviceId) => {
+        getDeviceLog(socket, deviceId, sessions[socket.id].nsUrl, 443, sessions[socket.id].tokens.token)
     })
     .on("disconnect", ()=> {
         try {
@@ -1248,11 +73,88 @@ io.on("connection", async (socket)=> {
         console.log("received message to send on app/tx", message)
         sessions[socket.id].mqttConnection.publish("app/tx", message)
     })
-    .on("HALLO", (msg)=>{
-        console.log(msg)
+    .on("updateSensorId", (sensorId) => {
+        sessions[socket.id].sensorId = sensorId;
+        console.log("New sensorId")
+        console.log(sensorId)
+    })
+    .on("getAvailableSensors", () => {
+        socket.emit("availableSensors", availableSensors.map((el, i)=> {
+            return {id: el.id, name: el.name}
+        }))
     })
 
 })
+
+function getDeviceLog(socket, deviceId, nsUrl, port, token) {
+
+    let device_id = deviceId; // save device id to a local variable
+
+    sessions[socket.id].nsSocket = new webSocket(`wss://${nsUrl}:${port}/api/ws?token=${token}`);
+
+    waitForSocketConnection(sessions[socket.id].nsSocket, function () {
+        var subcsriptionMessageId = Math.floor(Math.random() * Math.floor(255));
+        sessions[socket.id].nsSocket.send(JSON.stringify({
+            "subCmds": [
+                {
+                    "entityType": "DEVICE",
+                    "entityId": device_id,
+                    "type": "STATS",
+                    "cmdId": subcsriptionMessageId
+                }
+            ]
+        }));
+    });
+
+    function waitForSocketConnection(socket, callback) {
+        setTimeout(() => {
+            if (socket.readyState === 1) {
+                console.log("Connected to server!");
+                if (callback != null) {
+                    callback();
+                }
+            }
+            else { // server didn't respond
+                waitForSocketConnection(socket, callback);
+            }
+        }, 1000);
+    }
+
+    sessions[socket.id].nsSocket.onerror = function(e){
+        console.error(`[Packet Logger] Error in the websocket connection: ${e.message}...Exiting`);
+        if(sessions[socket.id].nsSocket != null)
+            sessions[socket.id].nsSocket.close();
+        process.exit(1);
+    };
+
+    sessions[socket.id].nsSocket.on('unexpected-response', (res) => {
+        console.error(`[Packet Logger] Unexpected response from the server: Response code: ${res.statusCode} and Response Message: ${res.statusMessage}...Exiting`);
+        if(sessions[socket.id].nsSocket != null)
+            sessions[socket.id].nsSocket.close();
+    });
+
+    sessions[socket.id].nsSocket.onmessage = function (msg) {
+        console.log("message received");
+        let messages = JSON.parse(msg.data).data;
+        if (messages.length > 1){
+            let messagesToSend
+            if (messages.length > 21) {
+                messagesToSend = messages.slice(messages.length-20)
+            } else {
+                messagesToSend = messages
+            }
+            messagesToSend = messagesToSend.map((message, index)=>{
+
+                return message
+            })
+            socket.emit("allDeviceMessages", messagesToSend)
+        } else if (messages.length === 1) {
+            socket.emit("newDeviceMessage", messages[0])
+        }
+
+    } // onmessage action
+} // getDeviceLog function
+
 
 //for decoding Base64 encoded payloads, source: https://gist.github.com/lidatui/4064479#file-gistfile1-js-L8
 var Base64Binary = {

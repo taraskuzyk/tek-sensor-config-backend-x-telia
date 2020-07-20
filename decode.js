@@ -132,7 +132,7 @@ function decode_everything_else(parameters, data, port, flatten){
     var preArray = byteArrayToArray(data);
     var bytes = []
     for (var i = 0; i < preArray.length; i++){
-        bytes.push(bytes[i] < 0 ? bytes[i]+256 : bytes[i])
+        bytes.push(preArray[i] < 0 ? preArray[i]+256 : preArray[i])
     }
     var decodedData = {};
 
@@ -161,8 +161,9 @@ function decode_everything_else(parameters, data, port, flatten){
         bytes = bytes.slice(keyLength)
         if (keyLength === 1) {
             key = stringifyHex(key[0]);
-        } else {
-            key = stringifyHex(key[0]) + " " + stringifyHex(key[1])
+        } else if (keyLength === 2) {
+            key = stringifyHex(key[0]) + " "
+                + stringifyHex(key[1])
         }
 
         if (!parameters[port].hasOwnProperty(key)) {
