@@ -188,6 +188,8 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                 //LoRaMAC layer
                 //console.log(message)
                 try {
+                    if (message.rawPayload === null)
+                        throw new Error("This message didn't contain any raw payload.")
                     newMessage.lora = decodeLoraPacket(message.rawPayload, appSKey, nwkSKey)
 
                     //app layer
@@ -204,6 +206,7 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                 } catch(e) {
                     newMessage.lora = {error: "Something went wrong while decoding this packet..." + e}
                     newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
+                    console.log(e.stack)
                 }
 
                 return newMessage;

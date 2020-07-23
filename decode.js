@@ -139,7 +139,10 @@ function decode_everything_else(parameters, data, port, flatten){
     for (var i = 0; i < bytes.length; i++){
         if (i !== 0)
             string_bytes+=", "
-        string_bytes+= bytes[i]
+        let byte = bytes[i].toString(16).toUpperCase()
+        if (byte.split("").length === 1)
+            byte = "0" + byte
+        string_bytes+= byte
     }
     string_bytes+="]"
 
@@ -213,9 +216,13 @@ function decode_medical(parameters, data, port, flatten) {
         for (var i = 0; i < bytes.length; i++){
             if (i !== 0)
                 string_bytes+=", "
-            string_bytes+= bytes[i] < 0 ? bytes[i]+256 : bytes[i]
+            let byte = bytes[i].toString(16).toUpperCase()
+            if (byte.split("").length === 1)
+                byte = "0" + byte
+            string_bytes+= byte
         }
         string_bytes+="]"
+
 
         decodedData.raw = string_bytes;
         decodedData.port = port;
