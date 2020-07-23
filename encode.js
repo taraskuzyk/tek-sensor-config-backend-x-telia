@@ -180,14 +180,16 @@ function format_header(header, read = true) {
 
 function write_to_port(bytes, port, encoded_data) {
     // write "bytes" to the appropriate "port" in "encoded_data"
-    
+    // console.log(bytes)
     if (encoded_data.hasOwnProperty(port)) {
         // try pushing "bytes" onto the appropriate port in "encoded_data"
-        encoded_data[port].push(bytes);
+        encoded_data[port] = encoded_data[port].concat(bytes);
+        // encoded_data[port].push(bytes)
     }
     else {
         // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
-        encoded_data[port] = [bytes];
+        encoded_data[port] = bytes;
+        // encoded_data[port] = [bytes];
     }    
 }
 
@@ -335,3 +337,4 @@ function encode(commands, sensor) {
     return encoded_data;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
