@@ -1,0 +1,10 @@
+authtoken: 1VGK7pyrNOS7FAQtRrKtcYhg26C_4j93cU8rAEzikLdpm4pfx
+tunnels:
+  backend:
+    addr: 13337
+    proto: http
+    subdomain: tek-sensor-backend
+  frontend:
+    addr: 3000
+    proto: http
+    subdomain: tek-sensor-config

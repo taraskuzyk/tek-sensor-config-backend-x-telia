@@ -7,6 +7,11 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const _ = require('lodash')
 
+// ngrok is used to expose ports and create tunnels. used in http.listen()
+const ngrok = require('ngrok')
+const AUTHTOKEN = "1VGK7pyrNOS7FAQtRrKtcYhg26C_4j93cU8rAEzikLdpm4pfx"
+const NGROK_CONFIG_PATH = "./ngrok.yml"
+
 //Client and NS communications
 //TODO: is there a way to send downlinks over websockets or REST?
 const io = require('socket.io')(http);
@@ -22,7 +27,8 @@ const dc = require('./DataConverters')
 let sessions = {}
 let availableSensors;
 
-async function startup () {
+async function startup() {
+    //get available sensors with uplink and downlinks jsons
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
 }
 
@@ -30,7 +36,30 @@ startup()
 // The code that follows *might* break if user connects the same time as the server starts
 // if the packets need to be decoded immediately, as the decoding objects haven't been generated yet.
 
-http.listen(13337);
+http.listen(13337, async (err)=>{
+    //setting up ngrok
+    console.log("Auth ngrok...")
+    //await ngrok.authtoken(AUTHTOKEN)
+    console.log("Auth successful!\nConnecting ngrok...")
+    try {
+        const one = await ngrok.connect({
+            addr: 3000,
+            proto: "http",
+            subdomain: "tek-sensor-config",
+            authtoken: AUTHTOKEN
+        })
+        const two = await ngrok.connect({
+            addr: 13337,
+            proto: "http",
+            subdomain: "tek-sensor-backend",
+            authtoken: AUTHTOKEN
+        })
+        console.log(`Connected ngrok! ${one} and ${two}`)
+    } catch(e){
+        console.log(":C")
+        console.log(e)
+    }
+});
 
 //TODO: split up backend into Uplink and Downlink files?
 
