@@ -22,15 +22,73 @@ function byteArrayToArray(byteArray) {
 }
 
 function byteArrayToHexString(byteArray) {
-    var arr = [];
+    var arr = ["0x"];
     for (var i = 0; i < byteArray.length; ++i) {
-        arr.push(('0' + (byteArray[i] & 0xFF).toString(16)).slice(-2));
+        arr.push(('0' + (byteArray[i] & 0xFF).toString(16)).slice(-2).toUpperCase());
     }
     return arr.join('');
 }
 
-function extractBytes(chunk, startBit, endBit) {
-    // console.log("\n\nNEW FUNCTION CALL")
+function byteArray_to_bigint(arr) {
+    // Converts a string into an BigInt with all the bits of the string
+    // Assumes that a char is suppossed to have 8 bits
+    
+    var arr_val = BigInt(0);
+    j = 0;
+    for (var i = arr.length - 1; i >= 0; i--) {
+        byte = BigInt(arr[i]);            
+        arr_val += (byte << BigInt(8*j));
+        j += 1;
+    }
+    return arr_val;
+}
+
+function separate_bytes(value, byte_num) {
+    // takes in a value and the number of bytes to be separated into, returns an array of bytes
+    bytes = new Array(byte_num);
+    
+    // Base case
+    for (var i = byte_num - 1; i >= 0; i--) {
+        // We will and the value with a mask of 11111111 to isolate the 8 LSBs, then add it to the back of bytes
+        mask = BigInt(0xFF);
+        bytes[i] = Number(value & mask);
+        value = value >> 8n;
+    }
+
+    return bytes;
+}
+
+function extract_bytes(chunk, startbit, endbit) {
+    // So the "extractBytes" function was giving me some weird stuff,
+    // and I couldn't figure out exactly what it was doing, so I couldn't debug it
+    // So I'm gonna make my own function and see if it works
+    
+    // So ya I wrote this function and everything works now I guess
+
+    // first, we get the "startbit" and "endbit" indices in terms of LSB = 0th bit, as the
+    // rest of the program assumes that MSB = 0th bit. Getting LSB = 0th bit makes everything much easier
+    var bit_end = (chunk.length*8 - 1) - startbit;
+    var bit_start = (chunk.length*8 - 1) - endbit;
+
+    var bits_num = (bit_end - bit_start) + 1;   // number of bits to be returned
+    var bytes_num = bits_num % 8 === 0 ? toUint(bits_num / 8) : toUint(bits_num / 8) + 1;   // number of bytes to be returned
+
+    chunk_val = byteArray_to_bigint(chunk);
+    // bitshift chunk_val left by 1 until you hit "bit_start"
+    for (var i = 0; i < bit_start; i++) {
+        chunk_val = (chunk_val >> 1n);
+    }
+
+    mask = (1n << BigInt(bits_num)) - 1n;   // == 2^(chunk_length) - 1
+    chunk_val &= mask;
+    
+
+    // finally, we put the bytes in chunk_val into an array
+    new_byte_array = separate_bytes(chunk_val, bytes_num);
+    return new_byte_array;
+}
+
+function possibly_defective_extract_bytes(chunk, startBit, endBit) {
     var totalBits = endBit - startBit + 1;
     var totalBytes = totalBits % 8 === 0 ? toUint(totalBits / 8) : toUint(totalBits / 8) + 1;
     var offsetInByte = startBit % 8;
@@ -53,11 +111,17 @@ function extractBytes(chunk, startBit, endBit) {
     return arr;
 }
 
-function applyDataType(bytes, dataType, coefficient, round, addition) {
-    addition = (typeof addition !== 'undefined') ?  addition : 1
+function applyDataType(bytes, dataType, coefficient, round, addition = 0) {
     var output = 0;
     coefficient = Number(coefficient)
-    addition = Number(addition)
+    
+    if(typeof(addition) == "undefined") {
+        addition = 0
+    }
+    else {
+        addition = Number(addition)
+    }
+    
     if (dataType === "unsigned") {
         for (var i = 0; i < bytes.length; ++i) {
             output = (toUint(output << 8)) | bytes[i];
@@ -87,8 +151,7 @@ function applyDataType(bytes, dataType, coefficient, round, addition) {
     return null;
 }
 
-function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition) {
-    addition = (typeof addition !== 'undefined') ?  addition : 1
+function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition = 0) {
     var chunkSize = chunk.length;
     if (parseInt(endBit) >= parseInt(chunkSize) * 8) {
         return null; // Error: exceeding boundaries of the chunk
@@ -97,9 +160,23 @@ function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addi
     if (parseInt(endBit) < parseInt(startBit)) {
         return null; // Error: invalid input
     }
+    var arr = extract_bytes(chunk, startBit, endBit);
+    return applyDataType(arr, dataType, coefficient, round, addition = addition);
+}
 
-    var arr = extractBytes(chunk, startBit, endBit);
-    return applyDataType(arr, dataType, coefficient, round, addition);
+function decode_no_header(lookup, data, decodedData) {
+    for (var i = 0; i < lookup.length; i++) {
+        var prop = lookup[i];
+
+        decodedData[ prop["parameter_name"] ] = decodeField(
+            data,
+            prop["bit_start"],
+            prop["bit_end"],
+            prop["type"],
+            prop["coefficient"],
+            prop["round"],
+            addition = prop["addition"] )
+    }    
 }
 
 function flattenObject(ob) {
@@ -128,28 +205,12 @@ function decode_everything_else(parameters, data, port, flatten){
     // If this ever changes, this code will need to be reworked.
     if (typeof(port)==="number")
         port = port.toString();
-    var preArray = byteArrayToArray(data);
-    var bytes = []
-    for (var i = 0; i < preArray.length; i++){
-        bytes.push(preArray[i] < 0 ? preArray[i]+256 : preArray[i])
-    }
+
+    var bytes = byteArrayToArray(data);
     var decodedData = {};
 
-    var string_bytes = "["
-    for (var i = 0; i < bytes.length; i++){
-        if (i !== 0)
-            string_bytes+=", "
-        string_bytes+= bytes[i]
-    }
-    string_bytes+="]"
-
-    decodedData.raw = string_bytes;
+    decodedData.raw = bytes.map(val => stringifyHex(val)).join(" ");
     decodedData.port = port;
-
-    if (port !== "10" && port !== "100") {
-        decodedData.error = "Wrong port number " + port;
-        return decodedData
-    }
 
     while (bytes.length > 0) {
         var keyLength = (Object.keys(parameters[port])[0].split(' ')).length;
@@ -160,9 +221,8 @@ function decode_everything_else(parameters, data, port, flatten){
         bytes = bytes.slice(keyLength)
         if (keyLength === 1) {
             key = stringifyHex(key[0]);
-        } else if (keyLength === 2) {
-            key = stringifyHex(key[0]) + " "
-                + stringifyHex(key[1])
+        } else {
+            key = stringifyHex(key[0]) + " " + stringifyHex(key[1])
         }
 
         if (!parameters[port].hasOwnProperty(key)) {
@@ -189,13 +249,17 @@ function decode_everything_else(parameters, data, port, flatten){
         if (properties.length === 1) {
             var p = properties[0];
             decodedData[p["parameter_name"]] =
-                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
+                decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["coefficient"], p["round"])
         } else {
             decodedData[properties[0]["group_name"]] = {}
-            properties.forEach((p, i) => {
-                decodedData[ p["group_name"] ][ p["parameter_name"] ] =
-                    decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
-            })
+            for (var p in properties) {
+                prop = properties[p];
+                // if (prop["parameter_name"] == "position") {
+                //     console.log(data)
+                // }
+                decodedData[ prop["group_name"] ][ prop["parameter_name"] ] =
+                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["coefficient"], prop["round"], prop["addition"])
+            }
         }
     }
     return flatten ? flattenObject(decodedData) : decodedData;
@@ -204,55 +268,165 @@ function decode_everything_else(parameters, data, port, flatten){
 function decode_medical(parameters, data, port, flatten) {
     // takes in a lookup json (parameters), an array of bytes to be decoded (data), and the port for the medical sensor
     var decodedData = {};
-
+    
     if (port == 10) {
-        data.pop()  // remove the two RFU bytes
-        data.pop()
-
-        var string_bytes = "["
-        for (var i = 0; i < bytes.length; i++){
-            if (i !== 0)
-                string_bytes+=", "
-            string_bytes+= bytes[i] < 0 ? bytes[i]+256 : bytes[i]
-        }
-        string_bytes+="]"
-
-        decodedData.raw = string_bytes;
+        decodedData.raw = data.map(val => stringifyHex(val)).join(" ");
         decodedData.port = port;
 
-        // This makes the other already existing functions work with the payload format of
-        // the medical sensor. Don't judge me
-        data.reverse()
-
+        data.pop()  // remove the two RFU bytes
+        data.pop()
+        
         var lookup = parameters[port]["no_header"];
-        for (var i = lookup.length - 1; i >= 0; i--) {
-            var prop = lookup[i];
 
-            decodedData[ prop["parameter_name"] ] = decodeField(
-                data,
-                prop["bit_start"],
-                prop["bit_end"],
-                prop["type"],
-                prop["coefficient"],
-                prop["round"],
-                addition = prop["addition"] )
-        }
+        decode_no_header(lookup, data, decodedData);
         decodedData = flatten ? flattenObject(decodedData) : decodedData;
     }
-
+    
     else if (port == 100) {
         decodedData = decode_everything_else(parameters, data, port, flatten);
     }
     return decodedData;
 }
 
-function decode(parameters, data, port, flatten, isMedical) {
-    flatten = (typeof flatten !== 'undefined') ?  flatten : false
-    isMedical = (typeof isMedical !== 'undefined') ?  isMedical : false
-    if (!isMedical) {
-        return decode_everything_else(parameters, data, port, flatten);
+function decode_BLE(parameters, data, port, flatten) {
+    var decodedData = {};
+    if (port == 25) {
+        // We will insert the header after every device so we can decode it as normal
+        decodedData["raw"] = data.map(val => stringifyHex(val)).join(" ");
+        decodedData["port"] = port;
+
+        var header = data[0];
+        var lookup = parameters[port][stringifyHex(header)];
+        
+        var group_length = parseInt(lookup[0]["data_size"]);
+        var device_count = (data.length - 1)/group_length;      // -1 for the header
+        var index = group_length + 1;
+        
+        var devices = [];
+        var prev_index = 0;
+        var count = 1;
+        while (count < device_count) {
+            data.splice(index, 0, header);
+            devices.push(data.slice(prev_index, index));
+
+            count += 1;
+            prev_index = index;
+            index += (group_length + 1);
+        }
+        devices.push(data.slice(prev_index, index));
+
+        decodedData["mode"] = lookup[0]["group_name"];
+        for (var i = 0; i < devices.length; i++) {
+            // console.log(decode_everything_else(parameters, devices[i], port, flatten));
+            // console.log("\n")
+
+            decodedData["device_" + i] = decode_everything_else(parameters, devices[i], port, flatten)[lookup[0]["group_name"]];
+        }
+    }
+
+    else {
+        decodedData = decode_everything_else(parameters, data, port, flatten);
+    }
+    return decodedData;
+}
+
+function decode_industrial_sensor(parameters, data, port, flatten) {
+    decodedData = {};
+    if (port == 20) {
+        decodedData.raw = data.map(val => stringifyHex(val)).join(" ");
+        decodedData.port = port;
+
+        var header = "no_header";
+        var lookup = parameters[port][header];
+        var data_size = data.length;
+        for (var i = 0; i < lookup.length; i++) {
+            lookup[i]["data_size"] = data_size;
+        }
+        lookup[3]["bit_end"] = data.length*8 - 1;
+
+        decode_no_header(lookup, data, decodedData);
+        decodedData = flatten ? flattenObject(decodedData) : decodedData;
+    }
+
+    else {
+        decodedData = decode_everything_else(parameters, data, port, flatten);
+    }
+    return decodedData;
+}
+
+function decode_industrial_tracker(parameters, data, port, flatten) {
+    decodedData = {};
+    if (port == 15) {
+        if (data[0] != 0x03) {
+            decodedData = decode_everything_else(parameters, data, port, flatten);
+        }
+        else {
+            decodedData["raw"] = data.map(val => stringifyHex(val)).join(" ");
+            decodedData["port"] = port;
+
+            // we will insert the header (0x03) and the log fragment number after every utc and position
+            // so we can decode it as normal    
+            var header = data[0];
+            var log_frag_num = data[1];
+
+            var entries_length = (data.length - 2)/16;     // -2 for the header and log frag number
+            var entries = [];
+
+            var count = 0;
+            var prev_index = 0;
+            var index = 18;
+            while (count < entries_length) {
+                data.splice(index, 0, header);
+                data.splice(index + 1, 0, log_frag_num);
+                entries.push(data.slice(prev_index, index));
+
+                count += 1;
+                prev_index = index;
+                index += 18;
+            }
+
+            // console.log(entries)
+            var lookup = parameters[port][stringifyHex(header)];
+            for (var i = 0; i < entries.length; i++) {
+                // console.log(decode_everything_else(parameters, devices[i], port, flatten));
+                // console.log("\n")
+    
+                decodedData["log_entry_" + i] = decode_everything_else(parameters, entries[i], port, flatten)[lookup[0]["group_name"]];
+            }
+
+        }
+
+    }
+    
+    else if (port == 25) {
+        decodedData = decode_BLE(parameters, data, port, flatten);
     }
     else {
-        return decode_medical(parameters, data, port, flatten);
+        decodedData = decode_everything_else(parameters, data, port, flatten);
+    }
+    return decodedData;
+}
+
+function decode(sensor, data, port, flatten = false) {
+    var isMedical = (sensor["sensor_name"] == "medical_sensor");
+    var is_BLE_Tracker = (sensor["sensor_name"] == "BLE_tracker");
+    var is_Industrial_Sensor = (sensor["sensor_name"] == "industrial_sensor");
+    var is_Industrial_Tracker = (sensor["sensor_name"] == "industrial_tracker");
+
+    if ( !(isMedical || is_BLE_Tracker || is_Industrial_Sensor || is_Industrial_Tracker) ) {
+        return decode_everything_else(sensor, data, port, flatten);
+    }
+    else if (isMedical) {
+        return decode_medical(sensor, data, port, flatten);
+    }
+    else if(is_BLE_Tracker) {
+        return decode_BLE(sensor, data, port, flatten);
+    }
+    else if(is_Industrial_Sensor) {
+        return decode_industrial_sensor(sensor, data, port, flatten);
+    }
+    else if (is_Industrial_Tracker) {
+        return decode_industrial_tracker(sensor, data, port, flatten);
     }
 }
+
