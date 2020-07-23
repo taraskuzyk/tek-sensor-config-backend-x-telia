@@ -1,6 +1,5 @@
 //express setup
 const createError = require("http-errors");
-const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -9,23 +8,22 @@ const http = require('http').createServer(app);
 const _ = require('lodash')
 
 //Client and NS communications
-const mqtt = require("mqtt");
+//TODO: is there a way to send downlinks over websockets or REST?
 const io = require('socket.io')(http);
 const webSocket = require('ws')
 
 // Data conversion
+const lora = require("lora-packet") // WARNING: THIS MODULE IS TAKEN FROM taraskuzyk's FORK, NOT THE NPM PACKAGE.
+// PULL REQUEST WAS CREATED, BUT NOT GUARANTEED THAT IT WAS ACCEPTED YET
 const getAvailableSensors = require('./getAvailableSensors')
 const ns = require('./ns')
 const dc = require('./DataConverters')
 
 let sessions = {}
-let uplink = {}
-let downlink = {}
 let availableSensors;
 
 async function startup () {
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
-    console.log(availableSensors)
 }
 
 startup()
@@ -39,29 +37,35 @@ http.listen(13337);
 io.on("connection", async (socket)=> {
     sessions[socket.id] = {}
     socket
+
     .on("login", async ({ nsUrl, username, password }) => {
         sessions[socket.id].tokens = await ns.getTokens(nsUrl, username, password)
         sessions[socket.id].nsUrl = nsUrl
         let applications = await ns.getCustomerApplications(nsUrl, sessions[socket.id].tokens.token)
         socket.emit("userApplications", applications)
     })
+
     .on("openApplication", async (applicationId) => {
-        console.log(applicationId)
+        let credentials = await ns.getApplicationCredentials(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token, applicationId)
+        // Credentials needed to send downlinks later on. No way to send them over REST or websockets so far.
+        console.log(credentials)
+        sessions[socket.id].mqttUsername = credentials.keyId
+        sessions[socket.id].mqttPassword = credentials.keyValue
 
         let devices = await ns
             .getApplicationDevices(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token, applicationId)
-
-        console.log(devices)
         if (devices.hasOwnProperty("data"))
             socket.emit("applicationDevices", devices.data)
             //TODO: figure out if this DEV "feature" (different WS payload format) will be carried to production eventually
         else
             socket.emit("applicationDevices", devices)
-        //socket.emit("applicationCredentials", credentials)
     })
-    .on("openDevice", async (deviceId) => {
-        getDeviceLog(socket, deviceId, sessions[socket.id].nsUrl, 443, sessions[socket.id].tokens.token)
+
+    .on("openDevice", async (device) => {
+        getDeviceLog(socket, device.id.id, sessions[socket.id].nsUrl, 443, sessions[socket.id].tokens.token,
+            device.appSKey, device.nwkSKey)
     })
+
     .on("disconnect", ()=> {
         try {
             delete sessions[socket.id]
@@ -69,24 +73,23 @@ io.on("connection", async (socket)=> {
             console.log(error)
         }
     })
-    .on("downlink", (message)=>{
-        console.log("received message to send on app/tx", message)
-        sessions[socket.id].mqttConnection.publish("app/tx", message)
+
+    .on("downlink", async ({deveui, port, base64})=>{
+        ns.sendDownlink(sessions[socket.id].nsUrl, sessions[socket.id].mqttUsername, sessions[socket.id].mqttPassword,
+            deveui, port, base64)
     })
+
     .on("updateSensorId", (sensorId) => {
         sessions[socket.id].sensorId = sensorId;
-        console.log("New sensorId")
-        console.log(sensorId)
     })
+
     .on("getAvailableSensors", () => {
-        socket.emit("availableSensors", availableSensors.map((el, i)=> {
-            return {id: el.id, name: el.name}
-        }))
+        socket.emit("availableSensors", availableSensors)
     })
 
 })
 
-function getDeviceLog(socket, deviceId, nsUrl, port, token) {
+function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
 
     let device_id = deviceId; // save device id to a local variable
 
@@ -94,22 +97,27 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token) {
 
     waitForSocketConnection(sessions[socket.id].nsSocket, function () {
         var subcsriptionMessageId = Math.floor(Math.random() * Math.floor(255));
-        sessions[socket.id].nsSocket.send(JSON.stringify({
-            "subCmds": [
-                {
-                    "entityType": "DEVICE",
-                    "entityId": device_id,
-                    "type": "STATS",
-                    "cmdId": subcsriptionMessageId
-                }
-            ]
-        }));
+        try {
+            sessions[socket.id].nsSocket.send(JSON.stringify({
+                "subCmds": [
+                    {
+                        "entityType": "DEVICE",
+                        "entityId": device_id,
+                        "type": "STATS",
+                        "cmdId": subcsriptionMessageId
+                    }
+                ]
+            }));
+        } catch (e) {
+            console.log(e)
+        }
+
     });
 
     function waitForSocketConnection(socket, callback) {
         setTimeout(() => {
             if (socket.readyState === 1) {
-                console.log("Connected to server!");
+                // console.log("Connected to server!");
                 if (callback != null) {
                     callback();
                 }
@@ -134,7 +142,7 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token) {
     });
 
     sessions[socket.id].nsSocket.onmessage = function (msg) {
-        console.log("message received");
+
         let messages = JSON.parse(msg.data).data;
         if (messages.length > 1){
             let messagesToSend
@@ -144,8 +152,32 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token) {
                 messagesToSend = messages
             }
             messagesToSend = messagesToSend.map((message, index)=>{
+                let newMessage = {}
+                //network server layer
+                newMessage.ns = message
 
-                return message
+                //LoRaMAC layer
+                //console.log(message)
+                try {
+                    newMessage.lora = decodeLoraPacket(message.rawPayload, appSKey, nwkSKey)
+
+                    //app layer
+                    let indexOfSensorId =
+                        indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
+
+                    if (indexOfSensorId !== -1 && newMessage.lora.type === "data")
+                        newMessage.app = dc
+                            .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload, newMessage.lora.MACPayload.FPort)
+                    else
+                        newMessage.app = {
+                            error: "No Application data present in this packet. Packet type: " + message.mtype
+                        }
+                } catch(e) {
+                    newMessage.lora = {error: "Something went wrong while decoding this packet..." + e}
+                    newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
+                }
+
+                return newMessage;
             })
             socket.emit("allDeviceMessages", messagesToSend)
         } else if (messages.length === 1) {
@@ -155,6 +187,32 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token) {
     } // onmessage action
 } // getDeviceLog function
 
+function indexOfObjectWithPropertyVal(array, property, val){
+    for (let i = 0; i < array.length; i++) {
+        if (array[i][property]===val){
+            return i
+        }
+    }
+    return -1
+}
+
+function decodeLoraPacket(payload, appSKey, nwkSKey){
+
+    let packet = lora.fromWire(new Buffer(payload, 'base64'))
+    let packetJSON = packet.toJSON()
+    if (packet.isDataMessage())
+        packetJSON.payload = lora.decrypt(
+            packet,
+            new Buffer(appSKey, 'hex'),
+            new Buffer(nwkSKey, 'hex'),
+        )
+    if (packet.isJoinAcceptMessage())
+        packetJSON.joinPayload = lora.decryptJoinAccept(
+            packet,
+            new Buffer(appSKey, 'hex')
+        )
+    return packetJSON
+}
 
 //for decoding Base64 encoded payloads, source: https://gist.github.com/lidatui/4064479#file-gistfile1-js-L8
 var Base64Binary = {

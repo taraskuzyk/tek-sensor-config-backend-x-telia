@@ -128,7 +128,6 @@ function decode_everything_else(parameters, data, port, flatten){
     // If this ever changes, this code will need to be reworked.
     if (typeof(port)==="number")
         port = port.toString();
-
     var preArray = byteArrayToArray(data);
     var bytes = []
     for (var i = 0; i < preArray.length; i++){
@@ -147,7 +146,7 @@ function decode_everything_else(parameters, data, port, flatten){
     decodedData.raw = string_bytes;
     decodedData.port = port;
 
-    if (port != 10 && port != 100) {
+    if (port !== "10" && port !== "100") {
         decodedData.error = "Wrong port number " + port;
         return decodedData
     }
@@ -193,11 +192,10 @@ function decode_everything_else(parameters, data, port, flatten){
                 decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
         } else {
             decodedData[properties[0]["group_name"]] = {}
-            for (var p in properties) {
-                prop = properties[p];
-                decodedData[ prop["group_name"] ][ prop["parameter_name"] ] =
-                    decodeField(valueArray, prop["bit_start"], prop["bit_end"], prop["type"], prop["multiplier"], prop["round"])
-            }
+            properties.forEach((p, i) => {
+                decodedData[ p["group_name"] ][ p["parameter_name"] ] =
+                    decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
+            })
         }
     }
     return flatten ? flattenObject(decodedData) : decodedData;

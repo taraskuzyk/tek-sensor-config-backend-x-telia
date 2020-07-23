@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const mqtt = require("mqtt"); //only used to send downlinks
 
 module.exports = {
     getCustomerApplications: async (nsUrl, token) => {
@@ -62,5 +63,20 @@ module.exports = {
         } catch (error) {
             console.warn(error);
         }
+    },
+    sendDownlink: (nsUrl, username, password, deveui, port, base64) => {
+        console.log(`Sending to ${nsUrl} with U: ${username} P: ${password}`)
+        let mqttConnection = mqtt.connect( `https://${nsUrl}`, {
+            "username": username,
+            "password": password
+        })
+
+        console.log(deveui, port, base64)
+        let msg = "{\"msgId\":\"1\", \"devEUI\":\"" + deveui + "\", \"port\":" +
+            port + ", \"confirmed\": false, \"data\": \"" + base64 + "\"}"
+        mqttConnection.publish("app/tx", msg)
+
     }
+
+
 }
