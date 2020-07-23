@@ -1,0 +1,1051 @@
+{
+    "sensor_name": "industrial_sensor",
+    "10": {
+        "0x00 0xFF": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "battery_voltage",
+                "group_name": "",
+                "coefficient": "0.01",
+                "round": "3"
+            }
+        ],
+        "0x01 0x01": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "output_1",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x02 0x01": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "output_2",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x03 0x67": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "temperature",
+                "group_name": "",
+                "coefficient": "0.1",
+                "round": "3"
+            }
+        ],
+        "0x05 0x00": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "input_1",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x06 0x02": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input_2",
+                "group_name": "",
+                "coefficient": "1.00E-06",
+                "round": "3"
+            }
+        ],
+        "0x07 0x02": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input_3",
+                "group_name": "",
+                "coefficient": "1.00E-03",
+                "round": "3"
+            }
+        ],
+        "0x08 0x04": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input_1_count",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x09 0x67": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperatue",
+                "group_name": "",
+                "coefficient": "0.1",
+                "round": "3"
+            }
+        ]
+    },
+    "20": {
+        "no_header": [
+            {
+                "data_size": "n+1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "done_bit",
+                "group_name": "serial_payload",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "n+1",
+                "bit_start": "1",
+                "bit_end": "2",
+                "type": "unsigned",
+                "parameter_name": "transaction_id_number",
+                "group_name": "serial_payload",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "n+1",
+                "bit_start": "3",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "fragment_number",
+                "group_name": "serial_payload",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "n+1",
+                "bit_start": "8",
+                "bit_end": "8*n-1",
+                "type": "hexstring",
+                "parameter_name": "serial_data",
+                "group_name": "serial_payload",
+                "coefficient": "1",
+                "round": ""
+            }
+        ]
+    },
+    "100": {
+        "0x00": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "device_eui",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_eui",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x01": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x02": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "device_address",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x03": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "network_session_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x04": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "app_session_key",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x05": [
+            {
+                "data_size": "0",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "hexstring",
+                "parameter_name": "loramac_otaa",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x10": [
+            {
+                "data_size": "2",
+                "bit_start": "7",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "loramac_class",
+                "group_name": "loramac_join_mode",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x11": [
+            {
+                "data_size": "2",
+                "bit_start": "4",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "loramac_confirmed_uplink",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "parameter_name": "loramac_duty_cycle",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "10",
+                "bit_end": "10",
+                "type": "unsigned",
+                "parameter_name": "loramac_adr",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "11",
+                "bit_end": "11",
+                "type": "unsigned",
+                "parameter_name": "loramac_dr_number",
+                "group_name": "loramac_opts",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x12": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "3",
+                "type": "unsigned",
+                "parameter_name": "loramac_tx_power",
+                "group_name": "loramac_dr_tx_power",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "11",
+                "type": "unsigned",
+                "parameter_name": "loramac_rx2_frequency",
+                "group_name": "loramac_dr_tx_power",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x13": [
+            {
+                "data_size": "5",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "loramac_rx2_dr",
+                "group_name": "loramac_rx2",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "5",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "loramac_net_id_msb",
+                "group_name": "loramac_rx2",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x19": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "loramac_net_id_lsb",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x1A": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_seconds",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x20": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "tick_digital_input",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x21": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_temperature",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x22": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_humidity",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x23": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_input1",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x24": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_input2",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x25": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_input3",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x26": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_mcu_temperature",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x27": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_output1",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x28": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "tick_output2",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x29": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input1_rising_edge",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x2A": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "input1_falling_edge",
+                "group_name": "input1_mode",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "parameter_name": "input1_count_threshold",
+                "group_name": "input1_mode",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x2B": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input1_report_state",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x2C": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "input1_report_counter_value",
+                "group_name": "input1_value_tx",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "1",
+                "bit_end": "1",
+                "type": "unsigned",
+                "parameter_name": "input23_sample_period_idle",
+                "group_name": "input1_value_tx",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x30": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "input23_sample_period_active",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x31": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "input2_current_high_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x32": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "input2_current_low_threshold",
+                "group_name": "input2_threshold",
+                "coefficient": "0.0001",
+                "round": "3"
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input3_current_high_threshold",
+                "group_name": "input2_threshold",
+                "coefficient": "0.0001",
+                "round": "3"
+            }
+        ],
+        "0x33": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "input3_current_low_threshold",
+                "group_name": "input3_threshold",
+                "coefficient": "0.05",
+                "round": "3"
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "input2_threshold_enable",
+                "group_name": "input3_threshold",
+                "coefficient": "0.05",
+                "round": "3"
+            }
+        ],
+        "0x34": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "unsigned",
+                "parameter_name": "input3_threshold_enable",
+                "group_name": "input23_threshold_enable",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "1",
+                "bit_start": "4",
+                "bit_end": "4",
+                "type": "unsigned",
+                "parameter_name": "temperature_relative_humidity_sample_period_idle",
+                "group_name": "input23_threshold_enable",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x39": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "temperature_relative_humidity_sample_period_active",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x3A": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "temperature_high_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x3B": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "signed",
+                "parameter_name": "temperature_low_threshold",
+                "group_name": "temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "signed",
+                "parameter_name": "temperature_threshold_enable",
+                "group_name": "temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x3C": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "relative_humidity_high_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x3D": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "relative_humidity_low_threshold",
+                "group_name": "rh_threshold",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "relative_humidity_threshold_enable",
+                "group_name": "rh_threshold",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x3E": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_sample_period_idle",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x40": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_sample_period_active",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x41": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_high_threshold",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x42": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_low_threshold",
+                "group_name": "mcu_temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "mcu_temperature_threshold_enable",
+                "group_name": "mcu_temp_threshold",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x43": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "output1_control",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x50": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "output1_delay",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x51": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "output2_control",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x52": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "output2_delay",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x53": [
+            {
+                "data_size": "2",
+                "bit_start": "0",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "serial_interface_type",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x60": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "serial_baud_rate",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x61": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "serial_data_bits",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x62": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "serial_parity_bits",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x63": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "serial_stop_bits",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x64": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "serial_duplex_mode",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x65": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "modbus_rtu_symbol_timeout",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x68": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "modbus_rtu_rx_timeout",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x69": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "modbus_rtu_polling_period",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x6A": [
+            {
+                "data_size": "4",
+                "bit_start": "0",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "app_configuration",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x70": [
+            {
+                "data_size": "2",
+                "bit_start": "5",
+                "bit_end": "5",
+                "type": "unsigned",
+                "parameter_name": "lora_configuration",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "6",
+                "bit_end": "6",
+                "type": "unsigned",
+                "parameter_name": "restart_sensor",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "2",
+                "bit_start": "8",
+                "bit_end": "8",
+                "type": "unsigned",
+                "parameter_name": "app_major_version",
+                "group_name": "write_to_flash",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x71": [
+            {
+                "data_size": "7",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "app_minor_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "parameter_name": "app_revision",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "16",
+                "bit_end": "23",
+                "type": "unsigned",
+                "parameter_name": "loramac_major_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "24",
+                "bit_end": "31",
+                "type": "unsigned",
+                "parameter_name": "loramac_minor_version",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "32",
+                "bit_end": "39",
+                "type": "unsigned",
+                "parameter_name": "loramac_revision",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "40",
+                "bit_end": "47",
+                "type": "unsigned",
+                "parameter_name": "region",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            },
+            {
+                "data_size": "7",
+                "bit_start": "48",
+                "bit_end": "55",
+                "type": "unsigned",
+                "parameter_name": "configuration_factory_reset",
+                "group_name": "firmware_version",
+                "coefficient": "1",
+                "round": ""
+            }
+        ],
+        "0x72": [
+            {
+                "data_size": "1",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "parameter_name": "",
+                "group_name": "",
+                "coefficient": "1",
+                "round": ""
+            }
+        ]
+    }
+}
