@@ -54,7 +54,7 @@ function extractBytes(chunk, startBit, endBit) {
 }
 
 function applyDataType(bytes, dataType, coefficient, round, addition) {
-    addition = (typeof addition !== 'undefined') ?  addition : 1
+    addition = (typeof addition !== 'undefined') ?  addition : 0
     var output = 0;
     coefficient = Number(coefficient)
     addition = Number(addition)
@@ -88,7 +88,7 @@ function applyDataType(bytes, dataType, coefficient, round, addition) {
 }
 
 function decodeField(chunk, startBit, endBit, dataType, coefficient, round, addition) {
-    addition = (typeof addition !== 'undefined') ?  addition : 1
+    addition = (typeof addition !== 'undefined') ?  addition : 0
     var chunkSize = chunk.length;
     if (parseInt(endBit) >= parseInt(chunkSize) * 8) {
         return null; // Error: exceeding boundaries of the chunk
@@ -216,13 +216,9 @@ function decode_medical(parameters, data, port, flatten) {
         for (var i = 0; i < bytes.length; i++){
             if (i !== 0)
                 string_bytes+=", "
-            let byte = bytes[i].toString(16).toUpperCase()
-            if (byte.split("").length === 1)
-                byte = "0" + byte
-            string_bytes+= byte
+            string_bytes+= (bytes[i] < 0 ? bytes[i]+256 : bytes[i]).toString(16)
         }
         string_bytes+="]"
-
 
         decodedData.raw = string_bytes;
         decodedData.port = port;
