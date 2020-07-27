@@ -181,6 +181,7 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                 messagesToSend = messages
             }
             messagesToSend = messagesToSend.map((message, index)=>{
+                //TODO: reformat the copy-paste into proper code
                 let newMessage = {}
                 //network server layer
                 newMessage.ns = message
@@ -196,13 +197,16 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                     let indexOfSensorId =
                         indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
 
-                    if (indexOfSensorId !== -1 && newMessage.lora.type === "data")
+                    if (indexOfSensorId !== -1 && newMessage.lora.type === "data"){
                         newMessage.app = dc
-                            .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload, newMessage.lora.MACPayload.FPort)
-                    else
+                            .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload,
+                                newMessage.lora.MACPayload.FPort)
+                    } else {
                         newMessage.app = {
                             error: "No Application data present in this packet. Packet type: " + message.mtype
                         }
+                    }
+
                 } catch(e) {
                     newMessage.lora = {error: "Something went wrong while decoding this packet..." + e}
                     newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
@@ -213,7 +217,38 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
             })
             socket.emit("allDeviceMessages", messagesToSend)
         } else if (messages.length === 1) {
-            socket.emit("newDeviceMessage", messages[0])
+            let message = messages[0]
+            //network server layer
+            let newMessage = {}
+            newMessage.ns = message
+
+            //LoRaMAC layer
+            //console.log(message)
+            try {
+                if (message.rawPayload === null)
+                    throw new Error("This message didn't contain any raw payload.")
+                newMessage.lora = decodeLoraPacket(message.rawPayload, appSKey, nwkSKey)
+
+                //app layer
+                let indexOfSensorId =
+                    indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
+
+                if (indexOfSensorId !== -1 && newMessage.lora.type === "data"){
+                    newMessage.app = dc
+                        .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload,
+                            newMessage.lora.MACPayload.FPort)
+                } else {
+                    newMessage.app = {
+                        error: "No Application data present in this packet. Packet type: " + message.mtype
+                    }
+                }
+
+            } catch(e) {
+                newMessage.lora = {error: "Something went wrong while decoding this packet..." + e}
+                newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
+                console.log(e.stack)
+            }
+            socket.emit("newDeviceMessage", newMessage)
         }
 
     } // onmessage action
