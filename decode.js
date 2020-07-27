@@ -2,6 +2,7 @@ module.exports = {decode: decode}
 
 function stringifyHex(key) {
     // expects Number, returns stringified hex number in format (FF -> 0xFF) || (A -> 0x0A)
+    //
     var ret = key.toString(16).toUpperCase()
     if (ret.length === 1) {
         return "0x0" + ret;

@@ -69,9 +69,14 @@ io.on("connection", async (socket)=> {
 
     .on("login", async ({ nsUrl, username, password }) => {
         sessions[socket.id].tokens = await ns.getTokens(nsUrl, username, password)
-        sessions[socket.id].nsUrl = nsUrl
-        let applications = await ns.getCustomerApplications(nsUrl, sessions[socket.id].tokens.token)
-        socket.emit("userApplications", applications)
+        console.log(sessions[socket.id].tokens)
+        if (sessions[socket.id].tokens.hasOwnProperty("token")){
+            sessions[socket.id].nsUrl = nsUrl
+            let applications = await ns.getCustomerApplications(nsUrl, sessions[socket.id].tokens.token)
+            socket.emit("userApplications", applications)
+        } else {
+            socket.emit("invalidCredentials")
+        }
     })
 
     .on("openApplication", async (applicationId) => {
