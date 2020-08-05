@@ -181,7 +181,7 @@ function decode(parameters, bytes, port, flat){
             // since a group would require at least 2 elements
 
             p = properties[0];
-            if (p["multiple"] === 0) {
+            if (p["multiple"] == 0) {
                 // value
                 bytesToConsume = parseInt( p["data_size"] )
                 valueArray = []
@@ -223,6 +223,7 @@ function decode(parameters, bytes, port, flat){
                     for (j = i; j < properties.length; j++) {
                         p = properties[j]
                         //console.log("hi")
+                        if (p["multiple"] != 1)
                         decodedData[ p["group_name"] ][ p["parameter_name"] ] =
                             decodeField(valueArray, p["bit_start"], p["bit_end"], p["type"], p["multiplier"], p["round"])
                     }

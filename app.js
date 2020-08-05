@@ -31,7 +31,12 @@ async function startup() {
     //get available sensors with uplink and downlinks jsons
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
     //console.log(JSON.stringify(availableSensors[5], null, 2))
+    console.log("running tests: ")
     console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03], 50))
+    console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03, 0x03, 0x03], 75))
+    console.log(dc.decode(availableSensors[5].uplink, [0x25, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 75))
+    console.log(dc.decode(availableSensors[5].uplink, [0x00, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 100))
+    console.log(dc.decode(availableSensors[5].uplink, [0x11, 0xFF, 0xFF], 100))
 }
 
 startup()
