@@ -166,10 +166,6 @@ function encode_write_field(command, lookup, encoded_data) {
 }
 
 function encode_write_group(commands, group_lookup, encoded_data) {
-    if (commands["write"].hasOwnProperty("reed_switch_rising_edge")) {
-        breakpoint = 0;
-    }
-
     header = group_lookup["header"];
     var bytes = format_header(header, read = false);
 
