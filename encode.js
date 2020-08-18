@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////
 */
 
+const BitManipulation = require("./BitManipulation.js");
+
 module.exports = {encode: encode};
 
 function check_command(group_or_field, lookup) {
@@ -23,13 +25,10 @@ function check_command(group_or_field, lookup) {
     //    2. Number of fields
 
     if (group_or_field.hasOwnProperty("read")) {
-        // console.log(group_or_field)
-        // console.log(group_or_field["read"])
         if ( (lookup["access"] == "W") || (lookup["access"] == "S") ) {
             return false;
         }
         else if ( typeof(group_or_field["read"]) == "object" ) {
-            // console.log(group_or_field["read"])
             return false;
         }
     }
@@ -81,77 +80,25 @@ function is_valid(commands, sensor) {
     return {valid: true, message: "no message"};
 }
 
-function write_bits(write_value, start_bit, end_bit, current_value, coefficient) {
-    // write the bits in write_value to the specified location in current_value and returns the result
-
-    if (typeof(write_value) === "bigint") {
-        // Base Case
-        var length = end_bit - start_bit + 1n;
-        current_value |= ( ( write_value & ((1n << length) - 1n) ) << start_bit );
-    }
-
-    else if (typeof(write_value) === "number") {
-        // since you multiply by "coefficient" in the decoders, we must divide by "coefficient" for encoders lol
-        write_value = BigInt( Math.round(Number(write_value)/coefficient) );
-        current_value = write_bits(write_value, start_bit, end_bit, current_value, coefficient);
-    }
-
-    else if (typeof(write_value) === "string") {
-        write_value = string_to_bigint(write_value);
-        current_value = write_bits(write_value, start_bit, end_bit, current_value, coefficient);
-    }
-    return current_value;
-}
-
-function separate_bytes(value, byte_num) {
-    // takes in a value and the number of bytes to be separated into, returns an array of bytes
-    bytes = new Array(byte_num);
+function write_bits(write_value, start_bit, end_bit, current_bits = BitManipulation.get_bits(0)) {
+    // write the bits in write_value to the specified location in current_bits and returns the result as a bit array
+    // Arguments:
+    //      write_value [Number or String] - value to write to "current_bits"
+    //      start_bit [Number] - start bit to write to
+    //      end_bit [Number] - end bit to write to
+    //      current_bits [Bit Array] - bits to write "write_value" to
     
-    if (typeof(value) == "bigint") {
-        // Base case
-        for (var i = byte_num - 1; i >= 0; i--) {
-            // We will and the value with a mask of 11111111 to isolate the 8 LSBs, then add it to the back of bytes
-            mask = BigInt(0xFF);
-            bytes[i] = value & mask;
-            value = value >> BigInt(8);
-        }
-    }
-
-    else if (typeof(value) === "number") {
-        value = BigInt(value);
-        bytes = separate_bytes(value, byte_num);
-    }
-
-    else if (typeof(value) === "string") {
-        // Javascript characters are 16 bits long if I'm correct
-        value = string_to_bigint(value);
-        bytes = separate_bytes(value, byte_num);
-    }
-    return bytes;
-}
-
-function bigint_to_num(encoded_data) {
-    // converts all BigInts in "encoded_data" to numbers again
-
-    for (var i = 0; i < encoded_data.length; i++) {
-        encoded_data[i] = Number(encoded_data[i])
-    }
-    // console.log(encoded_data)
-    return encoded_data;
-}
-
-function string_to_bigint(str) {
-    // Converts a string into an BigInt with all the bits of the string
-    // Assumes that a char is suppossed to have 8 bits
+    var bits_to_write = BitManipulation.get_bits(write_value);
+        
+    var length = Number(end_bit) - Number(start_bit) + 1;
+    var mask = BitManipulation.init_mask(length, val = 1);
     
-    var string_value = BigInt(0);
-    j = 0;
-    for (var i = str.length - 1; i >= 0; i--) {
-        char_value = BigInt(str[i].charCodeAt(0));            
-        string_value += (char_value << BigInt(8*j));
-        j += 1;
-    }
-    return string_value;
+    bits_to_write = BitManipulation.AND(bits_to_write, mask);                   // AND bits_to_write with a mask of 1s
+    bits_to_write = BitManipulation.shift_left(bits_to_write, start_bit);       // Shift the bits_to_write to start_bit
+
+    current_bits = BitManipulation.OR(current_bits, bits_to_write);              // OR the bits_to_write with the current_bits
+
+    return current_bits;
 }
 
 function format_header(header, read = true) {
@@ -180,20 +127,77 @@ function format_header(header, read = true) {
 
 function write_to_port(bytes, port, encoded_data) {
     // write "bytes" to the appropriate "port" in "encoded_data"
-    // console.log(bytes)
     if (encoded_data.hasOwnProperty(port)) {
         // try pushing "bytes" onto the appropriate port in "encoded_data"
         encoded_data[port] = encoded_data[port].concat(bytes);
-        // encoded_data[port].push(bytes)
     }
     else {
         // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
         encoded_data[port] = bytes;
-        // encoded_data[port] = [bytes];
     }    
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+function encode_read(lookup, encoded_data) {
+    bytes = format_header(lookup["header"], read = true);        
+    write_to_port(bytes, lookup["port"], encoded_data);
+}
+
+function encode_write_field(command, lookup, encoded_data) {
+    var bytes = format_header(lookup["header"], read = false);
+    port = lookup["port"];
+
+    val_to_write = command["write"];
+    if (lookup["type"] != "string") {
+        val_to_write = Math.round(Number(val_to_write)/Number(lookup["coefficient"]));
+    }
+    
+    written_bits = write_bits(
+        val_to_write,
+        parseInt(lookup["bit_start"]),
+        parseInt(lookup["bit_end"]),
+        current_value = 0,
+    );
+
+    written_bytes = BitManipulation.to_byte_arr(written_bits, size = lookup["data_size"]);
+    bytes = bytes.concat(written_bytes);
+
+    write_to_port(bytes, lookup["port"], encoded_data);     // Add the bytes to the appropriate port in "encoded data"
+}
+
+function encode_write_group(commands, group_lookup, encoded_data) {
+    if (commands["write"].hasOwnProperty("reed_switch_rising_edge")) {
+        breakpoint = 0;
+    }
+
+    header = group_lookup["header"];
+    var bytes = format_header(header, read = false);
+
+    var written_bits = BitManipulation.get_bits(0);
+    var field_names = Object.keys(commands["write"])
+    var field_write_vals = Object.values(commands["write"]);
+    for (var i = 0; i < field_names.length; i++) {
+        var field_name = field_names[i];
+        var lookup = group_lookup[field_name];
+
+        var field_write_val = field_write_vals[i];
+        if (lookup["type"] != "string") {
+            field_write_val = Math.round(Number(field_write_val)/Number(lookup["coefficient"]));
+        }
+
+        written_bits = write_bits(
+            field_write_val,
+            parseInt(lookup["bit_start"]),
+            parseInt(lookup["bit_end"]),
+            current_bits = written_bits
+        );
+    }
+    written_bytes = BitManipulation.to_byte_arr(written_bits, size = lookup["data_size"]);
+    bytes = bytes.concat(written_bytes)
+
+    write_to_port(bytes, group_lookup["port"], encoded_data);
+}
+
 function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
     
@@ -204,132 +208,38 @@ function encode(commands, sensor) {
         foo = {error : message};
         return foo;
     }
-
-    var categories = Object.keys(commands);
+    
+    var lookup_all = {...sensor};   // clones the sensor object
     var encoded_data = {};
-
+    var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {   // iterates over the categories of commands
-        var category_str = categories[i];
-        var category = commands[categories[i]];
-        var groups_and_fields = Object.keys(category);
+        var command_categories = commands[categories[i]];
+        lookup_categories = lookup_all[categories[i]];
 
+        var groups_and_fields = Object.keys(command_categories);
         for (var j = 0; j < groups_and_fields.length; j++) {    // iterates over the groups of commands
-            var group_or_field_str = groups_and_fields[j];
-            var group_or_field = category[groups_and_fields[j]];
-            
-            // console.log(category_str)
-            // console.log(group_or_field_str)
+            var command = command_categories[groups_and_fields[j]];
+            lookup = lookup_categories[groups_and_fields[j]];
+
             // Now that we are iterating over all of the commands, the cases that we have to handle are as such:
             //  1. The read case. This is the same regardless of if the current key is a group or a field
             //  2. The send case (for the digital sign and stuff). This case sucks hard. For real, I'm sorry.
             //  3. The write case where the current key is a field
             //  4. The write case where the current key is a group (will require another for loop)
-            
-            if (group_or_field.hasOwnProperty("read")) {
+            // console.log()
+            // console.log(lookup)
+
+            if (command.hasOwnProperty("read")) {
                 // CASE 1
-                var header = sensor[category_str][group_or_field_str]["header"];
-                var bytes = format_header(header, read = true);
-                bytes = bigint_to_num(bytes);
-
-                var port = sensor[category_str][group_or_field_str]["port"];
-                
-                write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
+                encode_read(lookup, encoded_data);
             }
-            
-            else if (group_or_field.hasOwnProperty("send")) {
-                // CASE 2
-                var lookup = sensor[category_str][group_or_field_str];
-                var header = lookup["header"];
-                var port = lookup["port"];
-                var ack = Boolean(group_or_field["send"]["ACK"]);
-                var bytes = format_header(header, read = !ack);     // If it's not ACKed, then you don't do "header | 0x80"
-                bytes = bigint_to_num(bytes);
-
-                if (Object.keys(group_or_field["send"]).length === 1) {
-                    // for the fields that are only for ACK/NACK
-                    write_to_port(bytes, port, encoded_data);
-                }
-
-                else {
-                    // for every other field
-                    if ( (!ack) && (header != "0x33") ) {
-                        // For every field but 0x33, if it's NACK, you just send the MessageID
-                        write_to_port(bytes, port, encoded_data);
-                        continue;
-                    }
-                    var fields = Object.keys(group_or_field["send"]);
-                    var n = group_or_field["send"]["string_size"];     // define a variable "n" to represent "n" bytes in the string which
-                    var current_val = BigInt(0);                       // will be used with the eval() function to allow for dynamic sizing
-                    for (var k = 0; k < fields.length - 1; k++) {                        
-                        var field_str = fields[k];
-
-                        lookup = sensor[category_str][group_or_field_str][field_str];
-
-                        var start_bit = BigInt(eval(lookup["bit_start"]));
-                        var end_bit = BigInt(eval(lookup["bit_end"]));
-                        
-                        var temp_val = group_or_field["send"][fields[k]];
-                        var coefficient = Number(lookup["coefficient"]);
-                        current_val = write_bits(temp_val, start_bit, end_bit, current_val, coefficient);                        
-                    }
-                    var byte_num = eval(lookup["data_size"]);
-                    bytes = bytes.concat(separate_bytes(current_val, byte_num - 1));    // -1 because we already added the ACK
-                    bytes = bigint_to_num(bytes);
-                    write_to_port(bytes, port, encoded_data);                    
-                }
-            }
-
-            else if (group_or_field.hasOwnProperty("write") && (typeof(group_or_field["write"]) != "object")) {
+            else if (command.hasOwnProperty("write") && (typeof(command["write"]) != "object")) {
                 // CASE 3
-                var lookup = sensor[category_str][group_or_field_str];
-                var bytes = [];
-
-                var byte_num = lookup["data_size"];
-                var start_bit = BigInt(lookup["bit_start"]);
-                var end_bit = BigInt(lookup["bit_end"]);
-                var header = lookup["header"];
-                bytes = format_header(header, read = false);
-
-                var val = group_or_field["write"];
-                var coefficient = Number(lookup["coefficient"]);
-                val = write_bits(val, start_bit, end_bit, BigInt(0), coefficient);
-
-                bytes = bytes.concat(separate_bytes(val, byte_num));
-                bytes = bigint_to_num(bytes);
-
-                var port = lookup["port"];
-                
-                write_to_port(bytes, port, encoded_data);     // Add the bytes to the appropriate port in "encoded data"
+                encode_write_field(command, lookup, encoded_data);
             }
-            
             else {
                 // CASE 4
-                var bytes = [];
-
-                var lookup = sensor[category_str][group_or_field_str];
-
-                var port = lookup["port"];
-
-                var header = lookup["header"];
-                bytes = format_header(header, read = false);
-
-                var fields = Object.keys(group_or_field["write"]);
-                var byte_num = lookup[fields[0]]["data_size"];
-                var current_val = BigInt(0);
-                for (var k = 0; k < fields.length; k++) {   // iterate over the fields in the group
-                    lookup = sensor[category_str][group_or_field_str][fields[k]];
-                    
-                    var start_bit = BigInt(lookup["bit_start"]);
-                    var end_bit = BigInt(lookup["bit_end"]);
-
-                    var temp_val = group_or_field["write"][fields[k]];
-                    var coefficient = Number(lookup["coefficient"]);
-                    current_val = write_bits(temp_val, start_bit, end_bit, current_val, coefficient);
-                }
-                bytes = bytes.concat(separate_bytes(current_val, byte_num));
-                bytes = bigint_to_num(bytes);
-
-                write_to_port(bytes, port, encoded_data);   // Add the bytes to the appropriate port in "encoded data"
+                encode_write_group(command, lookup, encoded_data);
             }
             
         }
@@ -337,4 +247,54 @@ function encode(commands, sensor) {
     return encoded_data;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// home_sensor = require("./DL_Home_Sensor.json")
+
+
+// commands = {
+//     ticks_config : {                        // Configure the ticks
+//         tick_seconds : { write : 60 },          // Write 60 to seconds per tick
+//         tick_temperature : { read : true },     // Read from ticks per temperature
+//         tick_battery : { write : 1 }            // Write ticks per battery to 1
+//     },
+
+//     accelerometer : {                       // Configure the accelerometer
+//         accelerometer_mode : {                  // Configure the acceleromter's mode
+//             write : {
+//                 accelerometer_break_in_threshold_enable : 1,    // Enable break-in threshold
+//                 accelerometer_impact_threshold_enable : 1,      // Enable impact threshold
+//                 accelerometer_enable : 1                        // Enable accelerometer
+//             }
+//         },
+//         accelerometer_values_to_transmit : { read : true }      // Read accelerometer's tx values
+//     },
+
+//     reed_switch: {
+//         reed_switch_mode: {
+//             write: {
+//                 reed_switch_rising_edge: 1,
+//                 reed_switch_falling_edge: 0
+//             }
+//         },
+//         reed_switch_value_to_tx: { read: true }
+//     },
+//     external_connector: {
+//         external_connector_mode: {
+//             write: {
+//                 external_connector_rising_edge: 1,
+//                 external_connector_falling_edge: 0,
+//                 external_connector_functionality: 1
+//             }
+//         }
+//     }
+// }
+
+// encoded_data = encode(commands, home_sensor);
+// console.log(encoded_data);
+
+
+
+
 
