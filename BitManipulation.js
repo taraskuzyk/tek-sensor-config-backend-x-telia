@@ -16,7 +16,7 @@ BitManipulation = {
     __make_multiple_of_8: function(bits) {
         // appends 0s to the bits until it's a multiple of 8
         while (bits.length % 8 != 0) {
-            bits.unshift(0);
+            bits.unshift(false);
         }
     },
 
@@ -25,15 +25,15 @@ BitManipulation = {
             return
         }
         while (bits1.length > bits2.length) {
-            bits2.unshift(0);
+            bits2.unshift(false);
         }
         while (bits2.length > bits1.length) {
-            bits1.unshift(0);
+            bits1.unshift(false);
         }
     },
 
     __remove_leading_zeros(bits) {
-        while ( (bits[0] != 1) && (bits.length > 1) ) {
+        while ( (bits[0] != true) && (bits.length > 1) ) {
 
             bits.shift()
         }
@@ -44,7 +44,7 @@ BitManipulation = {
         // and I don't want any of the below functions to change the value of their arguments
         new_bits = [];
         for (i = 0; i < bits.length; i++) {
-            new_bits.push(bits[i]);
+            new_bits.push(Boolean(bits[i]));
         }
         return new_bits;
     },
@@ -82,8 +82,12 @@ BitManipulation = {
         }   
     },
     
-    init_mask: function(length, val = 1) {
+    init_mask: function(length, val) {
         // returns a mask of 1s or 0s, as given by the "val" arguement
+        if (val === undefined) {
+            val = true;
+        }
+
         var mask = new Array(length);
         for (i = 0; i < length; i++) {
             mask[i] = val;
@@ -91,7 +95,7 @@ BitManipulation = {
         return mask;
     },
 
-    to_byte_arr: function(bits, size = undefined) {
+    to_byte_arr: function(bits, size) {
         this.__remove_leading_zeros(bits);
         this.__make_multiple_of_8(bits);
 
@@ -104,14 +108,14 @@ BitManipulation = {
                 byte_val += (bits[i + j] << k);
                 k += 1
             }
-            bytes_arr[i] = byte_val;
+            bytes_arr[i/8] = byte_val;
         }
 
         if (size === undefined) {
             return bytes_arr;
         }
 
-        while (bytes_arr.length < size) {
+        while (bytes_arr.length < Number(size)) {
             bytes_arr.unshift(0);
         }
         return bytes_arr;
@@ -127,12 +131,12 @@ BitManipulation = {
     },
 
     shift_left: function(bits, shift_val) {
-        new_bits = new Array(bits.length + shift_val);
+        var new_bits = new Array(bits.length + shift_val);
         for (i = 0; i < bits.length; i++) {
-            new_bits[i] = bits[i];
+            new_bits[i] = Boolean(bits[i]);
         }
         for (i = bits.length; i < new_bits.length; i++) {
-            new_bits[i] = 0;
+            new_bits[i] = false;
         }
 
         this.__remove_leading_zeros(new_bits);
@@ -144,10 +148,10 @@ BitManipulation = {
         var new_bits = new Array(bits.length);
         
         for (j = 0; j < shift_val; j++) {
-            new_bits[j] = 0;
+            new_bits[j] = false;
         }
         for (i = 0; i < bits.length - shift_val; i++) {
-            new_bits[i + shift_val] = bits[i];
+            new_bits[i + shift_val] = Boolean(bits[i]);
         }
 
         this.__remove_leading_zeros(new_bits);
@@ -164,7 +168,7 @@ BitManipulation = {
         var new_bits = new Array(bits1_copy.length);
 
         for (i = 0; i < bits1_copy.length; i++) {
-            new_bits[i] = (bits1_copy[i] & bits2_copy[i]);
+            new_bits[i] = Boolean(bits1_copy[i] & bits2_copy[i]);
         }
         this.__remove_leading_zeros(new_bits);
         this.__make_multiple_of_8(new_bits);
@@ -180,7 +184,7 @@ BitManipulation = {
         var new_bits = new Array(bits1_copy.length);
 
         for (i = 0; i < bits1_copy.length; i++) {
-            new_bits[i] = (bits1_copy[i] | bits2_copy[i]);
+            new_bits[i] = Boolean(bits1_copy[i] | bits2_copy[i]);
         }
         
         this.__remove_leading_zeros(new_bits);
@@ -197,7 +201,7 @@ BitManipulation = {
         new_bits = new Array(bits1.length);
 
         for (i = 0; i < bits1_copy.length; i++) {
-            new_bits[i] = (bits1_copy[i] ^ bits2_copy[i]);
+            new_bits[i] = Boolean(bits1_copy[i] ^ bits2_copy[i]);
         }
         
         this.__remove_leading_zeros(new_bits);
