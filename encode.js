@@ -25,33 +25,31 @@ function check_command(group_or_field, lookup) {
     //    2. Number of fields
 
     if (group_or_field.hasOwnProperty("read")) {
-        if ( (lookup["access"] == "W") || (lookup["access"] == "S") ) {
-            return false;
+        if (lookup["access"] == "W") {
+            return {status: false, error_code: 'Tried reading from write-only field'};
         }
         else if ( typeof(group_or_field["read"]) == "object" ) {
-            return false;
+            return {status: false, error_code: 'Syntax error, read commands cannot be of type "object"'};
         }
     }
     else if (group_or_field.hasOwnProperty("write")) {
-        if ( (lookup["access"] == "R") || (lookup["access"] == "S")) {
-            return false;
+        if (lookup["access"] == "R") {
+            return {status: false, error_code: 'Tried writing to read-only field'};
         }
         if (typeof(group_or_field["write"]) === "object") {
             var fields = Object.keys(group_or_field["write"]);
             if (fields.length != Number(lookup["field_count"])) {
-                return false;
+                return {status: false, error_code: 'Invalid number of fields in group'};
+            }
+            for (i = 0; i < fields.length; i++) {
+                if (lookup[fields[i]] === undefined) {
+                    return {status: false, error_code: 'Field "' + fields[i] + '" does not exist'}
+                }
             }
         }
+
     }
-    else {  // send
-        if ( (lookup["access"] == "RW") || (lookup["access"] == "R") || (lookup["access"] == "W") ) {
-            return false;
-        }
-        else if (Object.keys(group_or_field["send"]).length != Number(lookup["field_count"])) {
-            return false;
-        }
-    }
-    return true;
+    return {status: true, error_code: "No error"};
 }
 
 function is_valid(commands, sensor) {
@@ -70,28 +68,36 @@ function is_valid(commands, sensor) {
             var group_or_field = category[group_or_field_str];
 
             var lookup = sensor[category_str][group_or_field_str];
+            if (lookup === undefined) {
+                msg = (category_str + " -> " + group_or_field_str);
+                return {valid: false, message: msg, error_code: 'Field/group "' + group_or_field_str + '" does not exist'};
+            }
 
             valid = check_command(group_or_field, lookup);
-            if (!valid) {
-                return {valid: false, message: category_str + " -> " + group_or_field_str};
+            if (!valid["status"]) {
+                msg = (category_str + " -> " + group_or_field_str);
+                return {valid: false, message: msg, error_code: valid["error_code"]};
             }
         }
     }
-    return {valid: true, message: "no message"};
+    return {valid: true, message: "no message", error_code: "no error code"};
 }
 
-function write_bits(write_value, start_bit, end_bit, current_bits = BitManipulation.get_bits(0)) {
+function write_bits(write_value, start_bit, end_bit, current_bits) {
     // write the bits in write_value to the specified location in current_bits and returns the result as a bit array
     // Arguments:
     //      write_value [Number or String] - value to write to "current_bits"
     //      start_bit [Number] - start bit to write to
     //      end_bit [Number] - end bit to write to
     //      current_bits [Bit Array] - bits to write "write_value" to
-    
+    if (current_bits === undefined) {
+        current_bits = BitManipulation.get_bits(0);
+    }
+
     var bits_to_write = BitManipulation.get_bits(write_value);
         
     var length = Number(end_bit) - Number(start_bit) + 1;
-    var mask = BitManipulation.init_mask(length, val = 1);
+    var mask = BitManipulation.init_mask(length);
     
     bits_to_write = BitManipulation.AND(bits_to_write, mask);                   // AND bits_to_write with a mask of 1s
     bits_to_write = BitManipulation.shift_left(bits_to_write, start_bit);       // Shift the bits_to_write to start_bit
@@ -101,9 +107,12 @@ function write_bits(write_value, start_bit, end_bit, current_bits = BitManipulat
     return current_bits;
 }
 
-function format_header(header, read = true) {
+function format_header(header, read) {
     // takes in the header as a string, and handles the case of where the header is 2 bytes long
-    
+    if (read === undefined) {
+        read = true;
+    }
+
     if (header.length === 4) {
         if (read) {
             return [parseInt(header)];
@@ -147,8 +156,8 @@ function encode_write_field(command, lookup, encoded_data) {
     var bytes = format_header(lookup["header"], read = false);
     port = lookup["port"];
 
-    val_to_write = command["write"];
-    if (lookup["type"] != "string") {
+    var val_to_write = command["write"];
+    if ( (lookup["type"] != "string") && (lookup["type"] != "hexstring") ) {
         val_to_write = Math.round(Number(val_to_write)/Number(lookup["coefficient"]));
     }
     
@@ -158,8 +167,15 @@ function encode_write_field(command, lookup, encoded_data) {
         parseInt(lookup["bit_end"]),
         current_value = 0,
     );
-
-    written_bytes = BitManipulation.to_byte_arr(written_bits, size = lookup["data_size"]);
+    
+    if ( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
+        size = lookup["data_size"];
+    }
+    else {
+        size = written_bits.length/8;
+    }
+    
+    written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);    
     bytes = bytes.concat(written_bytes);
 
     write_to_port(bytes, lookup["port"], encoded_data);     // Add the bytes to the appropriate port in "encoded data"
@@ -172,6 +188,10 @@ function encode_write_group(commands, group_lookup, encoded_data) {
     var written_bits = BitManipulation.get_bits(0);
     var field_names = Object.keys(commands["write"])
     var field_write_vals = Object.values(commands["write"]);
+
+    var bytes_num = parseInt(group_lookup[field_names[0]]["data_size"]);
+    var multiple_field_bits = [];    // A variable to contain the bits of the "multiple" field if it exists
+
     for (var i = 0; i < field_names.length; i++) {
         var field_name = field_names[i];
         var lookup = group_lookup[field_name];
@@ -180,15 +200,24 @@ function encode_write_group(commands, group_lookup, encoded_data) {
         if (lookup["type"] != "string") {
             field_write_val = Math.round(Number(field_write_val)/Number(lookup["coefficient"]));
         }
-
-        written_bits = write_bits(
-            field_write_val,
-            parseInt(lookup["bit_start"]),
-            parseInt(lookup["bit_end"]),
-            current_bits = written_bits
-        );
+        
+        if( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
+            written_bits = write_bits(
+                field_write_val,
+                parseInt(lookup["bit_start"]),
+                parseInt(lookup["bit_end"]),
+                current_bits = written_bits
+            );
+        }
+        else {
+            multiple_field_bits = BitManipulation.get_bits(field_write_val);
+            bytes_num += multiple_field_bits.length/8;
+        }
     }
-    written_bytes = BitManipulation.to_byte_arr(written_bits, size = lookup["data_size"]);
+
+    written_bits = written_bits.concat(multiple_field_bits);  // must add multiple_field_bits at the end
+
+    written_bytes = BitManipulation.to_byte_arr(written_bits, size = bytes_num);
     bytes = bytes.concat(written_bytes)
 
     write_to_port(bytes, group_lookup["port"], encoded_data);
@@ -197,15 +226,17 @@ function encode_write_group(commands, group_lookup, encoded_data) {
 function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
     
-    if (!is_valid(commands, sensor)["valid"]) {
+    valid = is_valid(commands, sensor);
+    if (!valid["valid"]) {
         // check if commands is valid. If not, raise an error
-        message = "Commands are invalid, failed at: " + is_valid(commands, sensor)["message"];
+        message = "Commands are invalid, failed at: " + valid["message"];
+        error_code = valid["error_code"];
 
-        foo = {error : message};
+        foo = {error : message, error_code: error_code};
         return foo;
     }
     
-    var lookup_all = {...sensor};   // clones the sensor object
+    var lookup_all = {...sensor};   // clones the sensor json
     var encoded_data = {};
     var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {   // iterates over the categories of commands
@@ -218,25 +249,20 @@ function encode(commands, sensor) {
             lookup = lookup_categories[groups_and_fields[j]];
 
             // Now that we are iterating over all of the commands, the cases that we have to handle are as such:
-            //  1. The read case. This is the same regardless of if the current key is a group or a field
-            //  2. The send case (for the digital sign and stuff). This case sucks hard. For real, I'm sorry.
-            //  3. The write case where the current key is a field
-            //  4. The write case where the current key is a group (will require another for loop)
-            // console.log()
-            // console.log(lookup)
+            //  1. The read case -> handled by encode_read(...)
+            //  2. The write case where the current key is a field -> handled by encode_write_field(...)
+            //  3. The write case where the current key is a group -> handled by encode_write_group(...)
 
-            if (command.hasOwnProperty("read")) {
-                // CASE 1
-                encode_read(lookup, encoded_data);
-            }
-            else if (command.hasOwnProperty("write") && (typeof(command["write"]) != "object")) {
-                // CASE 3
-                encode_write_field(command, lookup, encoded_data);
-            }
-            else {
-                // CASE 4
-                encode_write_group(command, lookup, encoded_data);
-            }
+            // Within cases 2 and 3, there is the case of "multiple" or not "multiple". These cases are handled
+            // inside of their corresponding functions
+
+            case_1 = command.hasOwnProperty("read");
+            case_2 = command.hasOwnProperty("write") && (typeof(command["write"]) != "object");
+            case_3 = !(case_1 || case_2);
+
+            if (case_1) { encode_read(lookup, encoded_data); }
+            else if (case_2) { encode_write_field(command, lookup, encoded_data); }
+            else if (case_3) { encode_write_group(command, lookup, encoded_data); }
             
         }
     }
@@ -244,50 +270,72 @@ function encode(commands, sensor) {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 // home_sensor = require("./DL_Home_Sensor.json")
 
 
 // commands = {
+//     lorawan: {
+//         app_key: { write: "this is a string" }
+//     },
+
 //     ticks_config : {                        // Configure the ticks
-//         tick_seconds : { write : 60 },          // Write 60 to seconds per tick
 //         tick_temperature : { read : true },     // Read from ticks per temperature
+//         tick_seconds : { write : 60 },          // Write 60 to seconds per tick
 //         tick_battery : { write : 1 }            // Write ticks per battery to 1
 //     },
 
-//     accelerometer : {                       // Configure the accelerometer
-//         accelerometer_mode : {                  // Configure the acceleromter's mode
-//             write : {
-//                 accelerometer_break_in_threshold_enable : 1,    // Enable break-in threshold
-//                 accelerometer_impact_threshold_enable : 1,      // Enable impact threshold
-//                 accelerometer_enable : 1                        // Enable accelerometer
-//             }
-//         },
-//         accelerometer_values_to_transmit : { read : true }      // Read accelerometer's tx values
-//     },
+//     // accelerometer : {                       // Configure the accelerometer
+//     //     accelerometer_mode : {                  // Configure the acceleromter's mode
+//     //         write : {
+//     //             accelerometer_impact_threshold_enable : 0,      // Enable impact threshold
+//     //             accelerometer_enable : 0,                        // Enable accelerometer
+//     //             accelerometer_break_in_threshold_enable : "this is a really long string a;sldfjaoiwva;oijea;oifejawofmsw;",    // Enable break-in threshold
+//     //         }
+//     //     }
+//     //     // accelerometer_values_to_transmit : { read : true }      // Read accelerometer's tx values
+//     // }
 
 //     reed_switch: {
 //         reed_switch_mode: {
 //             write: {
-//                 reed_switch_rising_edge: 1,
-//                 reed_switch_falling_edge: 0
+//                 reed_switch_falling_edge: 0,
+//                 reed_switch_rising_edge: 1
 //             }
 //         },
 //         reed_switch_value_to_tx: { read: true }
 //     },
+
 //     external_connector: {
 //         external_connector_mode: {
 //             write: {
-//                 external_connector_rising_edge: 1,
 //                 external_connector_falling_edge: 0,
-//                 external_connector_functionality: 1
+//                 external_connector_rising_edge: 1,
+//                 external_connector_functionality: 0
 //             }
 //         }
 //     }
 // }
 
-// encoded_data = encode(commands, home_sensor);
+// digital_sign = require("./DL_Digital_Sign_Test.json")
+
+// commands = {
+//     booking: {
+//         room_info_ack: {
+//             write: {
+//                 Room_Name: "this is a long ass string a;oia;wgho;;p9ag;o<>OJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?",
+//                 String_Size: "this is a long ass string a;oia;wgho;;p9ag;o<>OJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?".length,
+//                 Total_Room_Capacity: 69,
+//                 TV: 0,
+//                 Projector: 1,
+//                 Web_Cam: 0,
+//                 White_Board: 1
+//             }
+//         }
+//     }
+// }
+
+
+// encoded_data = encode(commands, digital_sign);
 // console.log(encoded_data);
 
 
