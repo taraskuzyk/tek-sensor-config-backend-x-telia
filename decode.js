@@ -152,8 +152,7 @@ function decode(parameters, bytes, port, flat){
             if (headerLength === 1) {
                 header = stringifyHex(header[0]);
             } else if (headerLength === 2) {
-                header = stringifyHex(header[0]);
-                    + stringifyHex(header[1])
+                header = stringifyHex(header[0]) + " " + stringifyHex(header[1])
             }
         }
 
