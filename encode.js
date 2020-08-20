@@ -63,7 +63,7 @@ function is_valid(commands, sensor) {
         var category = commands[category_str];
 
         var groups_and_fields = Object.keys(commands[category_str]);
-        for (var j = 0; j < groups_and_fields.length; j++) {           
+        for (var j = 0; j < groups_and_fields.length; j++) {
             var group_or_field_str = groups_and_fields[j];
             var group_or_field = category[group_or_field_str];
 
@@ -83,24 +83,24 @@ function is_valid(commands, sensor) {
     return {valid: true, message: "no message", error_code: "no error code"};
 }
 
-function write_bits(write_value, start_bit, end_bit, current_bits) {
+function write_bits(write_value, end_bit, start_bit, current_bits) {
     // write the bits in write_value to the specified location in current_bits and returns the result as a bit array
     // Arguments:
     //      write_value [Number or String] - value to write to "current_bits"
-    //      start_bit [Number] - start bit to write to
-    //      end_bit [Number] - end bit to write to
+    //      end_bit [Number] - start bit to write to
+    //      start_bit [Number] - end bit to write to
     //      current_bits [Bit Array] - bits to write "write_value" to
     if (current_bits === undefined) {
         current_bits = BitManipulation.get_bits(0);
     }
 
     var bits_to_write = BitManipulation.get_bits(write_value);
-        
-    var length = Number(end_bit) - Number(start_bit) + 1;
+
+    var length = Number(start_bit) - Number(end_bit) + 1;
     var mask = BitManipulation.init_mask(length);
-    
+
     bits_to_write = BitManipulation.AND(bits_to_write, mask);                   // AND bits_to_write with a mask of 1s
-    bits_to_write = BitManipulation.shift_left(bits_to_write, start_bit);       // Shift the bits_to_write to start_bit
+    bits_to_write = BitManipulation.shift_left(bits_to_write, end_bit);       // Shift the bits_to_write to end_bit
 
     current_bits = BitManipulation.OR(current_bits, bits_to_write);              // OR the bits_to_write with the current_bits
 
@@ -143,12 +143,12 @@ function write_to_port(bytes, port, encoded_data) {
     else {
         // if the port doesn't exist as a key yet, create the key and push "bytes" onto it
         encoded_data[port] = bytes;
-    }    
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 function encode_read(lookup, encoded_data) {
-    bytes = format_header(lookup["header"], read = true);        
+    bytes = format_header(lookup["header"], read = true);
     write_to_port(bytes, lookup["port"], encoded_data);
 }
 
@@ -160,22 +160,22 @@ function encode_write_field(command, lookup, encoded_data) {
     if ( (lookup["type"] != "string") && (lookup["type"] != "hexstring") ) {
         val_to_write = Math.round(Number(val_to_write)/Number(lookup["coefficient"]));
     }
-    
+
     written_bits = write_bits(
         val_to_write,
         parseInt(lookup["bit_start"]),
         parseInt(lookup["bit_end"]),
         current_value = 0,
     );
-    
+
     if ( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
         size = lookup["data_size"];
     }
     else {
         size = written_bits.length/8;
     }
-    
-    written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);    
+
+    written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);
     bytes = bytes.concat(written_bytes);
 
     write_to_port(bytes, lookup["port"], encoded_data);     // Add the bytes to the appropriate port in "encoded data"
@@ -200,7 +200,7 @@ function encode_write_group(commands, group_lookup, encoded_data) {
         if (lookup["type"] != "string") {
             field_write_val = Math.round(Number(field_write_val)/Number(lookup["coefficient"]));
         }
-        
+
         if( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
             written_bits = write_bits(
                 field_write_val,
@@ -225,7 +225,7 @@ function encode_write_group(commands, group_lookup, encoded_data) {
 
 function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
-    
+
     valid = is_valid(commands, sensor);
     if (!valid["valid"]) {
         // check if commands is valid. If not, raise an error
@@ -235,7 +235,7 @@ function encode(commands, sensor) {
         foo = {error : message, error_code: error_code};
         return foo;
     }
-    
+
     var lookup_all = {...sensor};   // clones the sensor json
     var encoded_data = {};
     var categories = Object.keys(commands);
@@ -263,7 +263,7 @@ function encode(commands, sensor) {
             if (case_1) { encode_read(lookup, encoded_data); }
             else if (case_2) { encode_write_field(command, lookup, encoded_data); }
             else if (case_3) { encode_write_group(command, lookup, encoded_data); }
-            
+
         }
     }
     return encoded_data;
@@ -285,12 +285,12 @@ function encode(commands, sensor) {
 //     },
 
 //     // accelerometer : {                       // Configure the accelerometer
-//     //     accelerometer_mode : {                  // Configure the acceleromter's mode
-//     //         write : {
-//     //             accelerometer_impact_threshold_enable : 0,      // Enable impact threshold
-//     //             accelerometer_enable : 0,                        // Enable accelerometer
-//     //             accelerometer_break_in_threshold_enable : "this is a really long string a;sldfjaoiwva;oijea;oifejawofmsw;",    // Enable break-in threshold
-//     //         }
+//         accelerometer_mode : {                  // Configure the acceleromter's mode
+//             write : {
+//                 accelerometer_impact_threshold_enable : 0,      // Enable impact threshold
+//                 accelerometer_enable : 0,                        // Enable accelerometer
+//                 accelerometer_break_in_threshold_enable : "this is a really long string a;sldfjaoiwva;oijea;oifejawofmsw;",    // Enable break-in threshold
+//             }
 //     //     }
 //     //     // accelerometer_values_to_transmit : { read : true }      // Read accelerometer's tx values
 //     // }
@@ -316,27 +316,95 @@ function encode(commands, sensor) {
 //     }
 // }
 
-// digital_sign = require("./DL_Digital_Sign_Test.json")
+digital_sign = {
+    "booking": {
+        "room_info_ack": {
+            "port": "102",
+            "header": "0x34",
+            "field_count": "7",
+            "access": "RW",
 
-// commands = {
-//     booking: {
-//         room_info_ack: {
-//             write: {
-//                 Room_Name: "this is a long ass string a;oia;wgho;;p9ag;o<>OJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?",
-//                 String_Size: "this is a long ass string a;oia;wgho;;p9ag;o<>OJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?".length,
-//                 Total_Room_Capacity: 69,
-//                 TV: 0,
-//                 Projector: 1,
-//                 Web_Cam: 0,
-//                 White_Board: 1
-//             }
-//         }
-//     }
-// }
+            "Room_Name": {
+                "multiple": "1",
+                "data_size": "3",
+                "bit_start": "0",
+                "bit_end": "0",
+                "type": "string",
+                "coefficient": "1"
+            },
+            "String_Size": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "0",
+                "bit_end": "7",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+
+            "Total_Room_Capacity": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "8",
+                "bit_end": "15",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+
+            "TV": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "16",
+                "bit_end": "16",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "Projector": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "17",
+                "bit_end": "17",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "Web_Cam": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "18",
+                "bit_end": "18",
+                "type": "unsigned",
+                "coefficient": "1"
+            },
+            "White_Board": {
+                "multiple": "0",
+                "data_size": "3",
+                "bit_start": "19",
+                "bit_end": "19",
+                "type": "unsigned",
+                "coefficient": "1"
+            }
+        }
+    }
+}
+
+commands = {
+    booking: {
+        room_info_ack: {
+            write: {
+                Room_Name: "this is a long ass string a;oia;wgho;;p9ag;o<>npOJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?",
+                String_Size: "this is a long ass string a;oia;wgho;;p9ag;o<>OJABIU#!@)#(_%#&(@_+}|{pnawop;g8ha3889af2?".length,
+                Total_Room_Capacity: 69,
+                TV: 0,
+                Projector: 1,
+                Web_Cam: 0,
+                White_Board: 1
+            }
+        }
+    }
+}
 
 
-// encoded_data = encode(commands, digital_sign);
-// console.log(encoded_data);
+encoded_data = encode(commands, digital_sign);
+console.log(encoded_data);
 
 
 
