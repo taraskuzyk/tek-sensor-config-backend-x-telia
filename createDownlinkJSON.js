@@ -23,13 +23,13 @@ module.exports = async function createDownlinkJSON(csvPath){
             let group = p["group_name"]
             let parameter = p["parameter_name"]
 
-            if ( !newParameters.hasOwnProperty(category) ) {
+            if (!newParameters.hasOwnProperty(category) ) {
                 newParameters[category] = {}
             }
 
             if (group !== "") {
-                if ( !newParameters.hasOwnProperty(group) ) {
-                    newParameters[category][group] = {header: p["header"]}
+                if ( !newParameters[category].hasOwnProperty(group) ) {
+                    newParameters[category][group] = {header: p["header"], port: p["port"]}
                 }
                 newParameters[category][group][parameter] = {
                     data_size: p["data_size"],
@@ -37,7 +37,8 @@ module.exports = async function createDownlinkJSON(csvPath){
                     bit_end: p["bit_end"],
                     type: p["type"],
                     round: p["round"],
-                    multiplier: p["multiplier"]
+                    multiplier: p["multiplier"],
+                    access: p["access"]
                 }
             } else {
                 newParameters[category][parameter] = {
@@ -47,7 +48,9 @@ module.exports = async function createDownlinkJSON(csvPath){
                     bit_end: p["bit_end"],
                     type: p["type"],
                     round: p["round"],
-                    multiplier: p["multiplier"]
+                    multiplier: p["multiplier"],
+                    access: p["access"],
+                    port: p["port"],
                 }
             }
 
