@@ -205,6 +205,15 @@ const BitManipulation = {
 
 }
 
+function get_object_values(object) {
+    // A replacement for Object.values since it's not backwards compatible
+    keys = Object.keys(object);
+    values = [];
+    for (var i = 0; i < keys.length; i++) {
+        values.push(object[keys]);
+    }
+    return values;
+}
 
 function check_command(group_or_field, lookup) {
     // returns true if an individual command is valid, and false otherwise
@@ -462,8 +471,6 @@ function encode(commands, sensor) {
 
 // sensor = require("./Home_Sensor.json")["downlink"]
 // commands = {
-
-
 //     "ticks" : {
 //         "per_temperature" : { "read" : true },
 //         "core" : { "write" : 60 },
