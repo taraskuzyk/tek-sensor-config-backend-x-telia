@@ -1,4 +1,4 @@
-module.exports({encode: encode})
+module.exports = {encode: encode}
 
 const BitManipulation = {
     // a "class" that can perform bitwise operations on an unlimited amount of bits
@@ -23,7 +23,7 @@ const BitManipulation = {
         while (bits1.length > bits2.length) {
             bits2.unshift(false);
         }
-        while (bits2.length > bits1.length) {f
+        while (bits2.length > bits1.length) {
             bits1.unshift(false);
         }
     },
