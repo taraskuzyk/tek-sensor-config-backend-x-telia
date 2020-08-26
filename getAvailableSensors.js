@@ -1,7 +1,8 @@
 const fs = require('fs');
 const papa = require('papaparse');
-const createUplinkJSON = require('./createUplinkJSON')
+const createUplinkJSON = require('./createUplinkJSON') //TODO: these functions have a lot in common and can be re modular and DRY
 const createDownlinkJSON = require('./createDownlinkJSON')
+const createRawJSON = require('./createRawJSON')
 const PATH = "./resources/"
 
 module.exports = async function getAvailableSensors(csvPath){
@@ -22,6 +23,7 @@ module.exports = async function getAvailableSensors(csvPath){
             for (let i = 0; i < sensors.length; i++) {
                 sensors[i].uplink = await createUplinkJSON(`${PATH}/${sensors[i].id}.csv`)
                 sensors[i].downlink = await createDownlinkJSON(`${PATH}/${sensors[i].id}.csv`)
+                sensors[i].raw = await createRawJSON(`${PATH}/${sensors[i].id}.csv`)
             }
             resolve(sensors)
         })

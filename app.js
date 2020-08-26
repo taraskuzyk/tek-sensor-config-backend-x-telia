@@ -30,7 +30,7 @@ let availableSensors;
 async function startup() {
     //get available sensors with uplink and downlinks jsons
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
-    //console.log(JSON.stringify(availableSensors[5], null, 2))
+    console.log(JSON.stringify(availableSensors[0], null, 2))
     console.log("running tests: ")
     console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03], 50))
     console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03, 0x03, 0x03], 75))
@@ -126,6 +126,21 @@ io.on("connection", async (socket)=> {
 
     .on("getAvailableSensors", () => {
         socket.emit("availableSensors", availableSensors)
+    })
+
+    .on("encode", (object) => {
+
+        for (var i = 0; i < availableSensors.length; i++){
+            console.log(object)
+            if (availableSensors[i].id === (sessions[socket.id]).sensorId){
+                let encoded = dc.encode(object, availableSensors[i].downlink)
+                console.log(encoded)
+                socket.emit("encoded", encoded)
+                break;
+            }
+
+        }
+
     })
 
 })

@@ -17,8 +17,10 @@ module.exports = async function createDownlinkJSON(csvPath){
     function postParse(parameters) {
         let newParameters = {};
         // Data structure of newParameters is as follows:
-        // category > group? > field > {...all sorts of parameters}
-        parameters.forEach(p => {
+        // category > group? > parameter > {...all sorts of parameters}
+        for (const p of parameters){
+            if (p["access"] === "")
+                continue;
             let category = p["category_name"]
             let group = p["group_name"]
             let parameter = p["parameter_name"]
@@ -53,8 +55,7 @@ module.exports = async function createDownlinkJSON(csvPath){
                     port: p["port"],
                 }
             }
-
-        });
+        }
         //console.log(JSON.stringify(newParameters, null, 2))
         return newParameters;
     }
