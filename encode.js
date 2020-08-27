@@ -37,8 +37,8 @@ const BitManipulation = {
     __make_copy: function(bits) {
         // this function is needed since assignment in js doesn't actually make copies,
         // and I don't want any of the below functions to change the value of their arguments
-        new_bits = new Array(bits.length);
-        for (i = 0; i < bits.length; i++) {
+        var new_bits = new Array(bits.length);
+        for (var i = 0; i < bits.length; i++) {
             new_bits[i] = Boolean(bits[i]);
         }
         return new_bits;
@@ -62,10 +62,10 @@ const BitManipulation = {
         }
         else if (typeof(literal) == "string") {
             bit_arr = [];
-            for (i = 0; i < literal.length; i++) {
-                char_val = literal[i].charCodeAt(0);
+            for (var i = 0; i < literal.length; i++) {
+                var char_val = literal[i].charCodeAt(0);
 
-                char_bits = this.get_bits(char_val)
+                var char_bits = this.get_bits(char_val)
                 this.__make_multiple_of_8(char_bits)
 
                 bit_arr = bit_arr.concat(char_bits);
@@ -84,7 +84,7 @@ const BitManipulation = {
         }
 
         var mask = new Array(length);
-        for (i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             mask[i] = val;
         }
         return mask;
@@ -118,7 +118,7 @@ const BitManipulation = {
 
     print: function(bits) {
         var str = "0b";
-        for (i = 0; i < bits.length; i++) {
+        for (var i = 0; i < bits.length; i++) {
             str += Number(bits[i]);
         }
         console.log(str);
@@ -127,10 +127,10 @@ const BitManipulation = {
 
     shift_left: function(bits, shift_val) {
         var new_bits = new Array(bits.length + shift_val);
-        for (i = 0; i < bits.length; i++) {
+        for (var i = 0; i < bits.length; i++) {
             new_bits[i] = Boolean(bits[i]);
         }
-        for (i = bits.length; i < new_bits.length; i++) {
+        for (var i = bits.length; i < new_bits.length; i++) {
             new_bits[i] = false;
         }
 
@@ -142,10 +142,10 @@ const BitManipulation = {
     shift_right: function(bits, shift_val) {
         var new_bits = new Array(bits.length);
 
-        for (j = 0; j < shift_val; j++) {
+        for (var j = 0; j < shift_val; j++) {
             new_bits[j] = false;
         }
-        for (i = 0; i < bits.length - shift_val; i++) {
+        for (var i = 0; i < bits.length - shift_val; i++) {
             new_bits[i + shift_val] = Boolean(bits[i]);
         }
 
@@ -162,7 +162,7 @@ const BitManipulation = {
         this.__make_equal_number_of_bits(bits1_copy, bits2_copy);
         var new_bits = new Array(bits1_copy.length);
 
-        for (i = 0; i < bits1_copy.length; i++) {
+        for (var i = 0; i < bits1_copy.length; i++) {
             new_bits[i] = Boolean(bits1_copy[i] & bits2_copy[i]);
         }
         this.__remove_leading_zeros(new_bits);
@@ -178,7 +178,7 @@ const BitManipulation = {
         this.__make_equal_number_of_bits(bits1_copy, bits2_copy);
         var new_bits = new Array(bits1_copy.length);
 
-        for (i = 0; i < bits1_copy.length; i++) {
+        for (var i = 0; i < bits1_copy.length; i++) {
             new_bits[i] = Boolean(bits1_copy[i] | bits2_copy[i]);
         }
 
@@ -190,12 +190,12 @@ const BitManipulation = {
 
     XOR: function(bits1, bits2) {
         // returns bits1 ^ bits2
-        bits1_copy = this.__make_copy(bits1);
-        bits2_copy = this.__make_copy(bits2);
+        var bits1_copy = this.__make_copy(bits1);
+        var bits2_copy = this.__make_copy(bits2);
         this.__make_equal_number_of_bits(bits1_copy, bits2_copy);
-        new_bits = new Array(bits1.length);
+        var new_bits = new Array(bits1.length);
 
-        for (i = 0; i < bits1_copy.length; i++) {
+        for (var i = 0; i < bits1_copy.length; i++) {
             new_bits[i] = Boolean(bits1_copy[i] ^ bits2_copy[i]);
         }
 
@@ -209,8 +209,8 @@ const BitManipulation = {
 
 function get_object_values(object) {
     // A replacement for Object.values since it's not backwards compatible
-    keys = Object.keys(object);
-    values = [];
+    var keys = Object.keys(object);
+    var values = [];
     for (var i = 0; i < keys.length; i++) {
         values.push(object[keys]);
     }
@@ -241,7 +241,7 @@ function check_command(group_or_field, lookup) {
             if (fields.length != Object.keys(lookup).length - 2) {
                 return {status: false, error_code: 'Invalid number of fields in group'};
             }
-            for (i = 0; i < fields.length; i++) {
+            for (var i = 0; i < fields.length; i++) {
                 if (lookup[fields[i]] === undefined) {
                     return {status: false, error_code: 'Field "' + fields[i] + '" does not exist'}
                 }
@@ -257,7 +257,7 @@ function is_valid(commands, sensor) {
 
     var valid = true;
 
-    categories = Object.keys(commands);
+    var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {
         var category_str = categories[i];
         var category = commands[category_str];
@@ -269,13 +269,13 @@ function is_valid(commands, sensor) {
 
             var lookup = sensor[category_str][group_or_field_str];
             if (lookup === undefined) {
-                msg = (category_str + " -> " + group_or_field_str);
+                var msg = (category_str + " -> " + group_or_field_str);
                 return {valid: false, message: msg, error_code: 'Field/group "' + group_or_field_str + '" does not exist'};
             }
 
             valid = check_command(group_or_field, lookup);
             if (!valid["status"]) {
-                msg = (category_str + " -> " + group_or_field_str);
+                var msg = (category_str + " -> " + group_or_field_str);
                 return {valid: false, message: msg, error_code: valid["error_code"]};
             }
         }
@@ -351,12 +351,12 @@ function write_to_port(bytes, port, encoded_data) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 function encode_read(lookup, encoded_data) {
-    var bytes = format_header(lookup["header"], read = true);
+    var bytes = format_header(lookup["header"], true);
     write_to_port(bytes, lookup["port"], encoded_data);
 }
 
 function encode_write_field(command, lookup, encoded_data) {
-    var bytes = format_header(lookup["header"], read = false);
+    var bytes = format_header(lookup["header"], false);
 
     var val_to_write = command["write"];
     if ( (lookup["type"] != "string") && (lookup["type"] != "hexstring") ) {
@@ -367,7 +367,7 @@ function encode_write_field(command, lookup, encoded_data) {
         val_to_write,
         parseInt(lookup["bit_start"]),
         parseInt(lookup["bit_end"]),
-        current_value = 0
+        0
     );
 
     if ( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
@@ -377,7 +377,7 @@ function encode_write_field(command, lookup, encoded_data) {
         var size = written_bits.length/8;
     }
 
-    written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);
+    var written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);
     bytes = bytes.concat(written_bytes);
 
     write_to_port(bytes, lookup["port"], encoded_data);     // Add the bytes to the appropriate port in "encoded data"
@@ -385,7 +385,7 @@ function encode_write_field(command, lookup, encoded_data) {
 
 function encode_write_group(commands, group_lookup, encoded_data) {
     var header = group_lookup["header"];
-    var bytes = format_header(header, read = false);
+    var bytes = format_header(header, false);
 
     var written_bits = BitManipulation.get_bits(0);
     var field_names = Object.keys(commands["write"])
@@ -408,7 +408,7 @@ function encode_write_group(commands, group_lookup, encoded_data) {
                 field_write_val,
                 parseInt(lookup["bit_start"]),
                 parseInt(lookup["bit_end"]),
-                current_bits = written_bits
+                written_bits
             );
         }
         else {
@@ -419,22 +419,22 @@ function encode_write_group(commands, group_lookup, encoded_data) {
 
     written_bits = written_bits.concat(multiple_field_bits);  // must add multiple_field_bits at the end
 
-    var written_bytes = BitManipulation.to_byte_arr(written_bits, size = bytes_num);
+    var written_bytes = BitManipulation.to_byte_arr(written_bits, bytes_num);
     bytes = bytes.concat(written_bytes)
 
     write_to_port(bytes, group_lookup["port"], encoded_data);
 }
 
-function encode(commands, sensor) {
+export default function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
 
-    valid = is_valid(commands, sensor);
+    var valid = is_valid(commands, sensor);
     if (!valid["valid"]) {
         // check if commands is valid. If not, raise an error
-        message = "Commands are invalid, failed at: " + valid["message"];
-        error_code = valid["error_code"];
+        var message = "Commands are invalid, failed at: " + valid["message"];
+        var error_code = valid["error_code"];
 
-        foo = {error : message, error_code: error_code};
+        var foo = {error : message, error_code: error_code};
         return foo;
     }
 
@@ -443,12 +443,12 @@ function encode(commands, sensor) {
     var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {   // iterates over the categories of commands
         var command_categories = commands[categories[i]];
-        lookup_categories = lookup_all[categories[i]];
+        var lookup_categories = lookup_all[categories[i]];
 
         var groups_and_fields = Object.keys(command_categories);
         for (var j = 0; j < groups_and_fields.length; j++) {    // iterates over the groups of commands
             var command = command_categories[groups_and_fields[j]];
-            lookup = lookup_categories[groups_and_fields[j]];
+            var lookup = lookup_categories[groups_and_fields[j]];
 
             // Now that we are iterating over all of the commands, the cases that we have to handle are as such:
             //  1. The read case -> handled by encode_read(...)
@@ -458,9 +458,9 @@ function encode(commands, sensor) {
             // Within cases 2 and 3, there is the case of "multiple" or not "multiple". These cases are handled
             // inside of their corresponding functions
 
-            case_1 = command.hasOwnProperty("read");
-            case_2 = command.hasOwnProperty("write") && (typeof(command["write"]) != "object");
-            case_3 = !(case_1 || case_2);
+            var case_1 = command.hasOwnProperty("read");
+            var case_2 = command.hasOwnProperty("write") && (typeof(command["write"]) != "object");
+            var case_3 = !(case_1 || case_2);
 
             if (case_1) { encode_read(lookup, encoded_data); }
             else if (case_2) { encode_write_field(command, lookup, encoded_data); }
