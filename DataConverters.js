@@ -9,5 +9,3 @@ module.exports = {
     bytes_to_base64: Base64Binary_module.encode,
     base64_to_bytes: Base64Binary_module.decode,
 }
-
-

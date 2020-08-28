@@ -7,7 +7,9 @@ module.exports = async function createDownlinkJSON(csvPath){
     return new Promise(resolve =>
         papa.parse(file_stream, {
             complete: (results) => {
-                resolve(results.data)
+                resolve(results.data.filter((el)=>{
+                    return (el["access"] !== "")
+                }))
             },
             header: true,
         })

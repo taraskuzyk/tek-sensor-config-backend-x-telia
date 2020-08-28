@@ -425,7 +425,7 @@ function encode_write_group(commands, group_lookup, encoded_data) {
     write_to_port(bytes, group_lookup["port"], encoded_data);
 }
 
-export default function encode(commands, sensor) {
+function encode(commands, sensor) {
     // encodes the commands object into a nested array of bytes
 
     var valid = is_valid(commands, sensor);
@@ -470,34 +470,3 @@ export default function encode(commands, sensor) {
     }
     return encoded_data;
 }
-
-// sensor = require("./Home_Sensor.json")["downlink"]
-// commands = {
-//     "ticks" : {
-//         "per_temperature" : { "read" : true },
-//         "core" : { "write" : 60 },
-//         "per_battery" : { "write" : 1 }
-//     },
-
-//     "reed_switch": {
-//         "mode": {
-//             "write": {
-//                 "falling_edge": 0,
-//                 "rising_edge": 1
-//             }
-//         },
-//         "values_to_transmit": { "read": true }
-//     },
-
-//     "external_connector": {
-//         "mode": {
-//             "write": {
-//                 "falling_edge": 0,
-//                 "rising_edge": 1,
-//                 "analog": 0
-//             }
-//         }
-//     }
-// }
-// console.log(encode(commands, sensor))
-

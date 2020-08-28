@@ -13,7 +13,7 @@ const AUTHTOKEN = "1VGK7pyrNOS7FAQtRrKtcYhg26C_4j93cU8rAEzikLdpm4pfx"
 const NGROK_CONFIG_PATH = "./ngrok.yml"
 
 //Client and NS communications
-//TODO: is there a way to send downlinks over websockets or REST?
+
 const io = require('socket.io')(http);
 const webSocket = require('ws')
 
@@ -30,13 +30,14 @@ let availableSensors;
 async function startup() {
     //get available sensors with uplink and downlinks jsons
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
-    console.log(JSON.stringify(availableSensors[0], null, 2))
-    console.log("running tests: ")
-    console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03], 50))
-    console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03, 0x03, 0x03], 75))
-    console.log(dc.decode(availableSensors[5].uplink, [0x25, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 75))
-    console.log(dc.decode(availableSensors[5].uplink, [0x00, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 100))
-    console.log(dc.decode(availableSensors[5].uplink, [0x11, 0xFF, 0xFF], 100))
+    // console.log(JSON.stringify(availableSensors[1].uplink, null, 2))
+    // console.log(JSON.stringify(availableSensors[0], null, 2))
+    // console.log("running tests: ")
+    // console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03], 50))
+    // console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03, 0x03, 0x03], 75))
+    // console.log(dc.decode(availableSensors[5].uplink, [0x25, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 75))
+    // console.log(dc.decode(availableSensors[5].uplink, [0x00, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 100))
+    // console.log(dc.decode(availableSensors[5].uplink, [0x11, 0xFF, 0xFF], 100))
 }
 
 startup()
@@ -129,9 +130,8 @@ io.on("connection", async (socket)=> {
     })
 
     .on("encode", (object) => {
-
+        console.log(JSON.stringify(object, null, 2))
         for (var i = 0; i < availableSensors.length; i++){
-            console.log(object)
             if (availableSensors[i].id === (sessions[socket.id]).sensorId){
                 let encoded = dc.encode(object, availableSensors[i].downlink)
                 console.log(encoded)
