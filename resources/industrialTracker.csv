@@ -1,10 +1,4 @@
 port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_description,group_name,group_description,category_name,category_description,access,addition,round,multiplier,opt0,val0,opt1,val1,opt2,val2,opt3,val3,opt4,val4,opt5,val5,opt6,val6,opt7,val7,opt8,val8
-100,0x00,0,0,0,0,none,device_eui,DevEUI,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
-100,0x01,0,0,0,0,none,app_eui,AppEUI,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
-100,0x02,0,0,0,0,none,app_key,AppKey,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
-100,0x03,0,0,0,0,none,device_address,DevAddr,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
-100,0x04,0,0,0,0,none,network_session_key,NwkSKey,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
-100,0x05,0,0,0,0,none,app_session_key,AppSKey,,,lorawan,LoRaWAN Commissioning Registers,R,,,1,,,,,,,,,,,,,,,,,,
 100,0x10,2,7,7,0,unsigned,loramac_otaa,Join Mode,loramac_join_mode,LoRaMAC join mode,loramac,LoRaMAC Configuration Registers,RW,,,1,ABP,0,OTAA,1,,,,,,,,,,,,,,
 100,0x11,2,8,8,0,unsigned,loramac_confirm_mode,Uplink,loramac_opts,LoRaMAC options,loramac,LoRaMAC Configuration Registers,RW,,,1,Unconfirmed,0,Confirmed,1,,,,,,,,,,,,,,
 100,0x11,2,10,10,0,unsigned,loramac_networks,Duty Cycle,loramac_opts,LoRaMAC options,loramac,LoRaMAC Configuration Registers,RW,,,1,Disable,0,Enable,1,,,,,,,,,,,,,,
@@ -45,8 +39,10 @@ port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_d
 100,0x71,7,47,40,0,unsigned,loramac_revision,LoRaMAC Revision,firmware_version,Firmware version,sensor_cmd_ctrl_reg,Sensor Command & Control Register,R,,,1,,,,,,,,,,,,,,,,,,
 100,0x71,7,55,48,0,unsigned,region,Region,firmware_version,Firmware version,sensor_cmd_ctrl_reg,Sensor Command & Control Register,R,,,1,EU868,0,US916,1,AS923,2,AU915,3,IN865,4,CN470,5,KR920,6,RU864,7,DN915,8
 100,0x72,1,7,0,0,unsigned,configuration_factory_reset,Factory reset,,,sensor_cmd_ctrl_reg,Sensor Command & Control Register,W,,,1,App Config,10,LoRa Config,176,App & LoRa Config,186,,,,,,,,,,,,
-10,0x01 0xBA,1,15,0,0,signed,mcu_temperature,MCU Temperature,,,,,,2.5,,0.01,,,,,,,,,,,,,,,,,,
-10,0x02 0xBA,1,15,0,0,signed,mcu_temperature,MCU Temperature,,,,,,2.5,,0.01,,,,,,,,,,,,,,,,,,
+10,0x01 0xBA,1,7,7,0,signed,voltage,Battery 1,battery1,,,,,2.5,,0.01,,,,,,,,,,,,,,,,,,
+10,0x01 0xBA,1,6,0,0,signed,eos_alert,Battery 1,battery1,,,,,,,1,,,,,,,,,,,,,,,,,,
+10,0x02 0xBA,1,7,7,0,signed,voltage,Battery 2,battery2,,,,,2.5,,0.01,,,,,,,,,,,,,,,,,,
+10,0x02 0xBA,1,6,0,0,signed,eos_alert,Battery 2,battery2,,,,,,,1,,,,,,,,,,,,,,,,,,
 10,0x00 0x67,2,15,0,0,signed,mcu_temperature,MCU Temperature,,,,,,,,0.1,,,,,,,,,,,,,,,,,,
 10,0x01 0x00,1,7,0,0,bool,acceleration_alarm,Acceleration Alarm Status,,,,,,,,1,,,,,,,,,,,,,,,,,,
 10,0x00 0x02,2,15,0,0,unsigned,acceleration_magnitude,Acceleration Magnitude,,,,,,,,0.001,,,,,,,,,,,,,,,,,,

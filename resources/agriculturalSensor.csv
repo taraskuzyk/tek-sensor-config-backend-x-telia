@@ -78,7 +78,7 @@ port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_d
 100,0x71,7,47,40,0,unsigned,loramac_revision,LoRaMAC Revision,firmware_version,Firmware version,sensor_cmd_ctrl_reg,Sensor Command & Control Register,R,,,1,,,,,,,,,,,,,,,,,,
 100,0x71,7,55,48,0,unsigned,region,Region,firmware_version,Firmware version,sensor_cmd_ctrl_reg,Sensor Command & Control Register,R,,,1,EU868,0,US916,1,AS923,2,AU915,3,IN865,4,CN470,5,KR920,6,RU864,7,DN915,8
 100,0x72,1,7,0,0,unsigned,configuration_factory_reset,Factory reset,,,sensor_cmd_ctrl_reg,Sensor Command & Control Register,W,,,1,App Config,10,LoRa Config,176,App & LoRa Config,186,,,,,,,,,,,,
-10,0x00 0xBA,1,6,0,0,unsigned,battery_life,Battery Life %,battery,,,,,1.5,,0.01,,,,,,,,,,,,,,,,,,
+10,0x00 0xBA,1,6,0,0,unsigned,level,Battery Life %,battery,,,,,2.5,,0.01,,,,,,,,,,,,,,,,,,
 10,0x00 0xBA,1,7,7,0,unsigned,eos_alert,EoS Alert,battery,,,,,,,1,,,,,,,,,,,,,,,,,,
 10,0x01 0x04,2,15,0,0,unsigned,input1_frequency,Input 1,,,,,,,,1,,,,,,,,,,,,,,,,,,
 10,0x02 0x02,2,15,0,0,unsigned,input2_voltage,Input 2,,,,,,,,1,,,,,,,,,,,,,,,,,,
