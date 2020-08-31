@@ -45,28 +45,28 @@ startup()
 // if the packets need to be decoded immediately, as the decoding objects haven't been generated yet.
 
 http.listen(13337, async (err)=>{
-    //setting up ngrok
-    console.log("Auth ngrok...")
-    //await ngrok.authtoken(AUTHTOKEN)
-    console.log("Auth successful!\nConnecting ngrok...")
-    try {
-        const one = await ngrok.connect({
-            addr: 3000,
-            proto: "http",
-            subdomain: "tek-sensor-config",
-            authtoken: AUTHTOKEN
-        })
-        const two = await ngrok.connect({
-            addr: 13337,
-            proto: "http",
-            subdomain: "tek-sensor-backend",
-            authtoken: AUTHTOKEN
-        })
-        console.log(`Connected ngrok! ${one} and ${two}`)
-    } catch(e){
-        console.log(":C")
-        console.log(e)
-    }
+    // //setting up ngrok
+    // console.log("Auth ngrok...")
+    // //await ngrok.authtoken(AUTHTOKEN)
+    // console.log("Auth successful!\nConnecting ngrok...")
+    // try {
+    //     const one = await ngrok.connect({
+    //         addr: 3000,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-config",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     const two = await ngrok.connect({
+    //         addr: 13337,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-backend",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     console.log(`Connected ngrok! ${one} and ${two}`)
+    // } catch(e){
+    //     console.log(":C")
+    //     console.log(e)
+    // }
 });
 
 //TODO: split up backend into Uplink and Downlink files?
@@ -199,64 +199,21 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
 
     sessions[socket.id].nsSocket.onmessage = function (msg) {
 
-        let messages = JSON.parse(msg.data).data;
-        if (messages.length > 1){
-            let messagesToSend
-            if (messages.length > 21) {
-                messagesToSend = messages.slice(messages.length-20)
-            } else {
-                messagesToSend = messages
-            }
-            messagesToSend = messagesToSend.map((message, index)=>{
-                //TODO: reformat the copy-paste into proper code
-                let newMessage = {}
-                //network server layer
-                newMessage.ns = message
+        let messagesToSend = JSON.parse(msg.data).data;
 
-                //LoRaMAC layer
-                //console.log(message)
-                try {
-                    if (message.rawPayload === null)
-                        throw new Error("This message didn't contain any raw payload.")
-                    newMessage.lora = decodeLoraPacket(message.rawPayload, appSKey, nwkSKey)
+        messagesToSend = messagesToSend.map((message, index)=>{
 
-                    //app layer
-                    let indexOfSensorId =
-                        indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
-
-                    if (indexOfSensorId !== -1 && newMessage.lora.type === "data"){
-                        newMessage.app = dc
-                            .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload,
-                                newMessage.lora.MACPayload.FPort)
-                    } else {
-                        newMessage.app = {
-                            error: "No Application data present in this packet. Packet type: " + message.mtype
-                        }
-                    }
-
-                } catch(e) {
-                    newMessage.lora = {error: "Something went wrong while decoding this packet..." + e}
-                    newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
-                    console.log(e.stack)
-                }
-
-                return newMessage;
-            })
-            socket.emit("allDeviceMessages", messagesToSend)
-        } else if (messages.length === 1) {
-            let message = messages[0]
-            //network server layer
             let newMessage = {}
+            //network server layer
             newMessage.ns = message
 
             //LoRaMAC layer
-            //console.log(message)
             try {
                 if (message.rawPayload === null)
                     throw new Error("This message didn't contain any raw payload.")
                 newMessage.lora = decodeLoraPacket(message.rawPayload, appSKey, nwkSKey)
 
-                //app layer
+            //App layer
                 let indexOfSensorId =
                     indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
 
@@ -275,8 +232,10 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                 newMessage.app = {error: "Something went wrong while decoding this packet..."+ e}
                 console.log(e.stack)
             }
-            socket.emit("newDeviceMessage", newMessage)
-        }
+
+            return newMessage;
+        })
+        socket.emit("allDeviceMessages", messagesToSend)
 
     } // onmessage action
 } // getDeviceLog function
