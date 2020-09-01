@@ -19,25 +19,15 @@ const webSocket = require('ws')
 
 // Data conversion
 const lora = require("lora-packet") // WARNING: THIS MODULE IS TAKEN FROM taraskuzyk's FORK, NOT THE NPM PACKAGE.
-// PULL REQUEST WAS CREATED, BUT NOT GUARANTEED THAT IT WAS ACCEPTED YET
 const getAvailableSensors = require('./getAvailableSensors')
 const ns = require('./ns')
-const dc = require('./DataConverters')
+const dc = require('./DataConverters/DataConverters')
 
 let sessions = {}
 let availableSensors;
 
 async function startup() {
-    //get available sensors with uplink and downlinks jsons
     availableSensors = await getAvailableSensors("./resources/_availableSensors.csv")
-    // console.log(JSON.stringify(availableSensors[1].uplink, null, 2))
-    // console.log(JSON.stringify(availableSensors[0], null, 2))
-    // console.log("running tests: ")
-    // console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03], 50))
-    // console.log(dc.decode(availableSensors[5].uplink, [0x01, 0x01, 0x03, 0x03, 0x03], 75))
-    // console.log(dc.decode(availableSensors[5].uplink, [0x25, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 75))
-    // console.log(dc.decode(availableSensors[5].uplink, [0x00, 0x11, 0x11, 0x11, 0x00, 0x11, 0x11, 0x11, 0x02], 100))
-    // console.log(dc.decode(availableSensors[5].uplink, [0x11, 0xFF, 0xFF], 100))
 }
 
 startup()
@@ -89,7 +79,7 @@ io.on("connection", async (socket)=> {
 
     .on("openApplication", async (applicationId) => {
         let credentials = await ns.getApplicationCredentials(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token, applicationId)
-        // Credentials needed to send downlinks later on. No way to send them over REST or websockets so far.
+        // MQTT Credentials needed to send downlinks later on. No way to send them over REST or websockets so far.
         console.log(credentials)
         sessions[socket.id].mqttUsername = credentials.keyId
         sessions[socket.id].mqttPassword = credentials.keyValue

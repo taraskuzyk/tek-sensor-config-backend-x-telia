@@ -12,7 +12,7 @@
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
     "lodash": "^4.17.15",
-    "lora-packet": "^0.7.14",
+    "lora-packet": "github:taraskuzyk/lora-packet",
     "morgan": "~1.9.1",
     "mqtt": "^4.1.0",
     "ngrok": "^3.2.7",
