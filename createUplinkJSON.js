@@ -33,7 +33,7 @@ module.exports = async function createUplinkJSON(csvPath){
                 parameter_name: p.parameter_name,
                 group_name: p.group_name,
                 round: p.round,
-                multiplier: p.multiplier,
+                coefficient: p.coefficient,
                 multiple: p.multiple,
                 addition: p.addition,
             });

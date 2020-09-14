@@ -40,8 +40,10 @@ module.exports = async function createDownlinkJSON(csvPath){
                     bit_end: p["bit_end"],
                     type: p["type"],
                     round: p["round"],
-                    multiplier: p["multiplier"],
-                    access: p["access"]
+                    coefficient: p["coefficient"],
+                    addition: p["addition"],
+                    access: p["access"],
+                    multiple: p["multiple"],
                 }
             } else {
                 newParameters[category][parameter] = {
@@ -51,8 +53,10 @@ module.exports = async function createDownlinkJSON(csvPath){
                     bit_end: p["bit_end"],
                     type: p["type"],
                     round: p["round"],
-                    multiplier: p["multiplier"],
+                    coefficient: p["coefficient"],
+                    addition: p["addition"],
                     access: p["access"],
+                    multiple: p["multiple"],
                     port: p["port"],
                 }
             }

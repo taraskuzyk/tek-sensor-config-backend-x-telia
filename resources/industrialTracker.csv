@@ -1,4 +1,4 @@
-port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_description,group_name,group_description,category_name,category_description,access,addition,round,multiplier,opt0,val0,opt1,val1,opt2,val2,opt3,val3,opt4,val4,opt5,val5,opt6,val6,opt7,val7,opt8,val8
+port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_description,group_name,group_description,category_name,category_description,access,addition,round,coefficient,opt0,val0,opt1,val1,opt2,val2,opt3,val3,opt4,val4,opt5,val5,opt6,val6,opt7,val7,opt8,val8
 100,0x10,2,7,7,0,unsigned,loramac_otaa,Join Mode,loramac_join_mode,LoRaMAC join mode,loramac,LoRaMAC Configuration Registers,RW,,,1,ABP,0,OTAA,1,,,,,,,,,,,,,,
 100,0x11,2,8,8,0,unsigned,loramac_confirm_mode,Uplink,loramac_opts,LoRaMAC options,loramac,LoRaMAC Configuration Registers,RW,,,1,Unconfirmed,0,Confirmed,1,,,,,,,,,,,,,,
 100,0x11,2,10,10,0,unsigned,loramac_networks,Duty Cycle,loramac_opts,LoRaMAC options,loramac,LoRaMAC Configuration Registers,RW,,,1,Disable,0,Enable,1,,,,,,,,,,,,,,
@@ -92,3 +92,11 @@ port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_d
 15,0x03,16,15,0,1,signed,altitude,Altitude,log_all,,,,,,,1,,,,,,,,,,,,,,,,,,
 25,0x0A,7,55,8,1,hexstring,id,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
 25,0x0A,7,7,0,1,signed,rssi,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB0,4,31,8,1,hexstring,id,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB0,4,7,0,1,signed,rssi,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB1,4,31,8,1,hexstring,id,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB1,4,7,0,1,signed,rssi,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB2,4,31,8,1,hexstring,id,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB2,4,7,0,1,signed,rssi,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB3,4,31,8,1,hexstring,id,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
+25,0xB3,4,7,0,1,signed,rssi,,devices,,,,,,,1,,,,,,,,,,,,,,,,,,
