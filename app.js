@@ -207,7 +207,8 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
                 let indexOfSensorId =
                     indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
 
-                if (indexOfSensorId !== -1 && newMessage.lora.type === "data"){
+                if (indexOfSensorId !== -1 &&
+                    (message.mtype === "UNCONFIRMED_DATA_UP" || message.mtype === "CONFIRMED_DATA_UP")){
                     newMessage.app = dc
                         .decode(availableSensors[indexOfSensorId].uplink, newMessage.lora.payload,
                             newMessage.lora.MACPayload.FPort)
@@ -225,8 +226,11 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
 
             return newMessage;
         })
-        socket.emit("allDeviceMessages", messagesToSend)
-
+        if (messagesToSend.length > 1)
+            socket.emit("allDeviceMessages", messagesToSend)
+        else if (messagesToSend.length === 1) {
+            socket.emit("newDeviceMessage", messagesToSend[0])
+        }
     } // onmessage action
 } // getDeviceLog function
 
