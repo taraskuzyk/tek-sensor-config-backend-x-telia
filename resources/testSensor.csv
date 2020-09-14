@@ -1,4 +1,4 @@
-port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_description,group_name,group_description,category_name,category_description,access,round,multiplier,opt0,val0,opt1,val1,opt2,val2,opt3,val3,opt4,val4,opt5,val5,opt6,val6,opt7,val7,opt8,val8
+port,header,data_size,bit_start,bit_end,multiple,type,parameter_name,parameter_description,group_name,group_description,category_name,category_description,access,round,coefficient,opt0,val0,opt1,val1,opt2,val2,opt3,val3,opt4,val4,opt5,val5,opt6,val6,opt7,val7,opt8,val8
 100,0x00,8,63,0,0,hexstring,device_eui,DevEUI,,,lorawan,Commissioning values,R,0,1,,,,,,,,,,,,,,,,,,
 100,0x11,2,0,0,0,unsigned,confirm_mode,Uplink,options,LoRaMAC options,loramac,LoRaMAC Configuration,RW,,1,Unconfirmed,0,Confirmed,1,,,,,,,,,,,,,,
 100,0x11,2,1,1,0,unsigned,networks,Networks,options,LoRaMAC options,loramac,LoRaMAC Configuration,RW,,1,Private,0,Public,1,,,,,,,,,,,,,,
