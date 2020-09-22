@@ -1,6 +1,6 @@
 module.exports = {encode: encode}
 
-const BitManipulation = {
+var BitManipulation = {
     // a "class" that can perform bitwise operations on an unlimited amount of bits
     // a replacement for "BigInt" since "BigInt" is not backwards compatible
 
@@ -9,14 +9,14 @@ const BitManipulation = {
     // you have to make sure everything is always a multiple of 8 otherwise ascii
     // encoding is screwed up :(
 
-    __make_multiple_of_8: function(bits) {
+    __make_multiple_of_8: function (bits) {
         // appends 0s to the bits until it's a multiple of 8
         while (bits.length % 8 != 0) {
             bits.unshift(false);
         }
     },
 
-    __make_equal_number_of_bits: function(bits1, bits2) {
+    __make_equal_number_of_bits: function (bits1, bits2) {
         if (bits1.length == bits2.length) {
             return
         }
@@ -28,13 +28,13 @@ const BitManipulation = {
         }
     },
 
-    __remove_leading_zeros(bits) {
-        while ( (bits[0] != true) && (bits.length > 1) ) {
+    __remove_leading_zeros: function (bits) {
+        while ((bits[0] != true) && (bits.length > 1)) {
             bits.shift()
         }
     },
 
-    __make_copy: function(bits) {
+    __make_copy: function (bits) {
         // this function is needed since assignment in js doesn't actually make copies,
         // and I don't want any of the below functions to change the value of their arguments
         var new_bits = new Array(bits.length);
@@ -44,41 +44,106 @@ const BitManipulation = {
         return new_bits;
     },
 
-    get_bits: function(literal) {
-        // literal is any datatype that is currently supported by this function
+    get_bits: function (literal, type) {
+        // literal is any datatype that is currently supported by this function:
+        // SUPPORTS: unsigned, signed, string, hexstring, double
         var bit_arr = [];
-        if (typeof(literal) == "number") {
+        if (typeof (literal) == "number" && type === "unsigned") {
             if (literal == 0) {
                 return [0];
+            }
+            while (literal > 0) {
+                bit_arr.unshift(Boolean(literal % 2));
+                literal = Math.floor(literal / 2);
+            }
+
+        } else if (typeof (literal) == "number" && type === "signed") {
+            if (literal === 0) {
+                return [0];
+            }
+            var negative = false;
+            if (literal < 0) {
+                literal = -literal
+                negative = true;
             }
 
             while (literal > 0) {
                 bit_arr.unshift(Boolean(literal % 2));
-                literal = Math.floor(literal/2);
+                literal = Math.floor(literal / 2);
             }
-            this.__remove_leading_zeros(bit_arr);
-            this.__make_multiple_of_8(bit_arr);
-            return bit_arr;
-        }
-        else if (typeof(literal) == "string") {
-            bit_arr = [];
+
+            this.__make_multiple_of_8(bit_arr)
+
+            if (negative) {
+                // turning into two's complement
+                bit_arr = this.NOT(bit_arr) // bitwise not all bits
+                // adding one to the negated array
+                var carry = 1;
+                var index = bit_arr.length - 1 // we'll be iterating backwards until index = 0 or carry = 0
+                while (carry) {
+                    if (bit_arr[index]) {
+                        bit_arr[index] = false
+                    } else {
+                        bit_arr[index] = true
+                        carry = 0
+                    }
+                    if (!index)
+                        break;
+                    index--
+                }
+            }
+        } else if (typeof (literal) == "number" && type === "double") {
+            var i, result = "";
+            var dv = new DataView(new ArrayBuffer(8));
+
+            dv.setFloat64(0, literal, false);
+
+            for (i = 0; i < 8; i++) {
+                var bits = dv.getUint8(i).toString(2);
+                while (bits.length !== 8) {
+                    bits = "0"+bits
+                }
+                result += bits;
+            }
+            bit_arr = result.split("").map(function (val){
+                return val == '1';
+            });
+        } else if (typeof (literal) == "string" && type === "string") {
             for (var i = 0; i < literal.length; i++) {
                 var char_val = literal[i].charCodeAt(0);
-
-                var char_bits = this.get_bits(char_val)
+                var char_bits = this.get_bits(char_val, "unsigned")
                 this.__make_multiple_of_8(char_bits)
-
                 bit_arr = bit_arr.concat(char_bits);
-
             }
-            this.__remove_leading_zeros(bit_arr);
-            this.__make_multiple_of_8(bit_arr);
-            return bit_arr;
+        } else if (typeof (literal) == "string" && type === "hexstring") {
+            var string;
+            if (literal.length % 2 === 0) {
+                string = literal.split("")
+            } else {
+                string = ("0"+literal).split("")
+            }
+            var byte_array = []
+            while (string.length > 0) {
+                byte_array = byte_array.concat( parseInt("0x"+(string.splice(0, 2)).join("")) )
+            }
+            var bit_string = "";
+            for (var i = 0; i < byte_array.length; i++){
+                var byte = byte_array[i];
+                bit_string += byte.toString(2);
+            }
+
+            bit_arr = bit_string.split("").map(function (val){
+                return val == 1;
+            });
         }
+
+        this.__remove_leading_zeros(bit_arr);
+        this.__make_multiple_of_8(bit_arr);
+        return bit_arr;
     },
 
-    init_mask: function(length, val) {
-        // returns a mask of 1s or 0s, as given by the "val" arguement
+    init_mask: function (length, val) {
+        // returns a mask of 1s or 0s, as given by the "val" argument
         if (val === undefined) {
             val = true;
         }
@@ -90,11 +155,11 @@ const BitManipulation = {
         return mask;
     },
 
-    to_byte_arr: function(bits, size) {
+    to_byte_arr: function (bits, size) {
         this.__remove_leading_zeros(bits);
         this.__make_multiple_of_8(bits);
 
-        var bytes_arr = new Array(bits.length/8);
+        var bytes_arr = new Array(bits.length / 8);
         for (var i = 0; i < bits.length; i += 8) {
             var byte_val = 0;
 
@@ -103,7 +168,7 @@ const BitManipulation = {
                 byte_val += (bits[i + j] << k);
                 k += 1
             }
-            bytes_arr[i/8] = byte_val;
+            bytes_arr[i / 8] = byte_val;
         }
 
         if (size === undefined) {
@@ -116,16 +181,7 @@ const BitManipulation = {
         return bytes_arr;
     },
 
-    print: function(bits) {
-        var str = "0b";
-        for (var i = 0; i < bits.length; i++) {
-            str += Number(bits[i]);
-        }
-        console.log(str);
-        return str;
-    },
-
-    shift_left: function(bits, shift_val) {
+    shift_left: function (bits, shift_val) {
         var new_bits = new Array(bits.length + shift_val);
         for (var i = 0; i < bits.length; i++) {
             new_bits[i] = Boolean(bits[i]);
@@ -139,7 +195,7 @@ const BitManipulation = {
         return new_bits;
     },
 
-    shift_right: function(bits, shift_val) {
+    shift_right: function (bits, shift_val) {
         var new_bits = new Array(bits.length);
 
         for (var j = 0; j < shift_val; j++) {
@@ -154,24 +210,23 @@ const BitManipulation = {
         return new_bits;
     },
 
-    AND: function(bits1, bits2) {
+    AND: function (bits1, bits2) {
         // returns bits1 & bits2
         var bits1_copy = this.__make_copy(bits1);
         var bits2_copy = this.__make_copy(bits2);
 
         this.__make_equal_number_of_bits(bits1_copy, bits2_copy);
         var new_bits = new Array(bits1_copy.length);
-
         for (var i = 0; i < bits1_copy.length; i++) {
             new_bits[i] = Boolean(bits1_copy[i] & bits2_copy[i]);
         }
+
         this.__remove_leading_zeros(new_bits);
         this.__make_multiple_of_8(new_bits);
-
         return new_bits;
     },
 
-    OR: function(bits1, bits2) {
+    OR: function (bits1, bits2) {
         // returns bits1 | bits2
         var bits1_copy = this.__make_copy(bits1);
         var bits2_copy = this.__make_copy(bits2);
@@ -188,7 +243,7 @@ const BitManipulation = {
         return new_bits;
     },
 
-    XOR: function(bits1, bits2) {
+    XOR: function (bits1, bits2) {
         // returns bits1 ^ bits2
         var bits1_copy = this.__make_copy(bits1);
         var bits2_copy = this.__make_copy(bits2);
@@ -203,18 +258,26 @@ const BitManipulation = {
         this.__make_multiple_of_8(new_bits);
 
         return new_bits;
-    }
+    },
 
+    NOT: function (bits) {
+        // return !bits
+        var bits_copy = this.__make_copy(bits);
+        var new_bits = new Array(bits.length);
+        for (var i = 0; i < bits_copy.length; i++) {
+            new_bits[i] = !bits_copy[i];
+        }
+        return new_bits
+    },
 }
 
-function get_object_values(object) {
-    // A replacement for Object.values since it's not backwards compatible
-    var keys = Object.keys(object);
-    var values = [];
-    for (var i = 0; i < keys.length; i++) {
-        values.push(object[keys]);
-    }
-    return values;
+// polyfill for backward compatibility with ES 5 and Nashorn
+if (!Object.values) {
+    Object.values = function (obj) {
+        return Object.keys(obj).map(function(e) {
+            return obj[e]
+        })
+    };
 }
 
 function check_command(group_or_field, lookup) {
@@ -238,7 +301,7 @@ function check_command(group_or_field, lookup) {
         }
         if (typeof(group_or_field["write"]) === "object") {
             var fields = Object.keys(group_or_field["write"]);
-            if (fields.length != Object.keys(lookup).length - 2) {
+            if (fields.length != Object.keys(lookup).length - 3) {
                 return {status: false, error_code: 'Invalid number of fields in group'};
             }
             for (var i = 0; i < fields.length; i++) {
@@ -254,9 +317,7 @@ function check_command(group_or_field, lookup) {
 
 function is_valid(commands, sensor) {
     // returns true if commands are valid, returns false otherwise
-
     var valid = true;
-
     var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {
         var category_str = categories[i];
@@ -283,58 +344,44 @@ function is_valid(commands, sensor) {
     return {valid: true, message: "no message", error_code: "no error code"};
 }
 
-function write_bits(write_value, start_bit, end_bit, current_bits) {
+function write_bits(write_value, start_bit, end_bit, type, current_bits) {
     // write the bits in write_value to the specified location in current_bits and returns the result as a bit array
     // Arguments:
     //      write_value [Number or String] - value to write to "current_bits"
     //      start_bit [Number] - start bit to write to
     //      end_bit [Number] - end bit to write to
+    //      type [String] - apply type to the value
     //      current_bits [Bit Array] - bits to write "write_value" to
     if (current_bits === undefined) {
         current_bits = BitManipulation.get_bits(0);
     }
 
-    var bits_to_write = BitManipulation.get_bits(write_value);
+    var bits_to_write = BitManipulation.get_bits(write_value, type);
 
     var length = Number(start_bit) - Number(end_bit) + 1;
     var mask = BitManipulation.init_mask(length);
 
-
     bits_to_write = BitManipulation.AND(bits_to_write, mask);                   // AND bits_to_write with a mask of 1s
     bits_to_write = BitManipulation.shift_left(bits_to_write, end_bit);       // Shift the bits_to_write to start_bit
-
-
 
     current_bits = BitManipulation.OR(current_bits, bits_to_write);              // OR the bits_to_write with the current_bits
 
     return current_bits;
 }
 
-function format_header(header, read) {
+function format_header(header, read, or_80_to_write) {
     // takes in the header as a string, and handles the case of where the header is 2 bytes long
-    if (read === undefined) {
-        read = true;
+    var headersStr = header.split(" ")
+    var headersInt = [];
+    for (var i = 0; i < headersStr.length; i++) {
+        var int = parseInt(headersStr[i]);
+        if (!read && or_80_to_write == "1") {
+            int = int | 0x80
+        }
+        headersInt.push(int)
     }
+    return headersInt
 
-    if (header.length === 4) {
-        if (read) {
-            return [parseInt(header)];
-        }
-        else {
-            return [parseInt(header) | 0x80];
-        }
-    }
-    else {
-        var header1 = "";
-        var header0 = "";
-        for (var i = 0; i < 4; i++) {
-            header1 += header[i];
-        }
-        for (var i = 5; i < 9; i++) {
-            header0 += header[i];
-        }
-        return [parseInt(header1), parseInt(header0)]
-    }
 }
 
 function write_to_port(bytes, port, encoded_data) {
@@ -351,22 +398,25 @@ function write_to_port(bytes, port, encoded_data) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 function encode_read(lookup, encoded_data) {
-    var bytes = format_header(lookup["header"], true);
+    var bytes = format_header(lookup["header"], true, lookup["or_80_to_write"]);
     write_to_port(bytes, lookup["port"], encoded_data);
 }
 
 function encode_write_field(command, lookup, encoded_data) {
-    var bytes = format_header(lookup["header"], false);
+    var bytes = format_header(lookup["header"], false, lookup["or_80_to_write"]);
 
-    var val_to_write = command["write"];
-    if ( (lookup["type"] != "string") && (lookup["type"] != "hexstring") ) {
-        val_to_write = Math.round(Number(val_to_write)/Number(lookup["multiplier"]));
+    var value = command["write"];
+    if ( (lookup["type"] !== "string") && (lookup["type"] !== "hexstring") ) {
+        value = Number(value) - Number(lookup["addition"] ? lookup["addition"] : 0)
+        value = Number(value)/Number(lookup["coefficient"]);
+        // TODO: ideally this should be done inside of write_bits, not before it
     }
 
     var written_bits = write_bits(
-        val_to_write,
+        value,
         parseInt(lookup["bit_start"]),
         parseInt(lookup["bit_end"]),
+        lookup["type"],
         0
     );
 
@@ -377,7 +427,7 @@ function encode_write_field(command, lookup, encoded_data) {
         var size = written_bits.length/8;
     }
 
-    var written_bytes = BitManipulation.to_byte_arr(written_bits, size = size);
+    var written_bytes = BitManipulation.to_byte_arr(written_bits, size);
     bytes = bytes.concat(written_bytes);
 
     write_to_port(bytes, lookup["port"], encoded_data);     // Add the bytes to the appropriate port in "encoded data"
@@ -385,11 +435,11 @@ function encode_write_field(command, lookup, encoded_data) {
 
 function encode_write_group(commands, group_lookup, encoded_data) {
     var header = group_lookup["header"];
-    var bytes = format_header(header, false);
+    var bytes = format_header(header, false, group_lookup["or_80_to_write"]);
 
     var written_bits = BitManipulation.get_bits(0);
     var field_names = Object.keys(commands["write"])
-    var field_write_vals = Object.values(commands["write"]);
+    var values = Object.values(commands["write"]);
 
     var bytes_num = parseInt(group_lookup[field_names[0]]["data_size"]);
     var multiple_field_bits = [];    // A variable to contain the bits of the "multiple" field if it exists
@@ -398,21 +448,25 @@ function encode_write_group(commands, group_lookup, encoded_data) {
         var field_name = field_names[i];
         var lookup = group_lookup[field_name];
 
-        var field_write_val = field_write_vals[i];
-        if (lookup["type"] != "string") {
-            field_write_val = Math.round(Number(field_write_val)/Number(lookup["multiplier"]));
+        var value = values[i];
+
+        if ( (lookup["type"] !== "string") && (lookup["type"] !== "hexstring") ) {
+            value = Number(value) - Number(lookup["addition"] ? lookup["addition"] : 0)
+            value = Number(value)/Number(lookup["coefficient"]);
+            // TODO: ideally this should be done inside of write_bits, not before it
         }
 
         if( (lookup["multiple"] == 0) || (lookup["multiple"] === undefined) ) {
             written_bits = write_bits(
-                field_write_val,
+                value,
                 parseInt(lookup["bit_start"]),
                 parseInt(lookup["bit_end"]),
+                lookup["type"],
                 written_bits
             );
         }
         else {
-            multiple_field_bits = BitManipulation.get_bits(field_write_val);
+            multiple_field_bits = BitManipulation.get_bits(value, lookup["type"]);
             bytes_num += multiple_field_bits.length/8;
         }
     }
@@ -434,11 +488,10 @@ function encode(commands, sensor) {
         var message = "Commands are invalid, failed at: " + valid["message"];
         var error_code = valid["error_code"];
 
-        var foo = {error : message, error_code: error_code};
-        return foo;
+        return {error : message, error_code: error_code};
     }
 
-    var lookup_all = sensor;   // clones the sensor json
+    var lookup_all = JSON.parse(JSON.stringify(sensor));   // clones the sensor json
     var encoded_data = {};
     var categories = Object.keys(commands);
     for (var i = 0; i < categories.length; i++) {   // iterates over the categories of commands
@@ -462,11 +515,16 @@ function encode(commands, sensor) {
             var case_2 = command.hasOwnProperty("write") && (typeof(command["write"]) != "object");
             var case_3 = !(case_1 || case_2);
 
-            if (case_1) { encode_read(lookup, encoded_data); }
-            else if (case_2) { encode_write_field(command, lookup, encoded_data); }
-            else if (case_3) { encode_write_group(command, lookup, encoded_data); }
+            if (case_1) {
+                encode_read(lookup, encoded_data);
+            } else if (case_2) {
+                encode_write_field(command, lookup, encoded_data);
+            } else if (case_3) {
+                encode_write_group(command, lookup, encoded_data); }
+
 
         }
     }
     return encoded_data;
 }
+

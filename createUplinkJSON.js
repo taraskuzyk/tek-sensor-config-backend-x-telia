@@ -11,6 +11,11 @@ module.exports = async function createUplinkJSON(csvPath){
                 resolve(postParse(results.data))
             },
             header: true,
+            config: {
+                transformHeader: (h) => {
+                    return h.trim()
+                }
+            }
         })
     );
 
@@ -19,6 +24,7 @@ module.exports = async function createUplinkJSON(csvPath){
         // Data structure of newParameters is as follows:
         // port > header > [array of parameters for a header]
         parameters.forEach(p => {
+
             if (!newParameters.hasOwnProperty(p.port))
                 newParameters[p.port] = {}
 
@@ -32,13 +38,13 @@ module.exports = async function createUplinkJSON(csvPath){
                 type: p.type,
                 parameter_name: p.parameter_name,
                 group_name: p.group_name,
+                category_name: p.category_name,
                 round: p.round,
                 coefficient: p.coefficient,
                 multiple: p.multiple,
                 addition: p.addition,
             });
         })
-        //console.log(newParameters)
         return newParameters;
     }
 }

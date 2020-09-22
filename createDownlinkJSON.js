@@ -1,6 +1,5 @@
 //CSV parsing
 const fs = require('fs');
-
 const papa = require('papaparse');
 
 module.exports = async function createDownlinkJSON(csvPath){
@@ -32,7 +31,11 @@ module.exports = async function createDownlinkJSON(csvPath){
 
             if (group !== "") {
                 if ( !newParameters[category].hasOwnProperty(group) ) {
-                    newParameters[category][group] = {header: p["header"], port: p["port"]}
+                    newParameters[category][group] = {
+                        header: p["header"],
+                        or_80_to_write: p["or_80_to_write"],
+                        port: p["port"]
+                    }
                 }
                 newParameters[category][group][parameter] = {
                     data_size: p["data_size"],
@@ -41,7 +44,6 @@ module.exports = async function createDownlinkJSON(csvPath){
                     type: p["type"],
                     round: p["round"],
                     coefficient: p["coefficient"],
-                    addition: p["addition"],
                     access: p["access"],
                     multiple: p["multiple"],
                 }
@@ -54,14 +56,13 @@ module.exports = async function createDownlinkJSON(csvPath){
                     type: p["type"],
                     round: p["round"],
                     coefficient: p["coefficient"],
-                    addition: p["addition"],
                     access: p["access"],
                     multiple: p["multiple"],
                     port: p["port"],
+                    or_80_to_write: p["or_80_to_write"],
                 }
             }
         }
-        //console.log(JSON.stringify(newParameters, null, 2))
         return newParameters;
     }
 }

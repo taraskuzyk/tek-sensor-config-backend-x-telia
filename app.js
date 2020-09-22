@@ -116,6 +116,7 @@ io.on("connection", async (socket)=> {
     })
 
     .on("getAvailableSensors", () => {
+        console.log(availableSensors)
         socket.emit("availableSensors", availableSensors)
     })
 

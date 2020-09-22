@@ -1,8 +1,13 @@
 id,name,available
-homeSensor,Home Sensor,1
-agriculturalSensor,Agricultural Sensor,1
-digitalSignage,Digital Signage,1
-industrialTracker,Industrial Tracker,1
 acSwitch,AC Switch,1
+agriculturalSensor,Agricultural Sensor,1
 bleTracker,BLE Tracker,1
+digitalSignage,Digital Signage,1
+homeSensor,Home Sensor,1
+industrialSensor,Industrial Sensor,1
+industrialTracker,Industrial Tracker,1
 medicalSensor,Medical Sensor,1
+
+
+
+
