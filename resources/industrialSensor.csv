@@ -76,9 +76,9 @@ port,header,data_size,bit_start,bit_end,or_80_to_write,multiple,type,parameter_n
 100,0x71,7,15,8,1,0,unsigned,loramac_revision,LoRaMAC Revision,firmware_version,Firmware version,command_control_register,Sensor Command & Control Register,R,,1,,,,,,,,,,,,,,,,,,,
 100,0x71,7,7,0,1,0,unsigned,region,Region,firmware_version,Firmware version,command_control_register,Sensor Command & Control Register,R,,1,,EU868,0,US916,1,AS923,2,AU915,3,IN865,4,CN470,5,KR920,6,RU864,7,DN915,8
 100,0x72,1,7,0,1,0,unsigned,configuration_factory_reset,Factory reset,,,command_control_register,Sensor Command & Control Register,W,,1,,App Config,10,LoRa Config,176,App & LoRa Config,186,,,,,,,,,,,,
-10,0x00 0xFF,2,15,0,,0,signed,battery_voltage,Battery Voltage,,,,,,2,0.01,2.5,,,,,,,,,,,,,,,,,,
-10,0x01 0x01,1,7,0,,0,unsigned,output1,Output 1,,,change_output_states,DL Frame Payload Values to Change Output States,RW,,1,,Open,0,Closed,255,,,,,,,,,,,,,,
-10,0x02 0x01,1,7,0,,0,unsigned,output2,Output 2,,,change_output_states,DL Frame Payload Values to Change Output States,RW,,1,,Open,0,Closed,255,,,,,,,,,,,,,,
+10,0x00 0xFF,2,15,0,,0,signed,battery_voltage,Battery Voltage,,,,,,2,0.01,,,,,,,,,,,,,,,,,,,
+10,0x01 0x01,1,7,0,0,0,unsigned,output1,Output 1,,,change_output_states,DL Frame Payload Values to Change Output States,W,,1,,Open,0,Closed,255,,,,,,,,,,,,,,
+10,0x02 0x01,1,7,0,0,0,unsigned,output2,Output 2,,,change_output_states,DL Frame Payload Values to Change Output States,W,,1,,Open,0,Closed,255,,,,,,,,,,,,,,
 10,0x03 0x67,2,15,0,,0,signed,temperature,Temperature,,,,,,1,0.1,,,,,,,,,,,,,,,,,,,
 10,0x04 0x68,1,7,0,,0,unsigned,relative_humidity,Humidity,,,,,,1,0.5,,,,,,,,,,,,,,,,,,,
 10,0x05 0x00,1,7,0,,0,unsigned,input_1,Input 1 State,,,,,,,1,,,,,,,,,,,,,,,,,,,
