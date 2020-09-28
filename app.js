@@ -96,6 +96,7 @@ io.on("connection", async (socket)=> {
     .on("openDevice", async (device) => {
         getDeviceLog(socket, device.id.id, sessions[socket.id].nsUrl, 443, sessions[socket.id].tokens.token,
             device.appSKey, device.nwkSKey)
+        sessions[socket.id].activeDevice = device;
     })
 
     .on("disconnect", ()=> {
@@ -113,6 +114,16 @@ io.on("connection", async (socket)=> {
 
     .on("updateSensorId", (sensorId) => {
         sessions[socket.id].sensorId = sensorId;
+        if (sessions[socket.id].activeDevice)
+            getDeviceLog(
+                socket,
+                sessions[socket.id].activeDevice.id.id,
+                sessions[socket.id].nsUrl,
+                443,
+                sessions[socket.id].tokens.token,
+                sessions[socket.id].activeDevice.appSKey,
+                sessions[socket.id].activeDevice.nwkSKey
+            )
     })
 
     .on("getAvailableSensors", () => {
@@ -139,6 +150,11 @@ io.on("connection", async (socket)=> {
 function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
 
     let device_id = deviceId; // save device id to a local variable
+
+    if (sessions[socket.id].nsSocket) {
+        sessions[socket.id].nsSocket.close()
+        delete sessions[socket.id].nsSocket
+    }
 
     sessions[socket.id].nsSocket = new webSocket(`wss://${nsUrl}:${port}/api/ws?token=${token}`);
 
