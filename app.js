@@ -35,28 +35,28 @@ startup()
 // if the packets need to be decoded immediately, as the decoding objects haven't been generated yet.
 
 http.listen(13337, async (err)=>{
-    //setting up ngrok
-    console.log("Auth ngrok...")
-    //await ngrok.authtoken(AUTHTOKEN)
-    console.log("Auth successful!\nConnecting ngrok...")
-    try {
-        const one = await ngrok.connect({
-            addr: 3000,
-            proto: "http",
-            subdomain: "tek-sensor-config",
-            authtoken: AUTHTOKEN
-        })
-        const two = await ngrok.connect({
-            addr: 13337,
-            proto: "http",
-            subdomain: "tek-sensor-backend",
-            authtoken: AUTHTOKEN
-        })
-        console.log(`Connected ngrok! ${one} and ${two}`)
-    } catch(e){
-        console.log(":C")
-        console.log(e)
-    }
+    // //setting up ngrok
+    // console.log("Auth ngrok...")
+    // //await ngrok.authtoken(AUTHTOKEN)
+    // console.log("Auth successful!\nConnecting ngrok...")
+    // try {
+    //     const one = await ngrok.connect({
+    //         addr: 3000,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-config",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     const two = await ngrok.connect({
+    //         addr: 13337,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-backend",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     console.log(`Connected ngrok! ${one} and ${two}`)
+    // } catch(e){
+    //     console.log(":C")
+    //     console.log(e)
+    // }
 });
 
 //TODO: split up backend into Uplink and Downlink files?
