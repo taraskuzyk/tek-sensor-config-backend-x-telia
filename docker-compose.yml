@@ -1,25 +1,13 @@
 version: '3'
 services:
   sensor-config-backend:
-    image: sensor-config/backend:latest
-#    env_file: env.txt
-    networks:
-      - core
+    image: sensor-config-backend:latest
     restart: always
     ports:
       - "13337:13337"
-#    volumes:
-#      - ~/.aws:/.aws
   sensor-config-frontend:
-    image: sensor-config/frontend:latest
-    #    env_file: env.txt
-    networks:
-      - core
+    stdin_open: true
+    image: sensor-config-frontend:latest
     restart: always
     ports:
-      - "80:3000"
-#    volumes:
-#      - ~/.aws:/.aws
-networks:
-  core:
-    driver: bridge
+      - "3000:3000"
