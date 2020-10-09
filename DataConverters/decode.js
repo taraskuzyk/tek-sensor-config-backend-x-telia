@@ -333,7 +333,10 @@ function decode(parameters, bytes, port, flat){
                 }
 
                 if (p["multiple"] == 0){
-                    continue
+                    if (properties[i+1] && properties[i+1]["multiple"] == "1")
+                        continue
+                    else
+                        break;
                 }
 
                 if (p["group_name"] === "") {
