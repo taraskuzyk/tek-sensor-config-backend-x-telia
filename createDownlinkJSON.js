@@ -26,7 +26,7 @@ module.exports = async function createDownlinkJSON(csvPath){
             let parameter = p["parameter_name"]
 
             if (!newParameters.hasOwnProperty(category) ) {
-                newParameters[category] = {}
+                newParameters[category] = {category_description: p["category_description"]}
             }
 
             if (group !== "") {
