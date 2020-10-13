@@ -67,14 +67,19 @@ io.on("connection", async (socket)=> {
 
     .on("login", async ({ nsUrl, username, password }) => {
         sessions[socket.id].tokens = await ns.getTokens(nsUrl, username, password)
-        console.log(sessions[socket.id].tokens)
-        if (sessions[socket.id].tokens.hasOwnProperty("token")){
+
+        console.log(nsUrl, username, password, sessions[socket.id].tokens)
+        if (sessions[socket.id].tokens.hasOwnProperty("token")) {
             sessions[socket.id].nsUrl = nsUrl
-            let applications = await ns.getCustomerApplications(nsUrl, sessions[socket.id].tokens.token)
-            socket.emit("userApplications", applications)
+            socket.emit("loginSuccess")
         } else {
-            socket.emit("invalidCredentials")
+            socket.emit("loginFail")
         }
+    })
+
+    .on("getUserApplications", async ()=>{
+        let applications = await ns.getCustomerApplications(sessions[socket.id].nsUrl, sessions[socket.id].tokens.token)
+        socket.emit("userApplications", applications)
     })
 
     .on("openApplication", async (applicationId) => {
@@ -140,9 +145,32 @@ io.on("connection", async (socket)=> {
                 socket.emit("encoded", encoded)
                 break;
             }
-
         }
+    })
 
+    .on("decode", ({payload, port, nwkkey, appkey})=> {
+        let decoded = {ns: {
+                ts: Date.now()
+            }
+        };
+        let indexOfSensorId =
+            indexOfObjectWithPropertyVal(availableSensors, "id", sessions[socket.id].sensorId);
+        if (nwkkey && appkey) {
+            decoded.lora = decodeLoraPacket(payload, appkey, nwkkey)
+
+            //App layer
+
+            if (indexOfSensorId !== -1)
+                decoded.app = dc
+                    .decode(availableSensors[indexOfSensorId].uplink, decoded.lora.payload,
+                        decoded.lora.MACPayload.FPort)
+        }
+        else if (port) {
+            decoded.lora = "N/A"
+            decoded.app = dc.decode(availableSensors[indexOfSensorId].uplink, Base64Binary.decode(payload), port)
+        }
+        socket.emit("decodedMessage", decoded)
+        console.log(decoded)
     })
 
 })
@@ -152,7 +180,7 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
     let device_id = deviceId; // save device id to a local variable
 
     if (sessions[socket.id].nsSocket) {
-        sessions[socket.id].nsSocket.close()
+        // sessions[socket.id].nsSocket.close()
         delete sessions[socket.id].nsSocket
     }
 
@@ -338,7 +366,6 @@ var Base64Binary = {
         return uarray;
     }
 };
-
 // Converts array to base64, source: https://gist.github.com/jonleighton/958841
 function ArrayToBase64(arrayBuffer) {
     let base64 = '';
