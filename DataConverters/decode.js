@@ -31,6 +31,25 @@ if (typeof Object.assign !== 'function') {
     });
 }
 
+function crc16(buffer) {
+    var crc = 0xFFFF;
+    var odd;
+
+    for (var i = 0; i < buffer.length; i++) {
+        crc = crc ^ buffer[i];
+
+        for (var j = 0; j < 8; j++) {
+            odd = crc & 0x0001;
+            crc = crc >> 1;
+            if (odd) {
+                crc = crc ^ 0xA001;
+            }
+        }
+    }
+
+    return crc;
+};
+
 function trunc(v){
     v = +v;
     if (!isFinite(v)) return v;
@@ -75,8 +94,8 @@ function extractBytes(chunk, startBit, endBit) {
     // endBit = 4
     // RETURN: [ 01001111 ]. Array is expanded to fit an appropriate number of bits.
 
-    // You are heavily encouraged to run this function with debug to get a "feel" for what it does.
-    // A great examples would be LoRaMAC options
+    // You are heavily encouraged to run this function with debug to get a feel for what it does.
+    // A great example would be LoRaMAC options
 
     var totalBits = startBit - endBit + 1;
     var totalBytes = totalBits % 8 === 0 ? toUint(totalBits / 8) : toUint(totalBits / 8) + 1;
@@ -123,6 +142,18 @@ function bytesToValue(bytes, dataType, coefficient, round, addition) {
             output = (toUint(output << 8)) | bytes[i];
         }
         return round ? Number( (output*coefficient + addition).toFixed(round) ) : Number(output*coefficient + addition);
+    }
+
+    if (dataType === "signed") {
+        for (var i = 0; i < bytes.length; ++i) {
+            output = (output << 8) | bytes[i];
+        }
+        // Convert to signed, based on value size
+        if (output > Math.pow(2, 8*bytes.length-1)) {
+            output -= Math.pow(2, 8*bytes.length);
+        }
+
+        return Number( (output*coefficient + addition).toFixed(round) )
     }
 
     if (dataType === "signed") {
@@ -207,6 +238,17 @@ function decode(parameters, bytes, port, flat){
     var decodedData = {};
     decodedData.raw = stringifyBytes(bytes);
     decodedData.port = port;
+
+    if (port === "20") {
+        var buff = bytes.slice(1, -2)
+        var crc_calculated = crc16(buff)
+        var crc_le = [crc_calculated & 0xFF, crc_calculated >> 8 & 0xFF] // little endian CRC - the moodbus way
+        var crc_received = [bytes[bytes.length-2], bytes[bytes.length-1]]
+        bytes = bytes.slice(0, -2)
+
+        decodedData.crc_ok = crc_received[0] === crc_le[0] && crc_received[1] === crc_le[1];
+        decodedData.crc = stringifyBytes(crc_received)
+    }
 
     if (!parameters.hasOwnProperty(port)) {
         decodedData.error = "Wrong port: " + port;
@@ -304,11 +346,16 @@ function decode(parameters, bytes, port, flat){
                     if (p["group_name"] == "") {
                         // CASE 3:
                         // a stand-alone value that comes right before a group, like in port 15 of Industrial Tracker
+                        // and port 20 of Industrial Transceiver
                         bytesToConsume = parseInt(p["data_size"])
                         valueArray = []
                         for (j = 0; j < bytesToConsume; j++) {
-                            valueArray.push(bytes[0])
-                            bytes = bytes.slice(1)
+                            if (parseInt(p["bit_start"]) < 0){
+                                valueArray.push(bytes.pop())
+                            } else {
+                                valueArray.push(bytes[0])
+                                bytes = bytes.slice(1)
+                            }
                         }
                         decodedData[p["category_name"]][ p["parameter_name"] ] =
                             decodeField(valueArray, p)
@@ -359,7 +406,10 @@ function decode(parameters, bytes, port, flat){
                 } else {
                     // CASE 6:
                     // array of groups (stand-alone OR after a value/group)
-                    var isInsideGroup = false;
+                    var multipleIndex = 0;
+                    for (; properties[multipleIndex]["multiple"] != 1;
+                           multipleIndex++)
+                           var isInsideGroup = false;
                     if (typeof decodedData[ p["category_name"] ][ p["group_name"] ] === "object") {
                         decodedData[ p["category_name"] ][ p["group_name"] ][ p["parameter_name"] ] = []
                         isInsideGroup = true;
@@ -375,7 +425,7 @@ function decode(parameters, bytes, port, flat){
                             bytes = bytes.slice(1)
                         }
                         var obj = {}
-                        for (j = i; j < properties.length; j++) {
+                        for (j = multipleIndex; j < properties.length; j++) {
                             p = properties[j]
                             obj[ p["parameter_name"] ] =
                                 decodeField(valueArray, p)
@@ -411,7 +461,3 @@ function stringifyBytes(bytes){
 
     return stringBytes
 }
-
-
-
-
