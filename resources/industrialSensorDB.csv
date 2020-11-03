@@ -98,7 +98,7 @@ port,header,data_size,bit_start,bit_end,or_80_to_write,multiple,type,parameter_n
 100,0x76,2,7,7,1,0,unsigned,thermometer_7,Thermometer 7,reporting_harness_1,Harness 1,digital_thermometer,Digital Thermometer,RW,,1,,Disabled,2,Enabled,3,,,,,,,,,,,,,,
 100,0x76,2,8,8,1,0,unsigned,thermometer_8,Thermometer 8,reporting_harness_1,Harness 1,digital_thermometer,Digital Thermometer,RW,,1,,Disabled,1,Enabled,2,,,,,,,,,,,,,,
 100,0x76,2,9,9,1,0,unsigned,thermometer_9,Thermometer 9,reporting_harness_1,Harness 1,digital_thermometer,Digital Thermometer,RW,,1,,Disabled,0,Enabled,1,,,,,,,,,,,,,,
-11,none,2,15,12,,0,unsigned,data_type,,header,,,,,,1,,,,,,,,,,,,,,,,,,,
+11,none,2,15,14,,0,unsigned,data_type,,header,,,,,,1,,,,,,,,,,,,,,,,,,,
 11,none,2,9,9,,0,unsigned,thermometer_9,,header,,,,,,1,,,,,,,,,,,,,,,,,,,
 11,none,2,8,8,,0,unsigned,thermometer_8,,header,,,,,,1,,,,,,,,,,,,,,,,,,,
 11,none,2,7,7,,0,unsigned,thermometer_7,,header,,,,,,1,,,,,,,,,,,,,,,,,,,
