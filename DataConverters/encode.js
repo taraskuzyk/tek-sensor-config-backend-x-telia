@@ -126,15 +126,16 @@ var BitManipulation = {
             while (string.length > 0) {
                 byte_array = byte_array.concat( parseInt("0x"+(string.splice(0, 2)).join("")) )
             }
-            var bit_string = "";
+
             for (var i = 0; i < byte_array.length; i++){
                 var byte = byte_array[i];
-                bit_string += byte.toString(2);
+                var byte_bits = byte.toString(2)
+                    .split("")
+                    .map((el)=>el !== "0")
+                this.__make_multiple_of_8(byte_bits)
+                bit_arr = [...bit_arr, ...byte_bits];
             }
 
-            bit_arr = bit_string.split("").map(function (val){
-                return val == 1;
-            });
         }
 
         this.__remove_leading_zeros(bit_arr);
