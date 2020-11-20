@@ -250,6 +250,42 @@ function decode(parameters, bytes, port, flat){
         decodedData.crc = stringifyBytes(crc_received)
     }
 
+    if (port == "11") {
+        let data_types=["harness_0_periodic", "harness_1_periodic", "harness_0_threshold", "harness_1_threshold"]
+        properties = parameters["11"]["none"]
+        while(bytes.length > 0) {
+            let data_type = bytesToValue(extractBytes(bytes.slice(0,2), 15,12), "unsigned", 1, 0, 0)
+            decodedData[data_types[data_type]] = {}
+            let bitmask = bytesToValue(extractBytes(bytes.slice(0,2), 9, 0), "unsigned", 1, 0, 0)
+            bytes = bytes.slice(2)
+            if (bytes.length === 0)
+                return decodedData
+
+            let str_bitmask = bitmask.toString(2)
+            let arr_bitmask = [...str_bitmask].map((el)=>parseInt(el))
+
+            for (var i = 0; i < arr_bitmask.length; i++) {
+                if (arr_bitmask[i] === 1) {
+                    let valueArray = bytes.slice(0, 2)
+                    bytes = bytes.length === 2 ? [] : bytes.slice(2)
+                    decodedData[data_types[data_type]]["thermometer_"+(arr_bitmask.length-1-i)] = {
+                        temperature:
+                            (bytesToValue(extractBytes(valueArray, 10, 10),
+                                "unsigned", 1,0, 0) ? -1 : 1 )
+                            *
+                            bytesToValue(extractBytes(valueArray, 9, 0),
+                                "unsigned", 0.0625, 2, 0),
+
+                        alarm: bytesToValue(extractBytes(valueArray, 15, 15),
+                            "unsigned", 1,0, 0)
+                    }
+                }
+            }
+        }
+
+        return decodedData;
+    }
+
     if (!parameters.hasOwnProperty(port)) {
         decodedData.error = "Wrong port: " + port;
         return decodedData
@@ -417,6 +453,9 @@ function decode(parameters, bytes, port, flat){
                     else
                         decodedData[ p["category_name"] ][ p["group_name"] ] = []
                     // else throw new Error("Fail in CASE 6. If multiple == 1, the parameter must be a part of an existing group or a stand alone array of groups/values.")
+
+                    //TODO: REMOVE HARDCODE
+
                     while (bytes.length > 0) {
                         bytesToConsume = parseInt(p["data_size"])
                         valueArray = []
@@ -435,6 +474,7 @@ function decode(parameters, bytes, port, flat){
                         else
                             decodedData[ p["category_name"] ][ p["group_name"] ].push(obj)
                     }
+
                 }
             }
         }
