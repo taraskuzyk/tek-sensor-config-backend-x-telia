@@ -4,7 +4,7 @@ const mqtt = require("mqtt"); //only used to send downlinks
 module.exports = {
     getCustomerApplications: async (nsUrl, token) => {
         try {
-            let response = await fetch(`https://${nsUrl}/api/customer/applications`, {
+            let response = await fetch(`${nsUrl}/api/customer/applications`, {
                 method: 'GET',
                 //mode: 'no-cors',
                 headers: {
@@ -20,7 +20,7 @@ module.exports = {
     },
     getTokens: async (nsUrl, username, password) => {
         try {
-            let response = await fetch(`https://${nsUrl}/api/auth/login`, {
+            let response = await fetch(`${nsUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -38,7 +38,7 @@ module.exports = {
     },
     getApplicationDevices: async (nsUrl, token, applicationId) => {
         try {
-            let response = await fetch(`https://${nsUrl}/api/application/${applicationId}/devices`, {
+            let response = await fetch(`${nsUrl}/api/application/${applicationId}/devices`, {
                 method: 'GET',
                 headers: {
                     'accept': '*/*',
@@ -52,7 +52,7 @@ module.exports = {
     },
     getApplicationCredentials: async (nsUrl, token, applicationId) => {
         try {
-            let response = await fetch(`https://${nsUrl}/api/credentials/APPLICATION/${applicationId}`, {
+            let response = await fetch(`${nsUrl}/api/credentials/APPLICATION/${applicationId}`, {
                 method: 'GET',
                 headers: {
                     'accept': '*/*',
@@ -66,7 +66,7 @@ module.exports = {
     },
     sendDownlink: (nsUrl, username, password, deveui, port, base64) => {
         console.log(`Sending to ${nsUrl} with U: ${username} P: ${password}`)
-        let mqttConnection = mqtt.connect( `https://${nsUrl}`, {
+        let mqttConnection = mqtt.connect( `${nsUrl}`, {
             "username": username,
             "password": password
         })

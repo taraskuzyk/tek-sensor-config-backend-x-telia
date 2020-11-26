@@ -9,8 +9,8 @@ const _ = require('lodash')
 
 // ngrok is used to expose ports and create tunnels. used in http.listen()
 const ngrok = require('ngrok')
-const AUTHTOKEN = "1VGK7pyrNOS7FAQtRrKtcYhg26C_4j93cU8rAEzikLdpm4pfx"
-const NGROK_CONFIG_PATH = "./ngrok.yml"
+// const AUTHTOKEN = "1VGK7pyrNOS7FAQtRrKtcYhg26C_4j93cU8rAEzikLdpm4pfx"
+// const NGROK_CONFIG_PATH = "./ngrok.yml"
 
 //Client and NS communications
 
@@ -36,27 +36,27 @@ startup()
 
 http.listen(13337, async (err)=>{
     //setting up ngrok
-    console.log("Auth ngrok...")
-    //await ngrok.authtoken(AUTHTOKEN)
-    console.log("Auth successful!\nConnecting ngrok...")
-    try {
-        const one = await ngrok.connect({
-            addr: 3000,
-            proto: "http",
-            subdomain: "tek-sensor-config",
-            authtoken: AUTHTOKEN
-        })
-        const two = await ngrok.connect({
-            addr: 13337,
-            proto: "http",
-            subdomain: "tek-sensor-backend",
-            authtoken: AUTHTOKEN
-        })
-        console.log(`Connected ngrok! ${one} and ${two}`)
-    } catch(e){
-        console.log(":C")
-        console.log(e)
-    }
+    // console.log("Auth ngrok...")
+    // //await ngrok.authtoken(AUTHTOKEN)
+    // console.log("Auth successful!\nConnecting ngrok...")
+    // try {
+    //     const one = await ngrok.connect({
+    //         addr: 3000,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-config",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     const two = await ngrok.connect({
+    //         addr: 13337,
+    //         proto: "http",
+    //         subdomain: "tek-sensor-backend",
+    //         authtoken: AUTHTOKEN
+    //     })
+    //     console.log(`Connected ngrok! ${one} and ${two}`)
+    // } catch(e){
+    //     console.log(":C")
+    //     console.log(e)
+    // }
 });
 
 //TODO: split up backend into Uplink and Downlink files?
