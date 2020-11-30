@@ -66,7 +66,7 @@ module.exports = {
     },
     sendDownlink: (nsUrl, username, password, deveui, port, base64) => {
         console.log(`Sending to ${nsUrl} with U: ${username} P: ${password}`)
-        let mqttConnection = mqtt.connect( `${nsUrl}`, {
+        let mqttConnection = mqtt.connect( `${nsUrl.replace("8082", "1883")}`, {
             "username": username,
             "password": password
         })
