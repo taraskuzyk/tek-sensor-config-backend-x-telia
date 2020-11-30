@@ -184,7 +184,7 @@ function getDeviceLog(socket, deviceId, nsUrl, port, token, appSKey, nwkSKey) {
         delete sessions[socket.id].nsSocket
     }
 
-    sessions[socket.id].nsSocket = new webSocket(`wss://${nsUrl}:${port}/api/ws?token=${token}`);
+    sessions[socket.id].nsSocket = new webSocket(`${nsUrl.replace("http", "ws")}/api/ws?token=${token}`);
 
     waitForSocketConnection(sessions[socket.id].nsSocket, function () {
         var subcsriptionMessageId = Math.floor(Math.random() * Math.floor(255));
